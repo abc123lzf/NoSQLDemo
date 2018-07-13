@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="lib" path="E:/j2ee-api/j2ee-api.jar" sourcepath="E:/j2ee-api/src">
+		<attributes>
+			<attribute name="source_encoding" value="UTF-8"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="E:/Netty/netty-all-4.0.56.Final.jar" sourcepath="E:/Netty/netty-all-4.0.56.Final-sources.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
