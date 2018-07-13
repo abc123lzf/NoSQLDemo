@@ -1,6 +1,10 @@
 package lzf.webserver.core;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -32,6 +36,29 @@ public class StandardServer implements Server {
 	private final List<Service> services = new CopyOnWriteArrayList<>();
 	//创建生命周期支持类
 	private final LifecycleSupport lifecycleSupport = new LifecycleSupport(this);
+	
+	protected static class ShutdownListener implements Runnable {
+		private final int port;
+		private final ServerSocket socket;
+		
+		public ShutdownListener(int port) throws IOException {
+			this.port = port;
+			socket = new ServerSocket(port);
+		}
+		
+		@Override
+		public void run() {
+			while(true) {
+				try {
+					Socket client = socket.accept();
+					InputStream is = client.getInputStream();
+					//TODO
+				} catch (IOException e) {
+				}
+			}
+		}
+		
+	}
 	
 	public StandardServer() {
 		state = LifecycleState.NEW;

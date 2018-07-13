@@ -15,34 +15,59 @@ public interface Container extends Lifecycle {
 	public static final String ADD_VALVE_EVENT = "add_valve";
 	public static final String REMOVE_VALVE_EVENT = "remove_valve";
 
-	//设置容器的名称
+	/**
+	 * 设置当前容器的名称
+	 * @param name 容器名
+	 */
 	public void setName(String name);
 	
-	//获取容器的名称
+	/**
+	 * 返回当前容器的名称
+	 */
 	public String getName();
 	
-	//获取容器的管道
+	/**
+	 * 获取当前容器的管道
+	 */
 	public Pipeline getPipeline();
 	
-	//设置当前容器的类加载器
+	/**
+	 * 设置当前容器的类加载器，当前容器的子容器和Jar包都由该类加载器负责加载
+	 * @param loader 类加载器实例，可以为WebappClassLoader
+	 */
 	public void setClassLoader(ClassLoader loader);
 	
-	//获取当前容器的类加载器
+	/**
+	 * 返回当前容器的类加载器
+	 */
 	public ClassLoader getClassLoader();
 	
-	//设置子容器，注意Wrapper容器不可添加子容器
+	/**
+	 * 向当前容器添加子容器，注意：Wrapper容器不可添加子容器
+	 * @param container 子容器类
+	 */
 	public void addChildContainer(Container container);
 	
-	//移除子容器
+	/**
+	 * 移除子容器，Wrapper容器无效
+	 * @param container 子容器类
+	 */
 	public void removeChildContainer(Container container);
 	
-	//获取父容器
+	/**
+	 * 获取父容器，注意：Engine父容器为null
+	 */
 	public Container getParentContainer();
 	
-	//通过子容器的名称获取子容器
-	public void getChildContainer(String name);
+	/**
+	 * 根据子容器名称获取子容器
+	 * @param name 子容器名称
+	 */
+	public Container getChildContainer(String name);
 	
-	//获取子容器列表
+	/**
+	 * 获取所有的子容器
+	 */
 	public List<Container> getChildContainers();
 	
 	//添加容器事件监听器
