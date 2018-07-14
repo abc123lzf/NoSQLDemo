@@ -16,8 +16,8 @@ public enum LifecycleState {
 	STARTING(Lifecycle.START_EVENT, 4, true),
 	STARTED(Lifecycle.AFTER_START_EVENT, 5, true),
 	
-	STOPING_PREP(Lifecycle.BEFORE_STOP_EVENT, 6, true),
-	STOPING(Lifecycle.STOP_EVENT, 7, false),
+	STOPPING_PREP(Lifecycle.BEFORE_STOP_EVENT, 6, true),
+	STOPPING(Lifecycle.STOP_EVENT, 7, false),
 	STOPPED(Lifecycle.AFTER_STOP_EVENT, 8, false),
 	
 	DESTORYING(Lifecycle.BEFORE_DESTORY_EVENT, 9, false),

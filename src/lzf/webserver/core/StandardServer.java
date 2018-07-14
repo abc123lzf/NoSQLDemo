@@ -157,10 +157,10 @@ public class StandardServer implements Server {
 
 	@Override
 	public void stop() throws LifecycleException {
-		if(state.after(LifecycleState.STOPING_PREP))
+		if(state.after(LifecycleState.STOPPING_PREP))
 			throw new LifecycleException("无法停止当前Server组件：当前组件已经停止");
 		
-		state = LifecycleState.STOPING_PREP;
+		state = LifecycleState.STOPPING_PREP;
 		lifecycleSupport.runLifecycleEvent(null);
 		
 		state = LifecycleState.STARTING;

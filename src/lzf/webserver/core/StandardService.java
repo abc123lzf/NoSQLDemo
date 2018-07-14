@@ -80,13 +80,13 @@ public class StandardService implements Service {
 
 	@Override
 	public void stop() throws LifecycleException {
-		if(state.after(LifecycleState.STOPING_PREP))
+		if(state.after(LifecycleState.STOPPING_PREP))
 			throw new LifecycleException("无法停止当前Service组件：当前组件已启动");
 		
-		state = LifecycleState.STOPING_PREP;
+		state = LifecycleState.STOPPING_PREP;
 		lifecycleSupport.runLifecycleEvent(null);
 		
-		state = LifecycleState.STOPING;
+		state = LifecycleState.STOPPING;
 		engine.stop();
 		
 		state = LifecycleState.STOPPED;

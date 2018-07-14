@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Server port="9005" shutdown="SHUTDOWN">
+
+	<Service name="lzf">
+		<Connector port="9090" connectionTimeout="20000" />
+		<Engine>
+			<Host>
+			</Host>
+		</Engine>
+	</Service>
+	
+</Server>

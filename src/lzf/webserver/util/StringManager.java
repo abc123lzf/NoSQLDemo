@@ -10,7 +10,6 @@ import java.util.ResourceBundle;
 * @Description 错误信息管理类，每个包对应一个StringManager实例
 */
 public class StringManager {
-	
 	/*
 	private final Locale locale;
 	private final ResourceBundle bundle;
@@ -18,8 +17,13 @@ public class StringManager {
 	private StringManager(String packageName, Locale locale) {
 		this.locale = locale;
 		
-		String bundleName = packageName + ".str";
+		String bundleName = packageName + ".string";
 		ResourceBundle.getBundle(bundleName, locale);
+		Locale.getDefault();
+	}
+	
+	public static StringManager getStringManager(Class<?> clazz) {
+		String packageName = clazz.getPackage().getName();
 		
 	}*/
 }
