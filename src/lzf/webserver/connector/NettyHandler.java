@@ -5,6 +5,8 @@ import java.util.concurrent.Executors;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
@@ -12,8 +14,10 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.ServerSocketChannel;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpResponseEncoder;
+import io.netty.handler.codec.http.HttpServerCodec;
 
 /**
  * @author 李子帆
@@ -71,6 +75,8 @@ public class NettyHandler implements Handler {
 		if(state == HandlerState.ERR || state.after(HandlerState.INITIALIZING))
 			throw new HandlerException("无法初始化该Handler");
 		
+		//TODO 检查当前变量是否设置完全，否则抛出异常
+		
 		state = HandlerState.INITIALIZING;
 		ServerBootstrap boot = new ServerBootstrap();
 		boot.group(acceptGroup, workerGroup).channel(NioServerSocketChannel.class)
@@ -79,6 +85,7 @@ public class NettyHandler implements Handler {
 					protected void initChannel(SocketChannel ch) throws Exception {
 						ch.pipeline().addLast(new HttpResponseEncoder());
 						ch.pipeline().addLast(new HttpRequestDecoder());
+						ch.pipeline().addLast(new HttpServerCodec());
 					}
 				}).option(ChannelOption.SO_BACKLOG, connector.getMaxConnection())
 				.option(ChannelOption.SO_TIMEOUT, connector.getTimeOut());
@@ -109,7 +116,7 @@ public class NettyHandler implements Handler {
 
 	@Override
 	public void stop() throws HandlerException {
-		if(state == HandlerState.ERR || state.after(HandlerState.INITIALIZED))
+		if(state == HandlerState.ERR || state.after(HandlerState.INITIALIZING))
 			throw new HandlerException("无法停止该Handler");
 		
 		state = HandlerState.STOPPING;
@@ -126,5 +133,16 @@ public class NettyHandler implements Handler {
 	@Override
 	public HandlerState getState() {
 		return state;
+	}
+	
+	class HttpServerInboundHandler extends ChannelInboundHandlerAdapter {
+		
+		@Override
+		public void channelRead(ChannelHandlerContext ctx, Object msg) {
+			if(msg instanceof FullHttpRequest) {
+				
+			}
+		}
+		
 	}
 }
