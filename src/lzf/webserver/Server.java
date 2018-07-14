@@ -15,19 +15,19 @@ public interface Server extends Lifecycle {
 	public File getMainPath();
 	
 	//设置监听关闭服务器命令的端口
-	public void setPort(int port);
+	public void setPort(int port) throws LifecycleException;
 	
 	//获取关闭命令的端口
 	public int getPort();
 	
 	//设置关闭服务器指令
-	public void setShutdownCommand(String cmd);
+	public void setShutdownCommand(String cmd) throws LifecycleException;
 	
 	//获取关闭服务器指令
 	public String getShutdownCommand();
 	
 	//设置Service组件
-	public void setService(Service service);
+	public void setService(Service service) throws LifecycleException;
 	
 	//根据Service名称获取Service组件
 	public Service getService(String name);

@@ -49,4 +49,10 @@ public enum LifecycleState {
 	public boolean isAvailable() {
 		return available;
 	}
+	
+	public boolean after(LifecycleState state) {
+		if(state.getStep() >= this.step)
+			return true;
+		return false;
+	}
 }

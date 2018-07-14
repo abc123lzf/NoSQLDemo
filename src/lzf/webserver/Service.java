@@ -13,15 +13,49 @@ import lzf.webserver.connector.Connector;
 */
 public interface Service extends Lifecycle {
 
-	public void setName(String name);
+	/**
+	 * 设置Service组件名称
+	 * @param name 组件名
+	 */
+	public void setName(String name) throws LifecycleException;
 	
+	/**
+	 * 获得该Service组件的名称
+	 */
 	public String getName();
 	
+	/**
+	 * 设置父组件
+	 * @param server Server实例
+	 */
+	public void setServer(Server server) throws LifecycleException;
+	
+	/**
+	 * 获得父组件：Server
+	 */
 	public Server getServer();
 	
-	public void setConnector(Connector connector);
+	/**
+	 * 添加连接器实例
+	 * @param connector 连接器实例
+	 */
+	public void addConnector(Connector connector) throws LifecycleException;
 	
+	/**
+	 * 获得Service组件所有的连接器
+	 * @return 包含所有连接器的List
+	 */
 	public List<Connector> getConnectors();
 	
-	public void setEngine();
+	/**
+	 * 设置全局引擎容器
+	 * @param engine 容器实例
+	 * @throws LifecycleException 
+	 */
+	public void setEngine(Engine engine) throws LifecycleException;
+	
+	/**
+	 * 获得全局引擎容器
+	 */
+	public Engine getEngine();
 }
