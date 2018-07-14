@@ -135,12 +135,28 @@ public class NettyHandler implements Handler {
 		return state;
 	}
 	
+	class RequestProcesser implements Runnable {
+
+		private FullHttpRequest fullRequest;
+		
+		public RequestProcesser(FullHttpRequest request) {
+			this.fullRequest = request;
+		}
+		
+		@Override
+		public void run() {
+			//TODO 转化为Servlet规范请求类
+		}
+		
+	}
+	
 	class HttpServerInboundHandler extends ChannelInboundHandlerAdapter {
 		
 		@Override
 		public void channelRead(ChannelHandlerContext ctx, Object msg) {
 			if(msg instanceof FullHttpRequest) {
-				
+				FullHttpRequest request = (FullHttpRequest) msg;
+				System.out.println(request.getMethod().name());
 			}
 		}
 		

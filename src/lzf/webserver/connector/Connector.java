@@ -10,13 +10,17 @@ import lzf.webserver.Service;
 */
 public final class Connector {
 	
+	public static final int DEFAULT_PORT = 9090;
+	public static final int DEFAULT_TIMEOUT = 20000;
+	public static final int DEFAULT_MAX_CONNECTION = 200; 
+	
 	private Service service;
 	
-	private int port;
+	private Handler handler;
 	
-	private int timeOut;
-	
-	private int maxConnection;
+	private int port = DEFAULT_PORT;
+	private int timeOut = DEFAULT_TIMEOUT;
+	private int maxConnection = DEFAULT_MAX_CONNECTION;
 
 	public Service getService() {
 		return service;
@@ -48,5 +52,13 @@ public final class Connector {
 
 	public void setMaxConnection(int maxConnection) {
 		this.maxConnection = maxConnection;
+	}
+
+	public Handler getHandler() {
+		return handler;
+	}
+
+	public void setHandler(Handler handler) {
+		this.handler = handler;
 	}
 }

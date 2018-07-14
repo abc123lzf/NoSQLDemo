@@ -22,11 +22,15 @@ public interface Lifecycle {
 	public static final String AFTER_DESTORY_EVENT = "after_destory";
 	
 	public void addLifecycleListener(LifecycleListener listener);
+	
 	public List<LifecycleListener> getLifecycleListeners();
 	
 	public void init() throws LifecycleException;
+	
 	public void start() throws LifecycleException;
+	
 	public void stop() throws LifecycleException;
+	
 	public void destory() throws LifecycleException;
 	
 	public LifecycleState getLifecycleState();

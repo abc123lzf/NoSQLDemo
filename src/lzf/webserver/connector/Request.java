@@ -32,10 +32,16 @@ import javax.servlet.http.Part;
 */
 public class Request implements HttpServletRequest {
 	
+	protected String characterEncoding;
+	
+	protected Cookie[] cookies = null;
+	
+	
+	
 	
 	public Request() {
 	}
-
+	
 	@Override
 	public Object getAttribute(String name) {
 		// TODO Auto-generated method stub
@@ -50,14 +56,12 @@ public class Request implements HttpServletRequest {
 
 	@Override
 	public String getCharacterEncoding() {
-		// TODO Auto-generated method stub
-		return null;
+		return characterEncoding;
 	}
 
 	@Override
 	public void setCharacterEncoding(String env) throws UnsupportedEncodingException {
-		// TODO Auto-generated method stub
-		
+		this.characterEncoding = env;
 	}
 
 	@Override
