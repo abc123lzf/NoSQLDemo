@@ -6,7 +6,7 @@ import java.util.EventObject;
 * @author 李子帆
 * @version 1.0
 * @date 2018年7月13日 上午10:21:09
-* @Description 类说明
+* @Description 容器事件类
 */
 public class ContainerEvent extends EventObject {
 
