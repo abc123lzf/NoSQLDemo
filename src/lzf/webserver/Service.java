@@ -22,4 +22,6 @@ public interface Service extends Lifecycle {
 	public void setConnector(Connector connector);
 	
 	public List<Connector> getConnectors();
+	
+	public void setEngine();
 }

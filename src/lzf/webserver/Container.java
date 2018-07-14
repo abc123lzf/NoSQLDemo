@@ -70,15 +70,27 @@ public interface Container extends Lifecycle {
 	 */
 	public List<Container> getChildContainers();
 	
-	//添加容器事件监听器
+	/**
+	 * 添加容器事件监听器
+	 * @param listener 容器监听器类，可用lambda表达式
+	 */
 	public void addContainerListener(ContainerListener listener);
 	
-	//移除容器事件监听器
+	/**
+	 * 移除容器事件监听器
+	 * @param listener 需要移除的容器监听器类 
+	 */
 	public void removeContainerListener(ContainerListener listener);
 	
-	//执行容器事件，该方法应遍历事件监听器列表并根据事件对象决定是否执行相应事件
+	/**
+	 * 执行容器事件，该方法应遍历事件监听器列表并根据事件对象决定是否执行相应事件
+	 * @param type 事件类型
+	 * @param data 事件数据(参数，可为null)
+	 */
 	public void runContainerEvent(String type, Object data);
 	
-	//获取容器事件监听器的列表
+	/**
+	 * 获取容器事件监听器列表
+	 */
 	public List<ContainerListener> getContainerListeners();
 }
