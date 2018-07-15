@@ -15,10 +15,16 @@ import lzf.webserver.connector.Response;
 */
 public interface Valve {
 
-	//返回下一个阀门
+	/**
+	 * 获取下一个阀门
+	 * @return 下一个阀门实例，不存在则返回null
+	 */
 	public Valve getNext();
 	
-	//设置下一个阀门
+	/**
+	 * 设置下一个阀门
+	 * @param valve 下一个阀门实例
+	 */
 	public void setNext(Valve valve);
 	
 	/**

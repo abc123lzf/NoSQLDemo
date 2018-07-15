@@ -44,10 +44,10 @@ public class NettyHandler implements Handler {
 	public NettyHandler() {
 	}
 
-	public NettyHandler(int port, Connector connector) {
+	public NettyHandler(Connector connector) {
 		this();
 		this.connector = connector;
-		this.port = port;
+		this.port = connector.getPort();
 	}
 
 	private class Processer implements Runnable {

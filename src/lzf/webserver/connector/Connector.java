@@ -22,6 +22,22 @@ public final class Connector {
 	private int port = DEFAULT_PORT;
 	private int timeOut = DEFAULT_TIMEOUT;
 	private int maxConnection = DEFAULT_MAX_CONNECTION;
+	
+	public void init() {
+		try {
+			handler.init();
+		} catch (HandlerException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void start() {
+		try {
+			handler.start();
+		} catch (HandlerException e) {
+			e.printStackTrace();
+		}
+	}
 
 	public Service getService() {
 		return service;

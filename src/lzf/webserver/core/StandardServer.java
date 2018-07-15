@@ -212,7 +212,7 @@ public class StandardServer implements Server {
 	}
 
 	@Override
-	public void setService(Service service) throws LifecycleException {
+	public void addService(Service service) throws LifecycleException {
 		String name = service.getName();
 		for(Service s : services) {
 			if(s.getName().equals(name))

@@ -62,6 +62,8 @@ public class StandardService implements Service {
 		
 		//TODO 连接器组件启用
 		//engine.init();
+		for(Connector c : connectors)
+			c.init();
 		
 		state = LifecycleState.INITIALIZED;
 		lifecycleSupport.runLifecycleEvent(null);
@@ -76,7 +78,8 @@ public class StandardService implements Service {
 		lifecycleSupport.runLifecycleEvent(null);
 		
 		state = LifecycleState.STARTING;
-		//engine.start();
+		for(Connector c : connectors)
+			c.start();
 		
 		state = LifecycleState.STARTED;
 		lifecycleSupport.runLifecycleEvent(null);

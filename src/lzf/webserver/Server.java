@@ -49,7 +49,7 @@ public interface Server extends Lifecycle {
 	 * @param service Service实例，一般为lzf.webserver.core.StandardServer
 	 * @throws LifecycleException 当组件启动后调用该方法
 	 */
-	public void setService(Service service) throws LifecycleException;
+	public void addService(Service service) throws LifecycleException;
 	
 	/**
 	 * 根据Service名称获取Service组件
