@@ -24,13 +24,12 @@ public final class Bootstrap {
 			service.setServer(server);
 			
 			Connector connector = new Connector();
-			NettyHandler handler = new NettyHandler();
+			NettyHandler handler = new NettyHandler(connector);
 			handler.setConnector(connector);
+			connector.setHandler(handler);
 			
 			service.addConnector(connector);
 			server.addService(service);
-			
-			System.out.println(1);
 			
 			server.init();
 			server.start();
@@ -44,7 +43,6 @@ public final class Bootstrap {
 	}
 	
 	public static void main(String[] args) {
-		System.out.println(1);
 		new Bootstrap().init();
 	}
 }

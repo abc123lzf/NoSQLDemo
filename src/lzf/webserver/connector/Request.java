@@ -6,8 +6,10 @@ import java.io.UnsupportedEncodingException;
 import java.security.Principal;
 import java.util.Collection;
 import java.util.Enumeration;
+import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.AsyncContext;
 import javax.servlet.DispatcherType;
@@ -32,20 +34,31 @@ import javax.servlet.http.Part;
 */
 public class Request implements HttpServletRequest {
 	
+	//请求行
+	protected String method;
+	protected String uri;
+	protected String protocol;
+	
+	//请求头
 	protected String characterEncoding;
+	
+	protected StringBuffer url;
+	
+	protected final Map<String, String> headerMap = new LinkedHashMap<>();
+	
+	protected long contentLength;
+	
+	protected final Map<String, Object> attributeMap = new ConcurrentHashMap<>();
+	
+	protected final Map<String, String[]> parameterMap = new LinkedHashMap<>();
 	
 	protected Cookie[] cookies = null;
 	
-	
-	
-	
-	public Request() {
-	}
+	private final Locale locale = Locale.getDefault();
 	
 	@Override
 	public Object getAttribute(String name) {
-		// TODO Auto-generated method stub
-		return null;
+		return attributeMap.get(name);
 	}
 
 	@Override
@@ -66,14 +79,12 @@ public class Request implements HttpServletRequest {
 
 	@Override
 	public int getContentLength() {
-		// TODO Auto-generated method stub
-		return 0;
+		return (int)contentLength;
 	}
 
 	@Override
 	public long getContentLengthLong() {
-		// TODO Auto-generated method stub
-		return 0;
+		return contentLength;
 	}
 
 	@Override
@@ -90,7 +101,7 @@ public class Request implements HttpServletRequest {
 
 	@Override
 	public String getParameter(String name) {
-		// TODO Auto-generated method stub
+		//TODO
 		return null;
 	}
 
@@ -168,8 +179,7 @@ public class Request implements HttpServletRequest {
 
 	@Override
 	public Locale getLocale() {
-		// TODO Auto-generated method stub
-		return null;
+		return locale;
 	}
 
 	@Override
@@ -283,13 +293,12 @@ public class Request implements HttpServletRequest {
 
 	@Override
 	public String getHeader(String name) {
-		// TODO Auto-generated method stub
-		return null;
+		return headerMap.get(name);
 	}
 
 	@Override
 	public Enumeration<String> getHeaders(String name) {
-		// TODO Auto-generated method stub
+		
 		return null;
 	}
 
@@ -307,8 +316,7 @@ public class Request implements HttpServletRequest {
 
 	@Override
 	public String getMethod() {
-		// TODO Auto-generated method stub
-		return null;
+		return method;
 	}
 
 	@Override

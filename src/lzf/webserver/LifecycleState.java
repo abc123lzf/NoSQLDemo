@@ -51,7 +51,7 @@ public enum LifecycleState {
 	}
 	
 	public boolean after(LifecycleState state) {
-		if(state.getStep() >= this.step)
+		if(this.step >= state.getStep())
 			return true;
 		return false;
 	}

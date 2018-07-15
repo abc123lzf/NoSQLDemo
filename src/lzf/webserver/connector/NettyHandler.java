@@ -14,10 +14,14 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.ServerSocketChannel;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpResponseEncoder;
+import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpServerCodec;
+import io.netty.handler.codec.http.HttpVersion;
 
 /**
  * @author 李子帆
@@ -27,7 +31,7 @@ import io.netty.handler.codec.http.HttpServerCodec;
  */
 public class NettyHandler implements Handler {
 
-	private int port;
+	private int port = Connector.DEFAULT_PORT;
 	private Connector connector;
 
 	private volatile HandlerState state = HandlerState.NEW;
@@ -86,9 +90,11 @@ public class NettyHandler implements Handler {
 						ch.pipeline().addLast(new HttpResponseEncoder());
 						ch.pipeline().addLast(new HttpRequestDecoder());
 						ch.pipeline().addLast(new HttpServerCodec());
+						ch.pipeline().addLast(new HttpObjectAggregator(512 * 1024));
+						ch.pipeline().addLast(new HttpServerInboundHandler());
 					}
 				}).option(ChannelOption.SO_BACKLOG, connector.getMaxConnection())
-				.option(ChannelOption.SO_TIMEOUT, connector.getTimeOut());
+				.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, connector.getTimeOut());
 		try {
 			ChannelFuture future = boot.bind(port).sync();
 			if(future.isSuccess()) {
@@ -156,7 +162,9 @@ public class NettyHandler implements Handler {
 		public void channelRead(ChannelHandlerContext ctx, Object msg) {
 			if(msg instanceof FullHttpRequest) {
 				FullHttpRequest request = (FullHttpRequest) msg;
-				System.out.println(request.getMethod().name());
+				// TODO 接收到HTTP请求后将其转换为Servlet规范(用单独线程实现)
+			} else {
+				ctx.write(new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.BAD_REQUEST));
 			}
 		}
 		

@@ -27,7 +27,7 @@ public enum HandlerState {
 	}
 	
 	public boolean after(HandlerState state) {
-		if(state.getStep() >= this.step)
+		if(this.step >= state.getStep())
 			return true;
 		return false;
 	}
