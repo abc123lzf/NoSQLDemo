@@ -22,6 +22,13 @@ public class NettyRequest extends Request {
 	}
 	
 	private void decode() {
+		System.out.println(req.getMethod().name());
+		System.out.println(req.getProtocolVersion().text());
+		System.out.println(header.get(HttpHeaders.Names.HOST));
+		System.out.println(header.get(HttpHeaders.Names.ACCEPT));
+		System.out.println(header.get(HttpHeaders.Names.DATE));
+		System.out.println(header.get(HttpHeaders.Names.COOKIE));
+		
 		super.method = req.getMethod().name();
 		super.uri = req.getUri();
 		super.protocol = req.getProtocolVersion().text();

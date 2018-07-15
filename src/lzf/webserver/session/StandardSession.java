@@ -30,6 +30,9 @@ public class StandardSession implements Session, HttpSession, Serializable {
 	//创建时间戳
 	private final long createTime = System.currentTimeMillis();
 	
+	//默认最大非活跃生存时间
+	private int maxSessionInactiveTime;
+	
 	//最后访问时间戳
 	private volatile long lastAccessTime = System.currentTimeMillis();
 	
@@ -48,13 +51,23 @@ public class StandardSession implements Session, HttpSession, Serializable {
 	 */
 	public StandardSession(SessionManager manager) {
 		this.manager = manager;
+		this.maxSessionInactiveTime = manager.getDefaultSessionMaxInactiveTime();
 	}
 	
+	/**
+	 * 获取该Session对象中的属性
+	 * @param name 属性名称
+	 * @return 属性对象，若不存在则返回null
+	 */
 	@Override
 	public Object getAttribute(String name) {
 		return attributeMap.get(name);
 	}
 
+	/**
+	 * 获取该Session对象属性名的迭代器
+	 * @return Enumeration迭代器
+	 */
 	@Override
 	public Enumeration<String> getAttributeNames() {
 		return new IteratorEnumeration<String>(attributeMap.keySet().iterator());
@@ -72,7 +85,7 @@ public class StandardSession implements Session, HttpSession, Serializable {
 
 	@Override
 	public int getMaxInactiveInterval() {
-		return manager.getSessionMaxInactiveTime();
+		return maxSessionInactiveTime;
 	}
 
 	@Override
@@ -81,6 +94,10 @@ public class StandardSession implements Session, HttpSession, Serializable {
 		lastAccessTime = System.currentTimeMillis();
 	}
 	
+	/**
+	 * 获取该Web应用对应的ServletContext对象
+	 * @return ServletContext实例
+	 */
 	@Override
 	public ServletContext getServletContext() {
 		return manager.getContext().getServletContext();
@@ -106,6 +123,9 @@ public class StandardSession implements Session, HttpSession, Serializable {
 		attributeMap.clear();
 	}
 
+	/**
+	 * 判断该Session对象是否是新建的，第二次访问Session对象后返回值为false
+	 */
 	@Override
 	public boolean isNew() {
 		return isNew;
@@ -116,6 +136,10 @@ public class StandardSession implements Session, HttpSession, Serializable {
 		attributeMap.put(name, value);
 	}
 
+	/**
+	 * 移除Session对象属性
+	 * @param name 属性名
+	 */
 	@Override
 	public void removeAttribute(String name) {
 		attributeMap.remove(name);
@@ -126,11 +150,19 @@ public class StandardSession implements Session, HttpSession, Serializable {
 		attributeMap.remove(name);
 	}
 
+	/**
+	 * 往该Session对象添加属性
+	 * @param name 属性名
+	 * @param value 属性值
+	 */
 	@Override
 	public void setAttribute(String name, Object value) {
 		attributeMap.put(name, value);
 	}
 	
+	/**
+	 * 获取SessionID
+	 */
 	@Override
 	public String getId() {
 		return id;
@@ -139,6 +171,11 @@ public class StandardSession implements Session, HttpSession, Serializable {
 	@Override
 	public SessionManager getSessionManager() {
 		return manager;
+	}
+
+	@Override
+	public void setMaxInactiveInterval(int maxInactiveInterval) {
+		this.maxSessionInactiveTime = maxInactiveInterval;
 	}
 
 }

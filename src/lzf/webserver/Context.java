@@ -2,6 +2,9 @@ package lzf.webserver;
 
 import javax.servlet.ServletContext;
 
+import lzf.webserver.session.SessionManager;
+
+
 /**
 * @author Àî×Ó·«
 * @version 1.0
@@ -10,7 +13,7 @@ import javax.servlet.ServletContext;
 */
 public interface Context extends Container {
 
-	public void setServletContext(ServletContext context);
-	
 	public ServletContext getServletContext();
+	
+	public SessionManager getSessionManager();
 }

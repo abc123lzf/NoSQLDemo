@@ -162,10 +162,11 @@ public class NettyHandler implements Handler {
 		public void channelRead(ChannelHandlerContext ctx, Object msg) {
 			if(msg instanceof FullHttpRequest) {
 				FullHttpRequest request = (FullHttpRequest) msg;
+				NettyRequest req = new NettyRequest(request);
 				// TODO 接收到HTTP请求后将其转换为Servlet规范(用单独线程实现)
-			} else {
-				ctx.write(new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.BAD_REQUEST));
-			}
+			} 
+			ctx.write(new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.BAD_REQUEST));
+			
 		}
 		
 	}

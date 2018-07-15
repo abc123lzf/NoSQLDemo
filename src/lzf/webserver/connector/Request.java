@@ -151,8 +151,7 @@ public class Request implements HttpServletRequest {
 
 	@Override
 	public String getServerName() {
-		// TODO Auto-generated method stub
-		return null;
+		return serverName;
 	}
 
 	@Override
@@ -180,15 +179,13 @@ public class Request implements HttpServletRequest {
 	}
 
 	@Override
-	public void setAttribute(String name, Object o) {
-		// TODO Auto-generated method stub
-		
+	public void setAttribute(String name, Object obj) {
+		attributeMap.put(name, obj);
 	}
 
 	@Override
 	public void removeAttribute(String name) {
-		// TODO Auto-generated method stub
-		
+		attributeMap.remove(name);
 	}
 
 	@Override

@@ -30,8 +30,8 @@ public final class SessionManager implements Lifecycle {
 	private final Context context;
 	//保存Session的Map，
 	private final Map<String, Session> sessions = new ConcurrentHashMap<>();
-	//最大非活跃生存时间
-	private int maxSessionInactiveTime = DEFAULT_MAX_INACTIVETIME;
+	//默认最大非活跃生存时间
+	private int defaultMaxSessionInactiveTime = DEFAULT_MAX_INACTIVETIME;
 	//该web应用Session对象总数
 	private final AtomicInteger sessionNum = new AtomicInteger(0);
 	//后台线程，监测Session对象
@@ -75,9 +75,9 @@ public final class SessionManager implements Lifecycle {
 		this.context = context;
 	}
 	
-	public SessionManager(Context context, int maxSessionInactiveTime) {
+	public SessionManager(Context context, int defaultMaxSessionInactiveTime) {
 		this(context);
-		this.maxSessionInactiveTime = maxSessionInactiveTime;
+		this.defaultMaxSessionInactiveTime = defaultMaxSessionInactiveTime;
 	}
 	
 	/**
@@ -91,27 +91,41 @@ public final class SessionManager implements Lifecycle {
 			session.updateLastAccessedTime();
 			return (HttpSession)session;
 		}
-		StandardSession s = new StandardSession(this);
-		sessions.put(s.getId(), (Session) session);
-		return s;
+		return (HttpSession)createSession();
 	}
 	
 	/**
 	 * 创建一个新的Session对象
-	 * @return 返回该SessionId
+	 * @return 该SessionId
 	 */
 	public String newSession() {
-		StandardSession session = new StandardSession(this);
-		sessions.put(session.getId(), (Session) session);
-		return session.getId();
+		return createSession().getId();
 	}
 	
+	/**
+	 * 创建一个新的Session对象
+	 * @return StrandardSession实例
+	 */
+	private Session createSession() {
+		Session session = new StandardSession(this);
+		sessions.put(session.getId(), (Session) session);
+		return session;
+	}
+	
+	/**
+	 * 获取该SessionManager所属的Context容器
+	 * @return Context实例
+	 */
 	public Context getContext() {
 		return context;
 	}
 	
-	public int getSessionMaxInactiveTime() {
-		return maxSessionInactiveTime;
+	/**
+	 * 获取默认的Session非活跃过期时间
+	 * @return 毫秒数
+	 */
+	public int getDefaultSessionMaxInactiveTime() {
+		return defaultMaxSessionInactiveTime;
 	}
 	
 	@Override
