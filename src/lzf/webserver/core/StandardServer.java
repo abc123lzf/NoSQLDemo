@@ -117,6 +117,9 @@ public class StandardServer implements Server {
 		}
 	}
 
+	/**
+	 * 初始化前，应先指定关闭指定端口、关闭命令字符串、设置Service对象
+	 */
 	@Override
 	public void init() throws LifecycleException {
 		if(state.after(LifecycleState.INITIALIZING))

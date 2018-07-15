@@ -19,6 +19,7 @@ public final class Bootstrap {
 		Server server = new StandardServer();
 		try {
 			Service service = new StandardService();
+			
 			service.setServer(server);
 			service.addConnector(new Connector());
 			

@@ -16,6 +16,7 @@ public interface Service extends Lifecycle {
 	/**
 	 * 设置Service组件名称
 	 * @param name 组件名
+	 * @throws LifecycleException 当已经调用Service组件的start方法后再调用此方法
 	 */
 	public void setName(String name) throws LifecycleException;
 	
@@ -27,6 +28,7 @@ public interface Service extends Lifecycle {
 	/**
 	 * 设置父组件
 	 * @param server Server实例
+	 * @throws LifecycleException 当设置父组件失败时抛出此异常
 	 */
 	public void setServer(Server server) throws LifecycleException;
 	
@@ -50,7 +52,7 @@ public interface Service extends Lifecycle {
 	/**
 	 * 设置全局引擎容器
 	 * @param engine 容器实例
-	 * @throws LifecycleException 
+	 * @throws LifecycleException 当已经调用Service组件的start方法后再调用此方法
 	 */
 	public void setEngine(Engine engine) throws LifecycleException;
 	

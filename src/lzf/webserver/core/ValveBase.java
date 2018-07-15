@@ -18,15 +18,27 @@ public abstract class ValveBase implements Valve {
 	
 	protected Valve next;
 	
+	/**
+	 * 获取下一个管道
+	 * @return Valve 下一个管道
+	 */
 	public Valve getNext() {
 		return next;
 	}
 		
+	/**
+	 * 设置下一个管道
+	 * @param valve 下一个管道实例
+	 */
 	public void setNext(Valve valve) {
 		this.next = valve;
 	}
 		
-	//必须在该方法中调用next.invoke()
+	/**
+	 * 阀门具体的业务逻辑实现，必须在该方法最后调用next.invoke()
+	 * @param request 请求对象
+	 * @param response 响应对象
+	 */
 	public abstract void invoke(Request request, Response response)
 			throws IOException, ServletException;
 }

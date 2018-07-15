@@ -7,15 +7,27 @@ package lzf.webserver;
 */
 public interface Pipeline {
 
-	//返回第一个阀门
+	/**
+	 * 返回第一个阀门
+	 * @return 第一个阀门
+	 */
 	public Valve getFirst();
 	
-	//返回基础阀门(即最后一个阀门)
+	/**
+	 * 返回基础阀门(即最后一个阀门)
+	 * @return 基础阀门
+	 */
 	public Valve getBase();
 	
-	//设置基础阀门
+	/**
+	 * 设置基础阀门
+	 * @param 基础阀门实例
+	 */
 	public void setBase(Valve valve);
 	
-	//向管道添加阀门
+	/**
+	 * 向管道添加非基础阀门
+	 * @param valve 非基础阀门
+	 */
 	public void addValve(Valve valve);
 }

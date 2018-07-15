@@ -48,6 +48,10 @@ public class StandardService implements Service {
 		return lifecycleSupport.getLifecycleListeners();
 	}
 
+	/**
+	 * 初始化前，应先设置该Service的名称，添加至少一个连接器、至少一个Engine容器
+	 * 并设置好父组件Server
+	 */
 	@Override
 	public void init() throws LifecycleException {
 		if(state.after(LifecycleState.INITIALIZING))
