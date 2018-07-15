@@ -26,6 +26,8 @@ import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpUpgradeHandler;
 import javax.servlet.http.Part;
 
+import lzf.webserver.util.IteratorEnumeration;
+
 /**
 * @author 李子帆
 * @version 1.0
@@ -62,7 +64,7 @@ public class Request implements HttpServletRequest {
 	
 	protected final Map<String, String[]> parameterMap = new LinkedHashMap<>();
 	
-	protected Cookie[] cookies = null;
+	protected Cookie[] cookies = new Cookie[0];
 	
 	private final Locale locale = Locale.getDefault();
 	
@@ -75,8 +77,7 @@ public class Request implements HttpServletRequest {
 
 	@Override
 	public Enumeration<String> getAttributeNames() {
-		// TODO Auto-generated method stub
-		return null;
+		return new IteratorEnumeration<String>(attributeMap.keySet().iterator());
 	}
 
 	@Override
@@ -115,14 +116,9 @@ public class Request implements HttpServletRequest {
 		return parameterMap.get(name)[0];
 	}
 
-	/**
-	 * 发送请求页面中form表单里所有具有name属性的表单对象获取(包括button).
-	 * 返回一个Enumeration类型的枚举.
-	 */
 	@Override
 	public Enumeration<String> getParameterNames() {
-		// TODO Auto-generated method stub
-		return null;
+		return new IteratorEnumeration<String>(parameterMap.keySet().iterator());
 	}
 
 	@Override
@@ -166,6 +162,9 @@ public class Request implements HttpServletRequest {
 		return null;
 	}
 
+	/**
+	 * 客户端IP地址
+	 */
 	@Override
 	public String getRemoteAddr() {
 		// TODO Auto-generated method stub
