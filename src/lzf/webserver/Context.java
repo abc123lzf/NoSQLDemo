@@ -1,4 +1,7 @@
 package lzf.webserver;
+
+import javax.servlet.ServletContext;
+
 /**
 * @author Àî×Ó·«
 * @version 1.0
@@ -7,5 +10,7 @@ package lzf.webserver;
 */
 public interface Context extends Container {
 
+	public void setServletContext(ServletContext context);
 	
+	public ServletContext getServletContext();
 }

@@ -35,18 +35,28 @@ import javax.servlet.http.Part;
 public class Request implements HttpServletRequest {
 	
 	//请求行
+	//请求方法，例：POST、GET
 	protected String method;
+	//请求资源Uri，例：/index.html
 	protected String uri;
+	//使用的协议版本，可为HTTP/1.1 HTTP/1.0
 	protected String protocol;
 	
 	//请求头
-	protected String characterEncoding;
-	
-	protected StringBuffer url;
-	
 	protected final Map<String, String> headerMap = new LinkedHashMap<>();
 	
+	//使用的协议，可以为http或https
+	protected String scheme;
+	//完整路径,即浏览器上的路径
+	protected StringBuffer url;
+	//主机域名,例:www.baidu.com
+	protected String serverName;
+	//accept-encoding,浏览器支持的编码类型
+	protected String acceptEncoding;
+	//content-length,报头以外的内容长度
 	protected long contentLength;
+	
+	protected String contentType;
 	
 	protected final Map<String, Object> attributeMap = new ConcurrentHashMap<>();
 	
@@ -55,6 +65,8 @@ public class Request implements HttpServletRequest {
 	protected Cookie[] cookies = null;
 	
 	private final Locale locale = Locale.getDefault();
+	
+	protected String characterEncoding = null;
 	
 	@Override
 	public Object getAttribute(String name) {
@@ -89,8 +101,7 @@ public class Request implements HttpServletRequest {
 
 	@Override
 	public String getContentType() {
-		// TODO Auto-generated method stub
-		return null;
+		return contentType;
 	}
 
 	@Override
@@ -101,10 +112,13 @@ public class Request implements HttpServletRequest {
 
 	@Override
 	public String getParameter(String name) {
-		//TODO
-		return null;
+		return parameterMap.get(name)[0];
 	}
 
+	/**
+	 * 发送请求页面中form表单里所有具有name属性的表单对象获取(包括button).
+	 * 返回一个Enumeration类型的枚举.
+	 */
 	@Override
 	public Enumeration<String> getParameterNames() {
 		// TODO Auto-generated method stub
@@ -113,26 +127,26 @@ public class Request implements HttpServletRequest {
 
 	@Override
 	public String[] getParameterValues(String name) {
-		// TODO Auto-generated method stub
-		return null;
+		return parameterMap.get(name);
 	}
 
 	@Override
 	public Map<String, String[]> getParameterMap() {
-		// TODO Auto-generated method stub
-		return null;
+		return parameterMap;
 	}
 
+	/**
+	 * 返回HTTP协议版本
+	 * @return HTTP/1.1或HTTP/1.0
+	 */
 	@Override
 	public String getProtocol() {
-		// TODO Auto-generated method stub
-		return null;
+		return protocol;
 	}
 
 	@Override
 	public String getScheme() {
-		// TODO Auto-generated method stub
-		return null;
+		return scheme;
 	}
 
 	@Override
@@ -281,8 +295,7 @@ public class Request implements HttpServletRequest {
 
 	@Override
 	public Cookie[] getCookies() {
-		// TODO Auto-generated method stub
-		return null;
+		return cookies;
 	}
 
 	@Override
@@ -369,8 +382,7 @@ public class Request implements HttpServletRequest {
 
 	@Override
 	public String getRequestURI() {
-		// TODO Auto-generated method stub
-		return null;
+		return uri;
 	}
 
 	@Override
@@ -435,14 +447,12 @@ public class Request implements HttpServletRequest {
 
 	@Override
 	public void login(String username, String password) throws ServletException {
-		// TODO Auto-generated method stub
-		
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public void logout() throws ServletException {
-		// TODO Auto-generated method stub
-		
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
