@@ -142,6 +142,9 @@ public class StandardServer implements Server {
 		lifecycleSupport.runLifecycleEvent(null);
 	}
 
+	/**
+	 * 启动Server组件，该组件会调用所有Lifecycle成员变量的start方法
+	 */
 	@Override
 	public void start() throws LifecycleException {
 		if(state.after(LifecycleState.STARTING_PREP))
@@ -158,6 +161,9 @@ public class StandardServer implements Server {
 		lifecycleSupport.runLifecycleEvent(null);
 	}
 
+	/**
+	 * 停止所有组件，该组件会调用所有Lifecycle成员变量的stop方法
+	 */
 	@Override
 	public void stop() throws LifecycleException {
 		if(state.after(LifecycleState.STOPPING_PREP))

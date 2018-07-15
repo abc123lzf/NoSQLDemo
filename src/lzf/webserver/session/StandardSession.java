@@ -1,30 +1,17 @@
 package lzf.webserver.session;
 
-import java.io.IOException;
 import java.io.Serializable;
-import java.net.URI;
-import java.security.Principal;
 import java.util.Enumeration;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionContext;
-import javax.websocket.CloseReason;
-import javax.websocket.Extension;
-import javax.websocket.MessageHandler;
-import javax.websocket.MessageHandler.Partial;
-import javax.websocket.MessageHandler.Whole;
-import javax.websocket.RemoteEndpoint.Async;
-import javax.websocket.RemoteEndpoint.Basic;
-import javax.websocket.Session;
-import javax.websocket.WebSocketContainer;
 
-import lzf.webserver.Context;
+import lzf.webserver.Session;
+import lzf.webserver.util.IteratorEnumeration;
 
 /**
 * @author 李子帆
@@ -32,22 +19,33 @@ import lzf.webserver.Context;
 * @date 2018年7月15日 下午3:45:14
 * @Description 标准会话类、暂时不支持WebSocket模式
 */
+@SuppressWarnings("deprecation")
 public class StandardSession implements Session, HttpSession, Serializable {
 
 	private static final long serialVersionUID = 8941015350279589423L;
 	
-	private String id = UUID.randomUUID().toString();
+	//Session Id
+	private final String id = UUID.randomUUID().toString();
 	
+	//创建时间戳
 	private final long createTime = System.currentTimeMillis();
-	private volatile long lastAccessTime = System.currentTimeMillis();
-	private int maxInactiveTime;
 	
+	//最后访问时间戳
+	private volatile long lastAccessTime = System.currentTimeMillis();
+	
+	//该Session对象是否是新建的，第二次访问该Session对象会改为false
 	private volatile boolean isNew = true;
 	
+	//存储该Session对象Attribute的Map
 	private final Map<String, Object> attributeMap = new ConcurrentHashMap<>();
 	
+	//该Session对象所属的管理器
 	private final SessionManager manager;
 
+	/**
+	 * 由SessionManager负责构造该对象
+	 * @param manager SessionManager实例
+	 */
 	public StandardSession(SessionManager manager) {
 		this.manager = manager;
 	}
@@ -59,8 +57,7 @@ public class StandardSession implements Session, HttpSession, Serializable {
 
 	@Override
 	public Enumeration<String> getAttributeNames() {
-		// TODO Auto-generated method stub
-		return null;
+		return new IteratorEnumeration<String>(attributeMap.keySet().iterator());
 	}
 
 	@Override
@@ -75,15 +72,21 @@ public class StandardSession implements Session, HttpSession, Serializable {
 
 	@Override
 	public int getMaxInactiveInterval() {
-		return maxInactiveTime;
+		return manager.getSessionMaxInactiveTime();
 	}
 
+	@Override
+	public void updateLastAccessedTime() {
+		isNew = false;
+		lastAccessTime = System.currentTimeMillis();
+	}
+	
 	@Override
 	public ServletContext getServletContext() {
 		return manager.getContext().getServletContext();
 	}
 
-	@Override @SuppressWarnings("deprecation")
+	@Override @Deprecated
 	public HttpSessionContext getSessionContext() {
 		throw new UnsupportedOperationException();
 	}
@@ -127,155 +130,15 @@ public class StandardSession implements Session, HttpSession, Serializable {
 	public void setAttribute(String name, Object value) {
 		attributeMap.put(name, value);
 	}
-
-	@Override
-	public void setMaxInactiveInterval(int time) {
-		this.maxInactiveTime = time;
-	}
-
-	@Override
-	public void addMessageHandler(MessageHandler arg0) throws IllegalStateException {
-		throw new UnsupportedOperationException("WebSocket not support");
-	}
-
-	@Override
-	public <T> void addMessageHandler(Class<T> arg0, Partial<T> arg1) throws IllegalStateException {
-		throw new UnsupportedOperationException("WebSocket not support");
-	}
-
-	@Override
-	public <T> void addMessageHandler(Class<T> arg0, Whole<T> arg1) throws IllegalStateException {
-		throw new UnsupportedOperationException("WebSocket not support");
-	}
-
-	@Override
-	public void close() throws IOException {
-		throw new UnsupportedOperationException("WebSocket not support");
-	}
-
-	@Override
-	public void close(CloseReason arg0) throws IOException {
-		throw new UnsupportedOperationException("WebSocket not support");
-	}
-
-	@Override
-	public Async getAsyncRemote() {
-		throw new UnsupportedOperationException("WebSocket not support");
-	}
-
-	@Override
-	public Basic getBasicRemote() {
-		throw new UnsupportedOperationException("WebSocket not support");
-	}
-
-	@Override
-	public WebSocketContainer getContainer() {
-		throw new UnsupportedOperationException("WebSocket not support");
-	}
-
+	
 	@Override
 	public String getId() {
 		return id;
 	}
 
 	@Override
-	public int getMaxBinaryMessageBufferSize() {
-		throw new UnsupportedOperationException("WebSocket not support");
-	}
-
-	@Override
-	public long getMaxIdleTimeout() {
-		throw new UnsupportedOperationException("WebSocket not support");
-	}
-
-	@Override
-	public int getMaxTextMessageBufferSize() {
-		throw new UnsupportedOperationException("WebSocket not support");
-	}
-
-	@Override
-	public Set<MessageHandler> getMessageHandlers() {
-		throw new UnsupportedOperationException("WebSocket not support");
-	}
-
-	@Override
-	public List<Extension> getNegotiatedExtensions() {
-		throw new UnsupportedOperationException("WebSocket not support");
-	}
-
-	@Override
-	public String getNegotiatedSubprotocol() {
-		throw new UnsupportedOperationException("WebSocket not support");
-	}
-
-	@Override
-	public Set<Session> getOpenSessions() {
-		throw new UnsupportedOperationException("WebSocket not support");
-	}
-
-	@Override
-	public Map<String, String> getPathParameters() {
-		throw new UnsupportedOperationException("WebSocket not support");
-	}
-
-	@Override
-	public String getProtocolVersion() {
-		throw new UnsupportedOperationException("WebSocket not support");
-	}
-
-	@Override
-	public String getQueryString() {
-		throw new UnsupportedOperationException("WebSocket not support");
-	}
-
-	@Override
-	public Map<String, List<String>> getRequestParameterMap() {
-		throw new UnsupportedOperationException("WebSocket not support");
-	}
-
-	@Override
-	public URI getRequestURI() {
-		throw new UnsupportedOperationException("WebSocket not support");
-	}
-
-	@Override
-	public Principal getUserPrincipal() {
-		throw new UnsupportedOperationException("WebSocket not support");
-	}
-
-	@Override
-	public Map<String, Object> getUserProperties() {
-		throw new UnsupportedOperationException("WebSocket not support");
-	}
-
-	@Override
-	public boolean isOpen() {
-		throw new UnsupportedOperationException("WebSocket not support");
-	}
-
-	@Override
-	public boolean isSecure() {
-		throw new UnsupportedOperationException("WebSocket not support");
-	}
-
-	@Override
-	public void removeMessageHandler(MessageHandler arg0) {
-		throw new UnsupportedOperationException("WebSocket not support");
-	}
-
-	@Override
-	public void setMaxBinaryMessageBufferSize(int arg0) {
-		throw new UnsupportedOperationException("WebSocket not support");
-	}
-
-	@Override
-	public void setMaxIdleTimeout(long arg0) {
-		throw new UnsupportedOperationException("WebSocket not support");
-	}
-
-	@Override
-	public void setMaxTextMessageBufferSize(int arg0) {
-		throw new UnsupportedOperationException("WebSocket not support");
+	public SessionManager getSessionManager() {
+		return manager;
 	}
 
 }

@@ -1,4 +1,4 @@
-package lzf.webserver.core;
+package lzf.webserver.mapper;
 /**
 * @author Àî×Ó·«
 * @version 1.0

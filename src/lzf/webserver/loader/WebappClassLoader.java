@@ -1,4 +1,4 @@
-package lzf.webserver.core;
+package lzf.webserver.loader;
 
 import java.net.URL;
 import java.net.URLClassLoader;

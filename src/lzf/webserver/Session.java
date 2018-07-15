@@ -10,13 +10,38 @@ import lzf.webserver.session.SessionManager;
 */
 public interface Session {
 
+	/**
+	 * 获取SessionId
+	 * @return SessionId
+	 */
 	public String getId();
 	
-	public void setId(String id);
+	/**
+	 * 获取该Session创建时间戳
+	 * @return 时间戳
+	 */
+	public long getCreationTime();
 	
-	public void setLiveTime(long time);
+	/**
+	 * 获取Session对象最大空闲生存时间
+	 * @return 时间戳
+	 */
+	public int getMaxInactiveInterval();
 	
-	public long getLiveTime();
+	/**
+	 * 获取该Session对象最后一次访问的时间戳
+	 * @return 时间戳
+	 */
+	public long getLastAccessedTime();
 	
+	/**
+	 * 更新最后一次访问时间，同时会更改isNew变量
+	 */
+	public void updateLastAccessedTime();
+	
+	/**
+	 * 获取该Session对象的管理器
+	 * @return Session对象管理器
+	 */
 	public SessionManager getSessionManager();
 }
