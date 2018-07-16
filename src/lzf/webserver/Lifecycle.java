@@ -7,7 +7,7 @@ import java.util.List;
 * @version 1.0
 * @date 2018年7月9日 下午12:29:29
 * @Description 生命周期接口，具有生命周期的服务器组件应该实现此接口
-* @see lzf.webserver.core.LifecycleSupport
+* @see lzf.webserver.LifecycleSupport
 * @see lzf.webserver.LifecycleEvent
 * @see lzf.webserver.LifecycleException
 * @see lzf.webserver.LifecycleListener

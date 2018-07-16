@@ -1,6 +1,5 @@
 package lzf.webserver.session;
 
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -9,11 +8,10 @@ import javax.servlet.http.HttpSession;
 
 import lzf.webserver.Context;
 import lzf.webserver.Lifecycle;
+import lzf.webserver.LifecycleBase;
 import lzf.webserver.LifecycleException;
-import lzf.webserver.LifecycleListener;
 import lzf.webserver.LifecycleState;
 import lzf.webserver.Session;
-import lzf.webserver.core.LifecycleSupport;
 
 /**
 * @author 李子帆
@@ -21,7 +19,7 @@ import lzf.webserver.core.LifecycleSupport;
 * @date 2018年7月15日 下午4:20:06
 * @Description 会话管理类，每个Web应用对应一个会话管理类a
 */
-public final class SessionManager implements Lifecycle {
+public final class SessionManager extends LifecycleBase implements Lifecycle {
 	
 	//默认最大空闲生存时间毫秒数：20分钟
 	public static final int DEFAULT_MAX_INACTIVETIME = 20 * 60 * 1000;
@@ -36,8 +34,6 @@ public final class SessionManager implements Lifecycle {
 	private final AtomicInteger sessionNum = new AtomicInteger(0);
 	//后台线程，监测Session对象
 	private final LifeCheckProcesser processer = new LifeCheckProcesser();
-	
-	private final LifecycleSupport lifecycleSupport = new LifecycleSupport(this);
 	
 	private volatile LifecycleState state = LifecycleState.NEW;
 	
@@ -78,6 +74,26 @@ public final class SessionManager implements Lifecycle {
 	public SessionManager(Context context, int defaultMaxSessionInactiveTime) {
 		this(context);
 		this.defaultMaxSessionInactiveTime = defaultMaxSessionInactiveTime;
+	}
+	
+	@Override
+	protected void initInternal() throws LifecycleException {
+		
+	}
+
+	@Override
+	protected void startInternal() throws LifecycleException {
+		new Thread(processer).start();
+	}
+
+	@Override
+	protected void stopInternal() throws LifecycleException {
+		
+	}
+
+	@Override
+	protected void destoryInternal() throws LifecycleException {
+
 	}
 	
 	/**
@@ -152,70 +168,5 @@ public final class SessionManager implements Lifecycle {
 	 */
 	public int getDefaultSessionMaxInactiveTime() {
 		return defaultMaxSessionInactiveTime;
-	}
-	
-	@Override
-	public void addLifecycleListener(LifecycleListener listener) {
-		lifecycleSupport.addLifecycleListener(listener);
-	}
-
-
-	@Override
-	public List<LifecycleListener> getLifecycleListeners() {
-		return lifecycleSupport.getLifecycleListeners();
-	}
-
-
-	@Override
-	public void init() throws LifecycleException {
-		if(state.after(LifecycleState.INITIALIZING))
-			throw new LifecycleException();
-		
-		state = LifecycleState.INITIALIZING;
-		lifecycleSupport.runLifecycleEvent(null);
-		state = LifecycleState.INITIALIZED;
-		lifecycleSupport.runLifecycleEvent(null);
-	}
-	
-	@Override
-	public void start() throws LifecycleException {
-		if(state.after(LifecycleState.STARTING_PREP))
-			throw new LifecycleException();
-		
-		state = LifecycleState.STARTING_PREP;
-		lifecycleSupport.runLifecycleEvent(null);
-		
-		new Thread(processer).start();
-		
-		state = LifecycleState.STARTED;
-		lifecycleSupport.runLifecycleEvent(null);
-	}
-
-
-	@Override
-	public void stop() throws LifecycleException {
-		if(state.after(LifecycleState.STARTING_PREP))
-			throw new LifecycleException();
-		
-		state = LifecycleState.STOPPING_PREP;
-		lifecycleSupport.runLifecycleEvent(null);
-		
-		state = LifecycleState.STOPPING;
-		//TODO 持久化所有的session
-		
-		state = LifecycleState.STOPPED;
-		lifecycleSupport.runLifecycleEvent(null);
-	}
-
-
-	@Override
-	public void destory() throws LifecycleException {
-		
-	}
-
-
-	@Override
-	public LifecycleState getLifecycleState() {
-		return state;
 	}
 }

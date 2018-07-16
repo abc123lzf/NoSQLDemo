@@ -21,7 +21,9 @@ public enum LifecycleState {
 	STOPPED(Lifecycle.AFTER_STOP_EVENT, 8, false),
 	
 	DESTORYING(Lifecycle.BEFORE_DESTORY_EVENT, 9, false),
-	DESTORYED(Lifecycle.AFTER_DESTORY_EVENT, 10, false);
+	DESTORYED(Lifecycle.AFTER_DESTORY_EVENT, 10, false),
+	
+	FAILED(null, -1, false);
 	
 	//生命周期状态名称
 	private final String lifecycleEvent;
@@ -52,6 +54,12 @@ public enum LifecycleState {
 	
 	public boolean after(LifecycleState state) {
 		if(this.step >= state.getStep())
+			return true;
+		return false;
+	}
+	
+	public boolean before(LifecycleState state) {
+		if(this.step < state.getStep())
 			return true;
 		return false;
 	}
