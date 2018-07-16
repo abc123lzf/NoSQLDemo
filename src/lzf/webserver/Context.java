@@ -13,7 +13,21 @@ import lzf.webserver.session.SessionManager;
 */
 public interface Context extends Container {
 
+	/**
+	 * 获取该Web应用对应的ServletContext对象
+	 * @return ServletContext实例
+	 */
 	public ServletContext getServletContext();
 	
+	/**
+	 * 获取该Web应用对应的Session管理器
+	 * @return
+	 */
 	public SessionManager getSessionManager();
+	
+	/**
+	 * 获取默认的SessionID名称(例如JSESSIONID)
+	 * @return 返回默认SessionID名
+	 */
+	public String getSessionIdName();
 }

@@ -81,25 +81,29 @@ public final class SessionManager implements Lifecycle {
 	}
 	
 	/**
-	 * 根据Session Id获取HttpSession对象，如果未找到则自动创建一个新的Session
+	 * 根据Session Id获取HttpSession对象
 	 * @param sessionId SessionId
+	 * @param create true:如果没有找到该Session对象则创建一个新的Session对象并返回
+	 * false:如果没有找到则返回null
 	 * @return HttpSession实例
 	 */
-	public HttpSession getSession(String sessionId) {
+	public HttpSession getSession(String sessionId, boolean create) {
 		Session session = sessions.get(sessionId);
 		if(session != null) {
 			session.updateLastAccessedTime();
 			return (HttpSession)session;
 		}
-		return (HttpSession)createSession();
+		if(create)
+			return (HttpSession)createSession();
+		return null;
 	}
 	
 	/**
 	 * 创建一个新的Session对象
 	 * @return 该SessionId
 	 */
-	public String newSession() {
-		return createSession().getId();
+	public HttpSession newSession() {
+		return (HttpSession) createSession();
 	}
 	
 	/**
@@ -107,9 +111,31 @@ public final class SessionManager implements Lifecycle {
 	 * @return StrandardSession实例
 	 */
 	private Session createSession() {
-		Session session = new StandardSession(this);
-		sessions.put(session.getId(), (Session) session);
+		StandardSession session = new StandardSession(this);
+		sessions.put(session.getId(), session);
 		return session;
+	}
+	
+	/**
+	 * 更改SessionID的UUID值
+	 * @param session 该Session实例
+	 * @return 新的UUID值
+	 */
+	public String changeSessionId(HttpSession session) {
+		if(session == null)
+			return null;
+		
+		StandardSession stdSession = (StandardSession) sessions.get(session.getId());
+		if(stdSession == null)
+			return null;
+		
+		synchronized(sessions) {
+			sessions.remove(session.getId());
+			stdSession.updateLastAccessedTime();
+			stdSession.changeId();
+			sessions.put(stdSession.getId(), stdSession);
+		}
+		return stdSession.getId();
 	}
 	
 	/**

@@ -159,14 +159,14 @@ public class NettyHandler implements Handler {
 	class HttpServerInboundHandler extends ChannelInboundHandlerAdapter {
 		
 		@Override
-		public void channelRead(ChannelHandlerContext ctx, Object msg) {
+		public void channelRead(final ChannelHandlerContext ctx, Object msg) {
 			if(msg instanceof FullHttpRequest) {
 				FullHttpRequest request = (FullHttpRequest) msg;
-				NettyRequest req = new NettyRequest(request);
+				Request req = NettyRequest.newRequest(request, ctx);
 				// TODO 接收到HTTP请求后将其转换为Servlet规范(用单独线程实现)
-			} 
-			ctx.write(new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.BAD_REQUEST));
-			
+			} else { 
+				ctx.write(new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.BAD_REQUEST));
+			}
 		}
 		
 	}

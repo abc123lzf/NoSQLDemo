@@ -25,7 +25,7 @@ public class StandardSession implements Session, HttpSession, Serializable {
 	private static final long serialVersionUID = 8941015350279589423L;
 	
 	//Session Id
-	private final String id = UUID.randomUUID().toString();
+	private String id = UUID.randomUUID().toString();
 	
 	//创建时间戳
 	private final long createTime = System.currentTimeMillis();
@@ -160,9 +160,6 @@ public class StandardSession implements Session, HttpSession, Serializable {
 		attributeMap.put(name, value);
 	}
 	
-	/**
-	 * 获取SessionID
-	 */
 	@Override
 	public String getId() {
 		return id;
@@ -176,6 +173,13 @@ public class StandardSession implements Session, HttpSession, Serializable {
 	@Override
 	public void setMaxInactiveInterval(int maxInactiveInterval) {
 		this.maxSessionInactiveTime = maxInactiveInterval;
+	}
+
+	@Override
+	public String changeId() {
+		String newId = UUID.randomUUID().toString();
+		this.id = newId;
+		return newId;
 	}
 
 }

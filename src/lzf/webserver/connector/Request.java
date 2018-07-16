@@ -6,8 +6,6 @@ import java.io.UnsupportedEncodingException;
 import java.security.Principal;
 import java.util.Collection;
 import java.util.Enumeration;
-import java.util.LinkedHashMap;
-import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -20,13 +18,13 @@ import javax.servlet.ServletInputStream;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpUpgradeHandler;
 import javax.servlet.http.Part;
 
 import lzf.webserver.util.IteratorEnumeration;
+import lzf.webserver.Context;
 
 /**
 * @author 李子帆
@@ -34,41 +32,19 @@ import lzf.webserver.util.IteratorEnumeration;
 * @date 2018年7月12日 下午1:45:14
 * @Description HTTP请求类，由连接器进行封装
 */
-public class Request implements HttpServletRequest {
+public class Request extends RequestBase {
 	
-	//请求行
-	//请求方法，例：POST、GET
-	protected String method;
-	//请求资源Uri，例：/index.html
-	protected String uri;
-	//使用的协议版本，可为HTTP/1.1 HTTP/1.0
-	protected String protocol;
+	private Context context;
 	
-	//请求头
-	protected final Map<String, String> headerMap = new LinkedHashMap<>();
-	
-	//使用的协议，可以为http或https
-	protected String scheme;
-	//完整路径,即浏览器上的路径
-	protected StringBuffer url;
-	//主机域名,例:www.baidu.com
-	protected String serverName;
-	//accept-encoding,浏览器支持的编码类型
-	protected String acceptEncoding;
-	//content-length,报头以外的内容长度
-	protected long contentLength;
-	
-	protected String contentType;
+	private String sessionId;
 	
 	protected final Map<String, Object> attributeMap = new ConcurrentHashMap<>();
-	
-	protected final Map<String, String[]> parameterMap = new LinkedHashMap<>();
-	
-	protected Cookie[] cookies = new Cookie[0];
-	
-	private final Locale locale = Locale.getDefault();
-	
+
 	protected String characterEncoding = null;
+	
+	public void setContext(Context context) {
+		this.context = context;
+	}
 	
 	@Override
 	public Object getAttribute(String name) {
@@ -91,88 +67,13 @@ public class Request implements HttpServletRequest {
 	}
 
 	@Override
-	public int getContentLength() {
-		return (int)contentLength;
-	}
-
-	@Override
-	public long getContentLengthLong() {
-		return contentLength;
-	}
-
-	@Override
-	public String getContentType() {
-		return contentType;
-	}
-
-	@Override
 	public ServletInputStream getInputStream() throws IOException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public String getParameter(String name) {
-		return parameterMap.get(name)[0];
-	}
-
-	@Override
-	public Enumeration<String> getParameterNames() {
-		return new IteratorEnumeration<String>(parameterMap.keySet().iterator());
-	}
-
-	@Override
-	public String[] getParameterValues(String name) {
-		return parameterMap.get(name);
-	}
-
-	@Override
-	public Map<String, String[]> getParameterMap() {
-		return parameterMap;
-	}
-
-	/**
-	 * 返回HTTP协议版本
-	 * @return HTTP/1.1或HTTP/1.0
-	 */
-	@Override
-	public String getProtocol() {
-		return protocol;
-	}
-
-	@Override
-	public String getScheme() {
-		return scheme;
-	}
-
-	@Override
-	public String getServerName() {
-		return serverName;
-	}
-
-	@Override
-	public int getServerPort() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
 	public BufferedReader getReader() throws IOException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/**
-	 * 客户端IP地址
-	 */
-	@Override
-	public String getRemoteAddr() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String getRemoteHost() {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -188,52 +89,37 @@ public class Request implements HttpServletRequest {
 	}
 
 	@Override
-	public Locale getLocale() {
-		return locale;
-	}
-
-	@Override
-	public Enumeration<Locale> getLocales() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public boolean isSecure() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
 	public RequestDispatcher getRequestDispatcher(String path) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	@Override
+	@Override @Deprecated
 	public String getRealPath(String path) {
-		// TODO Auto-generated method stub
-		return null;
+		return getServletContext().getRealPath(path);
 	}
 
-	@Override
-	public int getRemotePort() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
+	/**
+	 * 获取发出请求的客户端的主机名
+	 */
 	@Override
 	public String getLocalName() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	/**
+	 * 获取发出请求的客户端的IP地址
+	 * @return IP地址字符串
+	 */
 	@Override
 	public String getLocalAddr() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
+	/**
+	 * 获得该Web服务器接收请求的端口
+	 */
 	@Override
 	public int getLocalPort() {
 		// TODO Auto-generated method stub
@@ -242,39 +128,33 @@ public class Request implements HttpServletRequest {
 
 	@Override
 	public ServletContext getServletContext() {
-		// TODO Auto-generated method stub
-		return null;
+		return context.getServletContext();
 	}
 
 	@Override
 	public AsyncContext startAsync() throws IllegalStateException {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public AsyncContext startAsync(ServletRequest servletRequest, ServletResponse servletResponse)
 			throws IllegalStateException {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public boolean isAsyncStarted() {
-		// TODO Auto-generated method stub
-		return false;
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public boolean isAsyncSupported() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public AsyncContext getAsyncContext() {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
@@ -290,42 +170,9 @@ public class Request implements HttpServletRequest {
 	}
 
 	@Override
-	public Cookie[] getCookies() {
-		return cookies;
-	}
-
-	@Override
 	public long getDateHeader(String name) {
 		// TODO Auto-generated method stub
 		return 0;
-	}
-
-	@Override
-	public String getHeader(String name) {
-		return headerMap.get(name);
-	}
-
-	@Override
-	public Enumeration<String> getHeaders(String name) {
-		
-		return null;
-	}
-
-	@Override
-	public Enumeration<String> getHeaderNames() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public int getIntHeader(String name) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public String getMethod() {
-		return method;
 	}
 
 	@Override
@@ -342,12 +189,6 @@ public class Request implements HttpServletRequest {
 
 	@Override
 	public String getContextPath() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String getQueryString() {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -370,45 +211,70 @@ public class Request implements HttpServletRequest {
 		return null;
 	}
 
-	@Override
-	public String getRequestedSessionId() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String getRequestURI() {
-		return uri;
-	}
-
-	@Override
-	public StringBuffer getRequestURL() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
+	/**
+	 * 返回所请求的Servlet的真实磁盘路径
+	 * 若请求的Servlet不存在则返回null
+	 */
 	@Override
 	public String getServletPath() {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
+	
+	/**
+	 * 从HTTP请求中获得SessionID值
+	 * 通过Cookie或URL参数中获取SessionID
+	 */
 	@Override
-	public HttpSession getSession(boolean create) {
-		// TODO Auto-generated method stub
+	public String getRequestedSessionId() {
+		Cookie[] cookies = getCookies();
+		for(Cookie cookie : cookies) {
+			if(cookie.getName().equals(context.getSessionIdName())) {
+				return cookie.getName();
+			}
+		}
+		String sessionId = super.getParameter(context.getSessionIdName());
+		if(sessionId != null)
+			return sessionId;
 		return null;
 	}
 
+	/**
+	 * 获取Session对象
+	 * @param create true:如果没有找到则创建一个新的Session false:如果没有找到则返回null
+	 */
+	@Override
+	public HttpSession getSession(boolean create) {
+		if(create)
+			return getSession();
+		//从URL和Cookie中查找SessionID
+		if(this.sessionId == null)
+			this.sessionId = getRequestedSessionId();
+		//如果没有找到则返回null
+		if(this.sessionId == null)
+			return null;
+		//如果从从URL和Cookie中找到SessionID则从Session管理器查找该Session对象
+		return context.getSessionManager().getSession(sessionId, false);
+	}
+
+	/**
+	 * 获取Session对象，如果没有找到则创建一个新的Session
+	 * 等同于getSession(true)
+	 */
 	@Override
 	public HttpSession getSession() {
-		// TODO Auto-generated method stub
-		return null;
+		if(this.sessionId == null)
+			this.sessionId = getRequestedSessionId();
+		if(sessionId == null) {
+			return context.getSessionManager().newSession();
+		} else {
+			return context.getSessionManager().getSession(sessionId, true);
+		}
 	}
 
 	@Override
 	public String changeSessionId() {
-		// TODO Auto-generated method stub
-		return null;
+		return context.getSessionManager().changeSessionId(getSession());
 	}
 
 	@Override
@@ -469,7 +335,4 @@ public class Request implements HttpServletRequest {
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
-	
-	
 }

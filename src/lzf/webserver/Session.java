@@ -40,6 +40,12 @@ public interface Session {
 	public void updateLastAccessedTime();
 	
 	/**
+	 * 更改Session UUID
+	 * @return 新生成的ID
+	 */
+	public String changeId();
+	
+	/**
 	 * 获取该Session对象的管理器
 	 * @return Session对象管理器
 	 */
