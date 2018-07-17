@@ -1,5 +1,9 @@
 package lzf.webserver.session;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -13,6 +17,7 @@ import lzf.webserver.Session;
 import lzf.webserver.core.LifecycleBase;
 import lzf.webserver.log.Log;
 import lzf.webserver.log.LogFactory;
+import lzf.webserver.util.TimeUtil;
 
 /**
 * @author 李子帆
@@ -38,7 +43,7 @@ public final class HttpSessionManager extends SessionManagerBase {
 	
 	@Override
 	protected void initInternal() throws LifecycleException {
-		
+		// NOOP
 	}
 
 	@Override
@@ -48,12 +53,12 @@ public final class HttpSessionManager extends SessionManagerBase {
 
 	@Override
 	protected void stopInternal() throws LifecycleException {
-		
+		//持久化
 	}
 
 	@Override
 	protected void destoryInternal() throws LifecycleException {
-
+		super.sessions.clear();
 	}
 	
 	/**
@@ -86,4 +91,19 @@ public final class HttpSessionManager extends SessionManagerBase {
 		return session;
 	}
 	
+	/**
+	 * 持久化Session
+	 * @throws IOException 
+	 */
+	protected void persistSessions() throws IOException {
+		File file = new File(System.getProperty("user.dir") + File.separator 
+				+ TimeUtil.getTimeString() + ".ser");
+		FileOutputStream fos = new FileOutputStream(file);
+		ObjectOutputStream oos = new ObjectOutputStream(fos);
+		
+		for(Map.Entry<String, Session> entry : sessions.entrySet()) {
+			oos.writeObject(entry);
+		}
+		oos.close();
+	}
 }

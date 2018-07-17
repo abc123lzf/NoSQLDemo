@@ -12,7 +12,7 @@ import java.util.Date;
 */
 public final class TimeUtil {
 
-	private static final SimpleDateFormat LOG_TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss SSS");
+	private static final SimpleDateFormat LOG_TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
 	
 	public static Timestamp getTimestamp() {
 		Date date = new Date();       
@@ -20,7 +20,7 @@ public final class TimeUtil {
 		return dateStamp;
 	}
 	
-	public static String getLogTimeString() {
+	public static String getTimeString() {
 		Date date = new Date();
 		return LOG_TIME_FORMAT.format(date);
 	}

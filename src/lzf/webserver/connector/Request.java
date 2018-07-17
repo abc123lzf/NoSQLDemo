@@ -1,6 +1,5 @@
 package lzf.webserver.connector;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.Principal;
@@ -36,21 +35,40 @@ public class Request extends RequestBase {
 	
 	private Context context;
 	
+	//从Cookie或URL获取的sessionID(不是容器中的SessionID)
 	private String sessionId;
+	//上面SessionID是从Cookie获取的吗
+	private boolean sessionFromCookie = false;
+	//上面SessionID是从URL获取的吗
+	private boolean sessionFromURL = false;
 	
+	//属性Map
 	protected final Map<String, Object> attributeMap = new ConcurrentHashMap<>();
 
 	protected String characterEncoding = null;
 	
+	/**
+	 * 设置web上下文容器
+	 * @param context Context容器实例
+	 */
 	public void setContext(Context context) {
 		this.context = context;
 	}
 	
+	/**
+	 * 获取属性值
+	 * @param 属性名
+	 * @return 属性对象
+	 */
 	@Override
 	public Object getAttribute(String name) {
 		return attributeMap.get(name);
 	}
 
+	/**
+	 * 获取属性Map集合中所有属性名的迭代器
+	 * @return Enumeration迭代器
+	 */
 	@Override
 	public Enumeration<String> getAttributeNames() {
 		return new IteratorEnumeration<String>(attributeMap.keySet().iterator());
@@ -66,23 +84,30 @@ public class Request extends RequestBase {
 		this.characterEncoding = env;
 	}
 
+	/**
+	 * 获取请求体输入流
+	 * @return 请求体输入流
+	 */
 	@Override
 	public ServletInputStream getInputStream() throws IOException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	@Override
-	public BufferedReader getReader() throws IOException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
+	/**
+	 * 设置属性值
+	 * @param name 属性名
+	 * @param obj 属性对象
+	 */
 	@Override
 	public void setAttribute(String name, Object obj) {
 		attributeMap.put(name, obj);
 	}
 
+	/**
+	 * 通过属性名移除属性
+	 * @param name 需要移除的属性名
+	 */
 	@Override
 	public void removeAttribute(String name) {
 		attributeMap.remove(name);
@@ -94,6 +119,12 @@ public class Request extends RequestBase {
 		return null;
 	}
 
+	/**
+	 * 获取项目运行目录(完整磁盘路径)
+	 * 该方法已废除，建议通过getServletContext().getRealPath(path)获取
+	 * @param path 绝对路径
+	 * @return 完整磁盘路径
+	 */
 	@Override @Deprecated
 	public String getRealPath(String path) {
 		return getServletContext().getRealPath(path);
@@ -230,12 +261,16 @@ public class Request extends RequestBase {
 		Cookie[] cookies = getCookies();
 		for(Cookie cookie : cookies) {
 			if(cookie.getName().equals(context.getSessionIdName())) {
+				
+				this.sessionFromCookie = true;
 				return cookie.getName();
 			}
 		}
 		String sessionId = super.getParameter(context.getSessionIdName());
-		if(sessionId != null)
+		if(sessionId != null) {
+			this.sessionFromURL = true;
 			return sessionId;
+		}
 		return null;
 	}
 
@@ -277,28 +312,48 @@ public class Request extends RequestBase {
 		return context.getSessionManager().changeSessionId(getSession().getId());
 	}
 
+	/**
+	 * 判断从URL或Cookie中的提取的会话ID在容器里是否过期
+	 * @return 会话过期了吗？
+	 */
 	@Override
 	public boolean isRequestedSessionIdValid() {
-		// TODO Auto-generated method stub
+		if(this.sessionId == null)
+			getRequestedSessionId();
+		if(context.getSessionManager().getSession(sessionId, false) == null)
+			return true;
 		return false;
 	}
 
+	/**
+	 * 判断从URL或Cookie中的提取的会话ID来自Cooike吗
+	 * @return 来自Cookie吗？
+	 */
 	@Override
 	public boolean isRequestedSessionIdFromCookie() {
-		// TODO Auto-generated method stub
-		return false;
+		if(this.sessionId == null)
+			getRequestedSessionId();
+		return sessionFromCookie;
 	}
 
+	/**
+	 * 判断从URL或Cookie中的提取的会话ID来自URL吗
+	 * @return 来自URL吗？
+	 */
 	@Override
 	public boolean isRequestedSessionIdFromURL() {
-		// TODO Auto-generated method stub
-		return false;
+		if(this.sessionId == null)
+			getRequestedSessionId();
+		return sessionFromURL;
 	}
 
+	/**
+	 * 判断从URL或Cookie中的提取的会话ID来自Cooike吗
+	 * @return 来自URL吗？
+	 */
 	@Override
 	public boolean isRequestedSessionIdFromUrl() {
-		// TODO Auto-generated method stub
-		return false;
+		return isRequestedSessionIdFromURL();
 	}
 
 	@Override

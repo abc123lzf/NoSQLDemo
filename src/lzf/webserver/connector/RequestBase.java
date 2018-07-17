@@ -1,5 +1,7 @@
 package lzf.webserver.connector;
 
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.LinkedHashMap;
@@ -38,6 +40,9 @@ public abstract class RequestBase implements HttpServletRequest {
 	protected String remoteAddr;
 	protected String remoteHost;
 	protected int remotePort;
+	
+	//请求体Reader01+
+	protected BufferedReader contentReader;
 
 	protected void putHeader(String name, String value) {
 		headerMap.put(name.toLowerCase(), value);
@@ -54,7 +59,6 @@ public abstract class RequestBase implements HttpServletRequest {
 
 	/**
 	 * 获取HTTP请求体字段长度
-	 * 
 	 * @return 字段长度(long)
 	 */
 	@Override
@@ -69,10 +73,18 @@ public abstract class RequestBase implements HttpServletRequest {
 	public final String getContentType() {
 		return getHeader(getHeader("Content-Type"));
 	}
+	
+	/**
+	 * 返回请求体Reader流
+	 * @return 包含请求体内容的BufferedReader
+	 */
+	@Override
+	public final BufferedReader getReader() throws IOException {
+		return contentReader;
+	}
 
 	/**
 	 * 返回HTTP协议版本
-	 * 
 	 * @return HTTP/1.1或HTTP/1.0
 	 */
 	@Override
@@ -82,8 +94,7 @@ public abstract class RequestBase implements HttpServletRequest {
 
 	/**
 	 * 返回HTTP请求方法
-	 * 
-	 * @return GET/POST/
+	 * @return GET/POST/DELETE等
 	 */
 	@Override
 	public final String getMethod() {
@@ -99,7 +110,8 @@ public abstract class RequestBase implements HttpServletRequest {
 	}
 
 	/**
-	 * 暂不支持HTTPS
+	 * 获取请求协议，暂不支持HTTPS
+	 * @return "http"
 	 */
 	@Override
 	public final String getScheme() {
@@ -108,6 +120,7 @@ public abstract class RequestBase implements HttpServletRequest {
 
 	/**
 	 * 获取主机名，不包括端口号 如：localhost或www.baidu.com
+	 * @return 主机名字符串
 	 */
 	@Override
 	public final String getServerName() {
@@ -120,6 +133,7 @@ public abstract class RequestBase implements HttpServletRequest {
 
 	/**
 	 * 获取服务器端口号
+	 * @return (int)端口号
 	 */
 	@Override
 	public final int getServerPort() {
@@ -131,7 +145,8 @@ public abstract class RequestBase implements HttpServletRequest {
 	}
 
 	/**
-	 * 获取Locale集合中第一个Locale对象
+	 * 从HTTP请求头的Accpet-Language字段中提取信息并组装成Locale集合
+	 * @return Locale集合中第一个Locale对象
 	 */
 	@Override
 	public Locale getLocale() {
@@ -142,7 +157,8 @@ public abstract class RequestBase implements HttpServletRequest {
 	}
 
 	/**
-	 * 获取所有的Locale集合
+	 * 从HTTP请求头的Accpet-Language字段中提取信息并组装成Locale集合
+	 * @return Locale对象集合的Enumeration迭代器
 	 */
 	@Override
 	public Enumeration<Locale> getLocales() {
@@ -179,7 +195,9 @@ public abstract class RequestBase implements HttpServletRequest {
 	}
 
 	/**
-	 * 根据请求头属性名获取值并转换为int类型 如果不可转换则会抛出NumberFormatException异常
+	 * 根据请求头属性名获取值并转换为int类型，如果不可转换或不存在则会抛出异常
+	 * @param name HTTP请求头属性名
+	 * @return 转换后的int值
 	 */
 	@Override
 	public final int getIntHeader(String name) {
@@ -187,7 +205,9 @@ public abstract class RequestBase implements HttpServletRequest {
 	}
 
 	/**
-	 * 获取uri(位于请求行)
+	 * 从HTTP请求中获取URI
+	 * 例如/index.jsp?id=1即为/index.jsp
+	 * @return URI字符串
 	 */
 	@Override
 	public final String getRequestURI() {
@@ -197,8 +217,7 @@ public abstract class RequestBase implements HttpServletRequest {
 	}
 
 	/**
-	 * 获取完整的URL路径
-	 * 
+	 * 获取完整的URL路径，包括http://
 	 * @return URL的StringBuffer类
 	 */
 	@Override
@@ -209,6 +228,8 @@ public abstract class RequestBase implements HttpServletRequest {
 
 	/**
 	 * 根据HTTP请求头属性名获得对应的值
+	 * @param name HTTP请求头属性名
+	 * @return 对应的值
 	 */
 	@Override
 	public final String getHeader(String name) {
@@ -332,7 +353,8 @@ public abstract class RequestBase implements HttpServletRequest {
 	}
 	
 	/**
-	 * 获取Cookie数组
+	 * 从HTTP请求中获取Cookie
+	 * @return HTTP请求中所有Cookie组成的数组
 	 */
 	@Override
 	public final Cookie[] getCookies() {
@@ -378,6 +400,7 @@ public abstract class RequestBase implements HttpServletRequest {
 	
 	/**
 	 * 获取发出请求的客户端的端口号
+	 * @return 客户端端口号
 	 */
 	@Override
 	public final int getRemotePort() {

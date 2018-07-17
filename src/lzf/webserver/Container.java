@@ -35,7 +35,7 @@ public interface Container extends Lifecycle {
 	 * 设置当前容器的类加载器，当前容器的子容器和Jar包都由该类加载器负责加载
 	 * @param loader 类加载器实例，可以为WebappClassLoader
 	 */
-	public void setClassLoader(ClassLoader loader);
+	public void setClassLoader(ClassLoader classLoader);
 	
 	/**
 	 * 返回当前容器的类加载器
@@ -82,12 +82,6 @@ public interface Container extends Lifecycle {
 	 */
 	public void removeContainerListener(ContainerListener listener);
 	
-	/**
-	 * 执行容器事件，该方法应遍历事件监听器列表并根据事件对象决定是否执行相应事件
-	 * @param type 事件类型
-	 * @param data 事件数据(参数，可为null)
-	 */
-	public void runContainerEvent(String type, Object data);
 	
 	/**
 	 * 获取容器事件监听器列表

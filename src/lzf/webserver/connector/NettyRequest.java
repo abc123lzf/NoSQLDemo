@@ -1,5 +1,9 @@
 package lzf.webserver.connector;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.Map;
@@ -55,6 +59,10 @@ public class NettyRequest extends Request {
 			super.putHeader(entry.getKey(), entry.getValue());
 			System.out.println(entry.getKey() + ": " + entry.getValue());
 		}
+		byte[] content = contentBuf.array();
+		InputStream is = new ByteArrayInputStream(content);
+		InputStreamReader isr = new InputStreamReader(is);
+		super.contentReader = new BufferedReader(isr);
 	}
 	
 	/**

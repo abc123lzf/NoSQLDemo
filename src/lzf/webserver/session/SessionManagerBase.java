@@ -30,7 +30,7 @@ public abstract class SessionManagerBase extends LifecycleBase {
 	//默认最大非活跃生存时间
 	protected int defaultMaxSessionInactiveTime = DEFAULT_MAX_INACTIVETIME;
 	
-	//该web应用Session对象总数
+	//Session对象总数
 	private final AtomicInteger sessionNum = new AtomicInteger(0);
 	
 	//后台线程，监测Session对象
