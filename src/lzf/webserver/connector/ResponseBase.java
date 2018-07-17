@@ -119,26 +119,53 @@ public abstract class ResponseBase implements HttpServletResponse {
 		return null;
 	}
 
+	/**
+	 * 添加Cookie对象
+	 * @param Cookie对象实例
+	 */
 	@Override
 	public void addCookie(Cookie cookie) {
-		String cookieStr = headerMap.get("Set-Cookie");
-		if(cookieStr == null) {
-			cookie.getComment();
-			headerMap.put("Set-Cookie", "");
+		if(cookie == null)
+			throw new IllegalArgumentException("Cookie is null");
+		
+		String allCookieStr = headerMap.get("Set-Cookie");
+		String cookieStr = cookieToString(cookie);
+		if(allCookieStr == null) {
+			headerMap.put("Set-Cookie", cookieStr);
+		} else {
+			headerMap.put("Set-Cookie", allCookieStr + "; " + cookieStr);
 		}
 	}
 	
+	/**
+	 * 将Cookie对象转化成HTTP协议标准字符串形式
+	 * @param cookie Cookie对象
+	 * @return 标准Set-Cookie字符串
+	 */
 	private String cookieToString(Cookie cookie) {
 		String name = cookie.getName();
 		String val = cookie.getValue();
+		StringBuilder sb = new StringBuilder(name + "=" + val);
 		//转化为标准的HTTP格式的GMT时间
-		String expires = HTTP_DATE_FORMAT.format(System.currentTimeMillis() + cookie.getMaxAge() * 1000);
-		String path = cookie.getPath();
+		int maxAge = cookie.getMaxAge();
+		if(maxAge > 0)
+			sb.append("; Expires=" + HTTP_DATE_FORMAT.format(System.currentTimeMillis() + cookie.getMaxAge() * 1000));
 		String domain = cookie.getDomain();
+		if(domain != null)
+			sb.append("; Domain=" + domain);
+		String path = cookie.getPath();
+		if(path != null)
+			sb.append("; Path=" + path);
+		String comment = cookie.getComment();
+		if(comment != null)
+			sb.append("; Comment=" + comment);
 		Boolean secure = cookie.getSecure();
-		cookie.getComment();
-		
-		return name + "=" + val + "; Expires=" +  expires + "; Domain=" + domain + "; Path=" + path;
+		if(secure == true) 
+			sb.append("; Secure");
+		Boolean httpOnly = cookie.isHttpOnly();
+		if(httpOnly == true) 
+			sb.append("; HttpOnly");
+		return sb.toString();
 	}
 
 	@Override
