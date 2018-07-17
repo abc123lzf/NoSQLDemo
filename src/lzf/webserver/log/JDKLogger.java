@@ -1,6 +1,11 @@
 package lzf.webserver.log;
 
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.logging.ConsoleHandler;
+import java.util.logging.FileHandler;
 import java.util.logging.Formatter;
 import java.util.logging.Handler;
 import java.util.logging.Level;
@@ -19,6 +24,9 @@ public class JDKLogger implements Log {
 	private static final String SIMPLE_FMT = "java.util.logging.SimpleFormatter";
 	private static final String SIMPLE_CFG = "org.apache.juli.JdkLoggerConfig"; // doesn't exist
 	private static final String FORMATTER = "org.apache.juli.formatter";
+	
+	public static final SimpleDateFormat logFileNameFormat = new SimpleDateFormat("yyyy-MM-dd");
+	private static FileHandler fileHandler;
 
 	static {
 		if (System.getProperty("java.util.logging.config.class") == null
@@ -44,6 +52,8 @@ public class JDKLogger implements Log {
 
 	public JDKLogger(String name) {
 		logger = Logger.getLogger(name);
+		if(fileHandler != null)
+			logger.addHandler(fileHandler);
 	}
 
 	@Override
@@ -156,6 +166,14 @@ public class JDKLogger implements Log {
 	}
 
 	static Log getInstance(String name) {
+		if(fileHandler == null) {
+			try {
+				fileHandler = new FileHandler((String)System.getProperty("user.dir") + File.separator 
+						+ "log" + File.separator + logFileNameFormat.format(new Date()) + ".log");
+			} catch (SecurityException | IOException e) {
+				e.printStackTrace();
+			}
+		}
 		return new JDKLogger(name);
 	}
 }

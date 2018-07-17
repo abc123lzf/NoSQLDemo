@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import lzf.webserver.Engine;
-import lzf.webserver.LifecycleBase;
 import lzf.webserver.LifecycleException;
 import lzf.webserver.LifecycleState;
 import lzf.webserver.Server;

@@ -43,13 +43,13 @@ public class StandardSession implements Session, HttpSession, Serializable {
 	private final Map<String, Object> attributeMap = new ConcurrentHashMap<>();
 	
 	//该Session对象所属的管理器
-	private final SessionManager manager;
+	private final HttpSessionManager manager;
 
 	/**
 	 * 由SessionManager负责构造该对象
 	 * @param manager SessionManager实例
 	 */
-	public StandardSession(SessionManager manager) {
+	public StandardSession(HttpSessionManager manager) {
 		this.manager = manager;
 		this.maxSessionInactiveTime = manager.getDefaultSessionMaxInactiveTime();
 	}
@@ -166,8 +166,9 @@ public class StandardSession implements Session, HttpSession, Serializable {
 	}
 
 	@Override
-	public SessionManager getSessionManager() {
-		return manager;
+	public SessionManagerBase getSessionManager() {
+		//TODO
+		return null;
 	}
 
 	@Override

@@ -254,7 +254,7 @@ public class Request extends RequestBase {
 		if(this.sessionId == null)
 			return null;
 		//如果从从URL和Cookie中找到SessionID则从Session管理器查找该Session对象
-		return context.getSessionManager().getSession(sessionId, false);
+		return context.getSessionManager().getHttpSession(sessionId, false);
 	}
 
 	/**
@@ -266,15 +266,15 @@ public class Request extends RequestBase {
 		if(this.sessionId == null)
 			this.sessionId = getRequestedSessionId();
 		if(sessionId == null) {
-			return context.getSessionManager().newSession();
+			return context.getSessionManager().getHttpSession(sessionId, true);
 		} else {
-			return context.getSessionManager().getSession(sessionId, true);
+			return context.getSessionManager().getHttpSession(sessionId, true);
 		}
 	}
 
 	@Override
 	public String changeSessionId() {
-		return context.getSessionManager().changeSessionId(getSession());
+		return context.getSessionManager().changeSessionId(getSession().getId());
 	}
 
 	@Override

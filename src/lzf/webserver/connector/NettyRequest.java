@@ -4,6 +4,7 @@ import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.Map;
 
+import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpHeaders;
@@ -22,10 +23,13 @@ public class NettyRequest extends Request {
 	
 	private final HttpHeaders header;
 	
+	private final ByteBuf contentBuf;
+	
 	private NettyRequest(FullHttpRequest request, ChannelHandlerContext ctx) {
 		this.req = request;
 		this.header = req.headers();
 		this.ctx = ctx;
+		this.contentBuf = req.content();
 	}
 	
 	/**

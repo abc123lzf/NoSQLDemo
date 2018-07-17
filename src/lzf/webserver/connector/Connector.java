@@ -1,6 +1,9 @@
 package lzf.webserver.connector;
 
 import lzf.webserver.Service;
+import lzf.webserver.log.Log;
+import lzf.webserver.log.LogFactory;
+import lzf.webserver.startup.Bootstrap;
 
 /**
 * @author Àî×Ó·«
@@ -10,6 +13,8 @@ import lzf.webserver.Service;
 */
 public final class Connector {
 	
+	@SuppressWarnings("unused")
+	private static final Log log = LogFactory.getLog(Connector.class);
 	//
 	public static final int DEFAULT_PORT = 9090;
 	public static final int DEFAULT_TIMEOUT = 20000;

@@ -1,6 +1,6 @@
 package lzf.webserver;
 
-import lzf.webserver.session.SessionManager;
+import lzf.webserver.session.SessionManagerBase;
 
 /**
 * @author 李子帆
@@ -49,5 +49,5 @@ public interface Session {
 	 * 获取该Session对象的管理器
 	 * @return Session对象管理器
 	 */
-	public SessionManager getSessionManager();
+	public SessionManagerBase getSessionManager();
 }

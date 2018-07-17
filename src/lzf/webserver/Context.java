@@ -2,7 +2,7 @@ package lzf.webserver;
 
 import javax.servlet.ServletContext;
 
-import lzf.webserver.session.SessionManager;
+import lzf.webserver.session.HttpSessionManager;
 
 
 /**
@@ -23,7 +23,7 @@ public interface Context extends Container {
 	 * 获取该Web应用对应的Session管理器
 	 * @return
 	 */
-	public SessionManager getSessionManager();
+	public HttpSessionManager getSessionManager();
 	
 	/**
 	 * 获取默认的SessionID名称(例如JSESSIONID)
