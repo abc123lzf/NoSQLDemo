@@ -10,6 +10,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.servlet.ServletInputStream;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
@@ -41,8 +42,9 @@ public abstract class RequestBase implements HttpServletRequest {
 	protected String remoteHost;
 	protected int remotePort;
 	
-	//请求体Reader01+
+	//请求体Reader
 	protected BufferedReader contentReader;
+	protected ServletInputStream sis;
 
 	protected void putHeader(String name, String value) {
 		headerMap.put(name.toLowerCase(), value);
@@ -83,6 +85,16 @@ public abstract class RequestBase implements HttpServletRequest {
 		return contentReader;
 	}
 
+
+	/**
+	 * 获取请求体输入流
+	 * @return 请求体输入流
+	 */
+	@Override
+	public final ServletInputStream getInputStream() throws IOException {
+		return sis;
+	}
+	
 	/**
 	 * 返回HTTP协议版本
 	 * @return HTTP/1.1或HTTP/1.0

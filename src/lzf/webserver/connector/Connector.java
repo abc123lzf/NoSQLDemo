@@ -1,17 +1,17 @@
 package lzf.webserver.connector;
 
+import lzf.webserver.LifecycleException;
 import lzf.webserver.Service;
+import lzf.webserver.core.LifecycleBase;
 import lzf.webserver.log.Log;
 import lzf.webserver.log.LogFactory;
-import lzf.webserver.startup.Bootstrap;
-
 /**
 * @author 李子帆
 * @version 1.0
 * @date 2018年7月8日 下午3:39:40
 * @Description 连接器组件，负责接收客户端连接
 */
-public final class Connector {
+public final class Connector extends LifecycleBase {
 	
 	@SuppressWarnings("unused")
 	private static final Log log = LogFactory.getLog(Connector.class);
@@ -27,25 +27,29 @@ public final class Connector {
 	private int port = DEFAULT_PORT;
 	private int timeOut = DEFAULT_TIMEOUT;
 	private int maxConnection = DEFAULT_MAX_CONNECTION;
-	
-	public void init() {
-		try {
-			handler.init();
-		} catch (HandlerException e) {
-			e.printStackTrace();
-		}
-	}
-	
-	public void start() {
-		try {
-			handler.start();
-		} catch (HandlerException e) {
-			e.printStackTrace();
-		}
-	}
 
 	public Service getService() {
 		return service;
+	}
+	
+	@Override
+	protected void initInternal() throws LifecycleException {
+		handler.init();
+	}
+
+	@Override
+	protected void startInternal() throws LifecycleException {
+		handler.start();
+	}
+
+	@Override
+	protected void stopInternal() throws LifecycleException {
+		handler.stop();
+	}
+
+	@Override
+	protected void destoryInternal() throws LifecycleException {
+		handler.destory();
 	}
 
 	public void setService(Service service) {

@@ -12,6 +12,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpHeaders;
+import lzf.webserver.util.DefaultServletInputStream;
 
 /**
 * @author Àî×Ó·«
@@ -61,6 +62,7 @@ public class NettyRequest extends Request {
 		}
 		byte[] content = contentBuf.array();
 		InputStream is = new ByteArrayInputStream(content);
+		super.sis = new DefaultServletInputStream(is);
 		InputStreamReader isr = new InputStreamReader(is);
 		super.contentReader = new BufferedReader(isr);
 	}

@@ -5,16 +5,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.servlet.http.HttpSession;
 
 import lzf.webserver.Context;
 import lzf.webserver.LifecycleException;
-import lzf.webserver.LifecycleState;
 import lzf.webserver.Session;
-import lzf.webserver.core.LifecycleBase;
 import lzf.webserver.log.Log;
 import lzf.webserver.log.LogFactory;
 import lzf.webserver.util.TimeUtil;

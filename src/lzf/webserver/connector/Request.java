@@ -85,16 +85,6 @@ public class Request extends RequestBase {
 	}
 
 	/**
-	 * 获取请求体输入流
-	 * @return 请求体输入流
-	 */
-	@Override
-	public ServletInputStream getInputStream() throws IOException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/**
 	 * 设置属性值
 	 * @param name 属性名
 	 * @param obj 属性对象

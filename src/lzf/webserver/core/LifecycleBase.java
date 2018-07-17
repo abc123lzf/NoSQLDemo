@@ -33,6 +33,8 @@ public abstract class LifecycleBase implements Lifecycle {
 		runLifecycleEvent(null);
 		
 		initInternal();
+		if(state == LifecycleState.FAILED)
+			throw new LifecycleException();
 		
 		state = LifecycleState.INITIALIZED;
 		runLifecycleEvent(null);
@@ -51,6 +53,8 @@ public abstract class LifecycleBase implements Lifecycle {
 		
 		state = LifecycleState.STARTING;
 		startInternal();
+		if(state == LifecycleState.FAILED)
+			throw new LifecycleException();
 		
 		state = LifecycleState.STARTED;
 		runLifecycleEvent(null);
@@ -69,6 +73,8 @@ public abstract class LifecycleBase implements Lifecycle {
 		
 		state = LifecycleState.STOPPING;
 		stopInternal();
+		if(state == LifecycleState.FAILED)
+			throw new LifecycleException();
 		
 		state = LifecycleState.STOPPED;
 		runLifecycleEvent(null);
@@ -86,6 +92,8 @@ public abstract class LifecycleBase implements Lifecycle {
 		runLifecycleEvent(null);
 		
 		destoryInternal();
+		if(state == LifecycleState.FAILED)
+			throw new LifecycleException();
 		
 		state = LifecycleState.DESTORYED;
 		runLifecycleEvent(null);
@@ -122,6 +130,10 @@ public abstract class LifecycleBase implements Lifecycle {
 	@Override
 	public final LifecycleState getLifecycleState() {
 		return state;
+	}
+	
+	protected final void setLifecycleState(LifecycleState state) {
+		this.state = state;
 	}
 	
 	/**

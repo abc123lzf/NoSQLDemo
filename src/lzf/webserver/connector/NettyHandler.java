@@ -22,6 +22,9 @@ import io.netty.handler.codec.http.HttpResponseEncoder;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.codec.http.HttpVersion;
+import lzf.webserver.LifecycleException;
+import lzf.webserver.LifecycleState;
+import lzf.webserver.core.LifecycleBase;
 
 /**
  * @author 李子帆
@@ -29,16 +32,15 @@ import io.netty.handler.codec.http.HttpVersion;
  * @date 2018年7月14日 下午7:43:49
  * @Description Netty NIO接收器
  */
-public class NettyHandler implements Handler {
+public class NettyHandler extends LifecycleBase implements Handler {
 
 	private int port = Connector.DEFAULT_PORT;
+	//该接收器所属的连接器
 	private Connector connector;
-
-	private volatile HandlerState state = HandlerState.NEW;
-
+	//线程池
 	private final Executor executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-
-	private final Processer processer = new Processer();
+	
+	private final NettyHandlerProcesser processer = new NettyHandlerProcesser();
 
 	private final EventLoopGroup acceptGroup = new NioEventLoopGroup();
 	private final EventLoopGroup workerGroup = new NioEventLoopGroup();
@@ -54,12 +56,13 @@ public class NettyHandler implements Handler {
 		this.port = connector.getPort();
 	}
 
-	private class Processer implements Runnable {
+	protected class NettyHandlerProcesser implements Runnable {
 		@Override
 		public void run() {
 			try {
 				serverChannel.closeFuture().sync();
 			} catch (InterruptedException e) {
+				
 			}
 		}
 	}
@@ -75,13 +78,12 @@ public class NettyHandler implements Handler {
 	}
 
 	@Override
-	public void init() throws HandlerException {
-		if(state == HandlerState.ERR || state.after(HandlerState.INITIALIZING))
-			throw new HandlerException("无法初始化该Handler");
-		
-		//TODO 检查当前变量是否设置完全，否则抛出异常
-		
-		state = HandlerState.INITIALIZING;
+	public Executor getExecutor() {
+		return executor;
+	}
+	
+	@Override
+	protected void initInternal() throws LifecycleException {
 		ServerBootstrap boot = new ServerBootstrap();
 		boot.group(acceptGroup, workerGroup).channel(NioServerSocketChannel.class)
 				.childHandler(new ChannelInitializer<SocketChannel>() {
@@ -100,60 +102,50 @@ public class NettyHandler implements Handler {
 			if(future.isSuccess()) {
 				serverChannel = (ServerSocketChannel)future.channel();
 			} else {
-				state = HandlerState.ERR;
-				throw new HandlerException("绑定端口失败");
+				setLifecycleState(LifecycleState.FAILED);
+				throw new LifecycleException("绑定端口失败");
 			}
 		} catch (InterruptedException e) {
-			state = HandlerState.ERR;
-			throw new HandlerException("绑定端口被打断");
+			setLifecycleState(LifecycleState.FAILED);
+			throw new LifecycleException("绑定端口被打断");
 		}
-		state = HandlerState.INITIALIZED;
-	}
-
-	@Override
-	public void start() throws HandlerException {
-		if(state == HandlerState.ERR || state.after(HandlerState.STARTING))
-			throw new HandlerException("无法启动该Handler");
-		
-		state = HandlerState.STARTING;
-		executor.execute(processer);
-		state = HandlerState.STARTED;
-	}
-
-	@Override
-	public void stop() throws HandlerException {
-		if(state == HandlerState.ERR || state.after(HandlerState.INITIALIZING))
-			throw new HandlerException("无法停止该Handler");
-		
-		state = HandlerState.STOPPING;
-		acceptGroup.shutdownGracefully();
-		workerGroup.shutdownGracefully();
-		state = HandlerState.STOPPED;
-	}
-
-	@Override
-	public Executor getExecutor() {
-		return executor;
-	}
-
-	@Override
-	public HandlerState getState() {
-		return state;
 	}
 	
-	class RequestProcesser implements Runnable {
+	@Override
+	protected void startInternal() throws LifecycleException {
+		executor.execute(processer);
+	}
 
-		private FullHttpRequest fullRequest;
+	@Override
+	protected void stopInternal() throws LifecycleException {
+		acceptGroup.shutdownGracefully();
+		workerGroup.shutdownGracefully();
+	}
+
+	@Override
+	protected void destoryInternal() throws LifecycleException {
 		
-		public RequestProcesser(FullHttpRequest request) {
+	}
+
+	
+	protected static class RequestProcesser implements Runnable {
+		private final FullHttpRequest fullRequest;
+		private final ChannelHandlerContext ctx;
+		
+		public RequestProcesser(FullHttpRequest request, ChannelHandlerContext ctx) {
 			this.fullRequest = request;
+			this.ctx = ctx;
 		}
 		
 		@Override
 		public void run() {
-			//TODO 转化为Servlet规范请求类
+			Request request = NettyRequest.newRequest(fullRequest, ctx);
+			//TODO 提交到Engine管道
 		}
-		
+	}
+	
+	protected void runRequestProcesser(FullHttpRequest request, ChannelHandlerContext ctx) {
+		executor.execute(new RequestProcesser(request, ctx));
 	}
 	
 	class HttpServerInboundHandler extends ChannelInboundHandlerAdapter {
@@ -162,8 +154,7 @@ public class NettyHandler implements Handler {
 		public void channelRead(final ChannelHandlerContext ctx, Object msg) {
 			if(msg instanceof FullHttpRequest) {
 				FullHttpRequest request = (FullHttpRequest) msg;
-				Request req = NettyRequest.newRequest(request, ctx);
-				// TODO 接收到HTTP请求后将其转换为Servlet规范(用单独线程实现)
+				runRequestProcesser(request, ctx);
 			} else { 
 				ctx.write(new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.BAD_REQUEST));
 			}
