@@ -7,12 +7,12 @@ package lzf.webserver.log;
 */
 public interface Log {
 	
-	public boolean isTraceEnable();
-	public boolean isDebugEnable();
-	public boolean isInfoEnable();
-	public boolean isWarnEnable();
-	public boolean isErrorEnable();
-	public boolean isFatalEnable();
+	public boolean isTraceEnabled();
+	public boolean isDebugEnabled();
+	public boolean isInfoEnabled();
+	public boolean isWarnEnabled();
+	public boolean isErrorEnabled();
+	public boolean isFatalEnabled();
 	
 	public void trace(Object msg);
 	public void trace(Object msg, Throwable t);

@@ -7,6 +7,8 @@ import lzf.webserver.connector.Connector;
 import lzf.webserver.connector.NettyHandler;
 import lzf.webserver.core.StandardServer;
 import lzf.webserver.core.StandardService;
+import lzf.webserver.log.Log;
+import lzf.webserver.log.LogFactory;
 
 /**
 * @author Àî×Ó·«
@@ -16,7 +18,10 @@ import lzf.webserver.core.StandardService;
 */
 public final class Bootstrap {
 	
+	private static final Log log = LogFactory.getLog(Bootstrap.class);
+	
 	public void init() {
+		log.info("start");
 		Server server = new StandardServer();
 		try {
 			Service service = new StandardService();

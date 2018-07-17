@@ -35,8 +35,6 @@ public final class SessionManager extends LifecycleBase implements Lifecycle {
 	//后台线程，监测Session对象
 	private final LifeCheckProcesser processer = new LifeCheckProcesser();
 	
-	private volatile LifecycleState state = LifecycleState.NEW;
-	
 	/**
 	 * SessionManager后台线程，负责监测Session对象生存周期
 	 */
@@ -44,7 +42,7 @@ public final class SessionManager extends LifecycleBase implements Lifecycle {
 		@Override
 		public void run() {
 			while(true) {
-				if(state.after(LifecycleState.STOPPING_PREP))
+				if(getLifecycleState().after(LifecycleState.STOPPING_PREP))
 					break;
 				
 				long nowTime = System.currentTimeMillis();
