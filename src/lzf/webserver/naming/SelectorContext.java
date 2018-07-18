@@ -39,7 +39,6 @@ public class SelectorContext implements Context {
 
 	@Override
 	public void bind(Name name, Object obj) throws NamingException {
-		// TODO Auto-generated method stub
 		
 	}
 

@@ -1,6 +1,5 @@
 package lzf.webserver.startup;
 
-import lzf.webserver.LifecycleException;
 import lzf.webserver.Server;
 import lzf.webserver.Service;
 import lzf.webserver.connector.Connector;
