@@ -41,15 +41,16 @@ public class NettyHandler extends LifecycleBase implements Handler {
 	private int port = Connector.DEFAULT_PORT;
 	//该接收器所属的连接器
 	private Connector connector;
-	//线程池
+	//业务逻辑线程池
 	private final Executor executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-	
+	//Netty连接处理线程
 	private final NettyHandlerProcesser processer = new NettyHandlerProcesser();
-
+	//连接接收线程组
 	private final EventLoopGroup acceptGroup = new NioEventLoopGroup();
+	//进站出站处理线程组
 	private final EventLoopGroup workerGroup = new NioEventLoopGroup();
-	
-	private ServerSocketChannel serverChannel = null;
+	//服务器Socket通道
+	private volatile ServerSocketChannel serverChannel = null;
 	
 	public NettyHandler() {
 	}
@@ -136,7 +137,7 @@ public class NettyHandler extends LifecycleBase implements Handler {
 	}
 
 	/**
-	 * 负责处理业务逻辑的专用线程，必须添加到线程池执行
+	 * 负责处理业务逻辑的专用线程，必须通过调用runRequestProcesser实现
 	 */
 	protected static class RequestProcesser implements Runnable {
 		private final FullHttpRequest fullRequest;
@@ -150,12 +151,16 @@ public class NettyHandler extends LifecycleBase implements Handler {
 		@Override
 		public void run() {
 			Request request = NettyRequest.newRequest(fullRequest, ctx);
-			DefaultFullHttpResponse resp = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.BAD_REQUEST);
-			resp.headers().set(HttpHeaders.Names.CONTENT_TYPE, "text/plain; charset=UTF-8");
+			Response response = NettyResponse.newResponse(ctx);
 			//ctx.writeAndFlush(resp).addListener(ChannelFutureListener.CLOSE);
 		}
 	}
 	
+	/**
+	 * 运行业务逻辑线程
+	 * @param request FullHttpRequest对象
+	 * @param ctx ChannelHandlerContext实例
+	 */
 	protected void runRequestProcesser(FullHttpRequest request, ChannelHandlerContext ctx) {
 		executor.execute(new RequestProcesser(request, ctx));
 	}

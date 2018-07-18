@@ -1,23 +1,24 @@
 package lzf.webserver.util;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.WriteListener;
 
+import io.netty.buffer.ByteBuf;
+
 /**
 * @author 李子帆
 * @version 1.0
-* @date 2018年7月17日 下午9:38:40
+* @date 2018年7月18日 下午3:17:16
 * @Description 类说明
 */
-public class DefaultServletOutputStream extends ServletOutputStream {
+public class ByteBufOutputStream extends ServletOutputStream {
 
-	private final OutputStream oos = new ByteArrayOutputStream();
+	private final ByteBuf buf;
 	
-	public DefaultServletOutputStream() {
+	public ByteBufOutputStream(ByteBuf buf) {
+		this.buf = buf;
 	}
 	
 	@Override
@@ -31,6 +32,6 @@ public class DefaultServletOutputStream extends ServletOutputStream {
 
 	@Override
 	public void write(int b) throws IOException {
-		oos.write(b);
+		buf.writeByte(b);
 	}
 }

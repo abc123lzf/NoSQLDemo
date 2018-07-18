@@ -14,6 +14,7 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 
+
 /**
 * @author 李子帆如何修改JDK源码
 * @version 1.0
@@ -24,13 +25,18 @@ public abstract class ResponseBase implements HttpServletResponse {
 	
 	public static final SimpleDateFormat HTTP_DATE_FORMAT = new SimpleDateFormat("EEE MMM ddHH:mm:ss 'GMT' yyyy",Locale.US);
 	
-	private String status;
+	protected int status;
 	
 	protected final Map<String, String> headerMap = new LinkedHashMap<>();
 	
 	protected String characterEncoding = null;
 	
+	protected ServletOutputStream sos;
+	
+	protected PrintWriter pw;
+	
 	protected ResponseBase() {
+		headerMap.put("Content-Type", "text/plain; charset=UTF-8");
 		headerMap.put("Server", "LZF-HTTPServer-1.0");
 	}
 	
@@ -44,87 +50,47 @@ public abstract class ResponseBase implements HttpServletResponse {
 		return headerMap.get("Content-Type");
 	}
 
+	/**
+	 * 获取字节输出流
+	 * @param ServletOutputStream 实例
+	 */
 	@Override
 	public ServletOutputStream getOutputStream() throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		return sos;
 	}
 
 	/**
-	 * 请求体写入
+	 * 获取请求体字符写入流
+	 * @param PrintWriter实例
 	 */
 	@Override
 	public PrintWriter getWriter() throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		return pw;
 	}
 
 	@Override
-	public void setCharacterEncoding(String charset) {
+	public final void setCharacterEncoding(String charset) {
 		this.characterEncoding = charset;
 	}
 
 	@Override
-	public void setContentLength(int len) {
+	public final void setContentLength(int len) {
 		headerMap.put("Content-Length", String.valueOf(len));
 	}
 
 	@Override
-	public void setContentLengthLong(long length) {
+	public final void setContentLengthLong(long length) {
 		headerMap.put("Content-Length", String.valueOf(length));
 	}
 
 	@Override
-	public void setContentType(String type) {
+	public final void setContentType(String type) {
 		headerMap.put("Content-Type", type);
 	}
 
 	@Override
-	public void setBufferSize(int size) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public int getBufferSize() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
 	public void flushBuffer() throws IOException {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void resetBuffer() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public boolean isCommitted() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public void reset() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void setLocale(Locale loc) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public Locale getLocale() {
-		// TODO Auto-generated method stub
-		return null;
+		sos.flush();
 	}
 
 	/**
@@ -289,17 +255,7 @@ public abstract class ResponseBase implements HttpServletResponse {
 	 */
 	@Override
 	public final void setStatus(int sc) {
-		this.status = String.valueOf(sc);
-	}
-
-	/**
-	 * 设置响应状态码
-	 * @param sc 状态码 范围从100~500
-	 * @param sm 状态码描述
-	 */
-	@Override
-	public final void setStatus(int sc, String sm) {
-		this.status = String.valueOf(sc) + " " + sm;
+		this.status = sc;
 	}
 
 	/**
@@ -308,11 +264,7 @@ public abstract class ResponseBase implements HttpServletResponse {
 	 */
 	@Override
 	public final int getStatus() {
-		int index = status.indexOf(' ');
-		if(index == -1)
-			return Integer.valueOf(status);
-		else
-			return Integer.valueOf(status.substring(0, index));
+		return status;
 	}
 
 	/**

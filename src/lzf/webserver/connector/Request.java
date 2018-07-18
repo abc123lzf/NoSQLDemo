@@ -31,7 +31,7 @@ import lzf.webserver.Context;
 * @date 2018年7月12日 下午1:45:14
 * @Description HTTP请求类，由连接器进行封装
 */
-public class Request extends RequestBase {
+public abstract class Request extends RequestBase {
 	
 	private Context context;
 	
