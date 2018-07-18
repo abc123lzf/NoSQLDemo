@@ -28,10 +28,23 @@ public interface Valve {
 	public void setNext(Valve valve);
 	
 	/**
+	 * 获取该阀门所属的容器实例
+	 * @return Container容器实例
+	 */
+	public Container getContainer();
+	
+	/**
+	 * 设置该阀门所属的容器实例
+	 * @param container Container容器实例
+	 */
+	public void setContainer(Container container);
+	
+	/**
 	 * 阀门执行方法，如果是基础阀门，则应当调用子容器管道对象的第一个阀门
 	 * @param request 连接器封装好的Request对象
 	 * @param response 连接器封装好的Response对象
 	 */
 	public void invoke(Request request, Response response) 
 			throws IOException, ServletException;
+	
 }

@@ -9,10 +9,21 @@ import java.util.List;
  * @Description 容器类主接口
  */
 public interface Container extends Lifecycle {
-	
+	/**
+	 * 添加子容器事件
+	 */
 	public static final String ADD_CHILD_EVENT = "add_child";
+	/**
+	 * 移除子容器事件
+	 */
 	public static final String REMOVE_CHILD_EVENT = "remove_child";
+	/**
+	 * 向当前容器的管道添加阀门事件
+	 */
 	public static final String ADD_VALVE_EVENT = "add_valve";
+	/**
+	 * 当前容器的管道移除阀门事件
+	 */
 	public static final String REMOVE_VALVE_EVENT = "remove_valve";
 
 	/**
@@ -23,11 +34,13 @@ public interface Container extends Lifecycle {
 	
 	/**
 	 * 返回当前容器的名称
+	 * @return 容器名字符串
 	 */
 	public String getName();
 	
 	/**
 	 * 获取当前容器的管道
+	 * @return Pipeline管道实例(StandardPipeline)
 	 */
 	public Pipeline getPipeline();
 	
@@ -39,14 +52,16 @@ public interface Container extends Lifecycle {
 	
 	/**
 	 * 返回当前容器的类加载器
+	 * @return 类加载器实例
 	 */
 	public ClassLoader getClassLoader();
 	
 	/**
 	 * 向当前容器添加子容器，注意：Wrapper容器不可添加子容器
 	 * @param container 子容器类
+	 * @throws 添加的不是当前容器的子容器
 	 */
-	public void addChildContainer(Container container);
+	public void addChildContainer(Container container) throws IllegalArgumentException;
 	
 	/**
 	 * 移除子容器，Wrapper容器无效
@@ -67,6 +82,7 @@ public interface Container extends Lifecycle {
 	
 	/**
 	 * 获取所有的子容器
+	 * @return 包含所有子容器的List集合
 	 */
 	public List<Container> getChildContainers();
 	
@@ -84,7 +100,8 @@ public interface Container extends Lifecycle {
 	
 	
 	/**
-	 * 获取容器事件监听器列表
+	 * 获取所有的容器事件监听器集合
+	 * @return 包含容器监听器的集合
 	 */
 	public List<ContainerListener> getContainerListeners();
 }
