@@ -42,26 +42,26 @@ public interface Lifecycle {
 	 * 必须在事件发生后调用LifecycleSupport的runLifecycleEvent方法
 	 * @throws LifecycleException 当组件已经初始化后抛出异常 
 	 */
-	public void init() throws LifecycleException;
+	public void init() throws Exception;
 	
 	/**
 	 * 启动组件，历经BEFORE_START_EVENT->START_EVENT->AFTER_START_EVENT
 	 * @throws LifecycleException
 	 */
-	public void start() throws LifecycleException;
+	public void start() throws Exception;
 	
 	/**
 	 * 停止组件，历经BEFORE_STOP_EVENT->STOP_EVENT->AFTER_STOP_EVENT
 	 * @throws LifecycleException
 	 */
-	public void stop() throws LifecycleException;
+	public void stop() throws Exception;
 	
 	/**
 	 * 销毁组件，仅在组件发生错误时调用
 	 * 历经BEFORE_DESTORY_EVENT->AFTER_DESTORY_EVENT
 	 * @throws LifecycleException
 	 */
-	public void destory() throws LifecycleException;
+	public void destory() throws Exception;
 	
 	/**
 	 * 获取生命周期状态

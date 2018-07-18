@@ -2,6 +2,7 @@ package lzf.webserver.connector;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
@@ -16,12 +17,15 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpResponseEncoder;
 import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.codec.http.HttpVersion;
+import io.netty.handler.timeout.IdleState;
+import io.netty.handler.timeout.IdleStateEvent;
+import io.netty.handler.timeout.IdleStateHandler;
 import lzf.webserver.LifecycleException;
 import lzf.webserver.LifecycleState;
 import lzf.webserver.core.LifecycleBase;
@@ -83,15 +87,19 @@ public class NettyHandler extends LifecycleBase implements Handler {
 	}
 	
 	@Override
-	protected void initInternal() throws LifecycleException {
+	protected void initInternal() throws LifecycleException, HandlerException {
 		ServerBootstrap boot = new ServerBootstrap();
 		boot.group(acceptGroup, workerGroup).channel(NioServerSocketChannel.class)
 				.childHandler(new ChannelInitializer<SocketChannel>() {
 					@Override
 					protected void initChannel(SocketChannel ch) throws Exception {
+						//若客户端超过10秒没有发送任何请求则调用下一个进站处理器TimeOutHandler的userEventTriggered方法
+						ch.pipeline().addLast(new IdleStateHandler(10, 0, 0, TimeUnit.SECONDS));
+						//该进站处理器负责接收IdleStateHandler发送的事件并负责关闭超时TCP连接
+						ch.pipeline().addLast(new TimeOutHandler());
 						ch.pipeline().addLast(new HttpResponseEncoder());
 						ch.pipeline().addLast(new HttpRequestDecoder());
-						ch.pipeline().addLast(new HttpServerCodec());
+						//ch.pipeline().addLast(new HttpServerCodec());
 						ch.pipeline().addLast(new HttpObjectAggregator(512 * 1024));
 						ch.pipeline().addLast(new HttpServerInboundHandler());
 					}
@@ -103,11 +111,11 @@ public class NettyHandler extends LifecycleBase implements Handler {
 				serverChannel = (ServerSocketChannel)future.channel();
 			} else {
 				setLifecycleState(LifecycleState.FAILED);
-				throw new LifecycleException("绑定端口失败");
+				throw new HandlerException("绑定端口失败");
 			}
 		} catch (InterruptedException e) {
 			setLifecycleState(LifecycleState.FAILED);
-			throw new LifecycleException("绑定端口被打断");
+			throw new HandlerException("绑定端口被打断");
 		}
 	}
 	
@@ -124,10 +132,12 @@ public class NettyHandler extends LifecycleBase implements Handler {
 
 	@Override
 	protected void destoryInternal() throws LifecycleException {
-		
+		//NOOP
 	}
 
-	
+	/**
+	 * 负责处理业务逻辑的专用线程，必须添加到线程池执行
+	 */
 	protected static class RequestProcesser implements Runnable {
 		private final FullHttpRequest fullRequest;
 		private final ChannelHandlerContext ctx;
@@ -140,7 +150,9 @@ public class NettyHandler extends LifecycleBase implements Handler {
 		@Override
 		public void run() {
 			Request request = NettyRequest.newRequest(fullRequest, ctx);
-			//TODO 提交到Engine管道
+			DefaultFullHttpResponse resp = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.BAD_REQUEST);
+			resp.headers().set(HttpHeaders.Names.CONTENT_TYPE, "text/plain; charset=UTF-8");
+			//ctx.writeAndFlush(resp).addListener(ChannelFutureListener.CLOSE);
 		}
 	}
 	
@@ -148,6 +160,9 @@ public class NettyHandler extends LifecycleBase implements Handler {
 		executor.execute(new RequestProcesser(request, ctx));
 	}
 	
+	/**
+	 * 接收FullHttpRequest进站处理器，负责转化将这个Request对象添加到业务逻辑线程池中并执行
+	 */
 	class HttpServerInboundHandler extends ChannelInboundHandlerAdapter {
 		
 		@Override
@@ -155,10 +170,27 @@ public class NettyHandler extends LifecycleBase implements Handler {
 			if(msg instanceof FullHttpRequest) {
 				FullHttpRequest request = (FullHttpRequest) msg;
 				runRequestProcesser(request, ctx);
-			} else { 
-				ctx.write(new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.BAD_REQUEST));
 			}
 		}
-		
+	}
+}
+
+/**
+ * @author 李子帆
+ * @version 1.0
+ * @Description 若客户端超过10秒后没有发送请求则关闭这个TCP连接
+ */
+class TimeOutHandler extends ChannelInboundHandlerAdapter {
+	
+	public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
+		if(evt instanceof IdleStateEvent) {
+			IdleStateEvent event = (IdleStateEvent)evt;
+			if(event.state() == IdleState.READER_IDLE) {
+				System.out.println("Channel Close");
+				ctx.channel().close();
+			}
+		} else {
+			super.userEventTriggered(ctx, evt);
+		}
 	}
 }

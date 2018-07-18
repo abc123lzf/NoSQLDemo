@@ -59,7 +59,7 @@ public class StandardServer extends LifecycleBase implements Server {
 		
 		public ShutdownListener() throws IOException {
 			socket = new ServerSocket(port);
-			socket.setSoTimeout(180000);
+			//socket.setSoTimeout(180000);
 		}
 		
 		@Override
@@ -81,7 +81,7 @@ public class StandardServer extends LifecycleBase implements Server {
 							stop();
 							os.write(SHUTDOWN_SUCCESS);
 							break;
-						} catch (LifecycleException e) {
+						} catch (Exception e) {
 							os.write(SHUTDOWN_FAILURE);
 						} finally {
 							os.close();
@@ -104,7 +104,7 @@ public class StandardServer extends LifecycleBase implements Server {
 	 * 初始化前，应先指定关闭指定端口、关闭命令字符串、设置Service对象
 	 */
 	@Override
-	protected void initInternal() throws LifecycleException {
+	protected void initInternal() throws Exception {
 		try {
 			shutdownListener = new ShutdownListener();
 			new Thread(shutdownListener).start();
@@ -117,19 +117,19 @@ public class StandardServer extends LifecycleBase implements Server {
 	}
 
 	@Override
-	protected void startInternal() throws LifecycleException {
+	protected void startInternal() throws Exception {
 		for(Service service : services)
 			service.start();
 	}
 
 	@Override
-	protected void stopInternal() throws LifecycleException {
+	protected void stopInternal() throws Exception {
 		for(Service service : services)
 			service.stop();
 	}
 
 	@Override
-	protected void destoryInternal() throws LifecycleException {
+	protected void destoryInternal() throws Exception {
 		System.exit(0);
 	}
 	

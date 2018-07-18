@@ -97,7 +97,7 @@ public class StandardPipeline extends LifecycleBase implements Pipeline {
 	}
 
 	@Override
-	protected void initInternal() throws LifecycleException {
+	protected void initInternal() throws Exception {
 		for(Valve v : valves) {
 			if(v instanceof Lifecycle)
 				((Lifecycle) v).init();
@@ -105,7 +105,7 @@ public class StandardPipeline extends LifecycleBase implements Pipeline {
 	}
 
 	@Override
-	protected void startInternal() throws LifecycleException {
+	protected void startInternal() throws Exception {
 		for(Valve v : valves) {
 			if(v instanceof Lifecycle)
 				((Lifecycle) v).start();
@@ -113,7 +113,7 @@ public class StandardPipeline extends LifecycleBase implements Pipeline {
 	}
 
 	@Override
-	protected void stopInternal() throws LifecycleException {
+	protected void stopInternal() throws Exception {
 		for(Valve v : valves) {
 			if(v instanceof Lifecycle)
 				((Lifecycle) v).stop();
@@ -122,7 +122,7 @@ public class StandardPipeline extends LifecycleBase implements Pipeline {
 	}
 
 	@Override
-	protected void destoryInternal() throws LifecycleException {
+	protected void destoryInternal() throws Exception {
 		for(Valve v : valves) {
 			if(v instanceof Lifecycle)
 				((Lifecycle) v).destory();

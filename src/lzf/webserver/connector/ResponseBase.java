@@ -3,8 +3,10 @@ package lzf.webserver.connector;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -22,9 +24,15 @@ public abstract class ResponseBase implements HttpServletResponse {
 	
 	public static final SimpleDateFormat HTTP_DATE_FORMAT = new SimpleDateFormat("EEE MMM ddHH:mm:ss 'GMT' yyyy",Locale.US);
 	
-	protected Map<String, String> headerMap = new LinkedHashMap<>();
+	private String status;
+	
+	protected final Map<String, String> headerMap = new LinkedHashMap<>();
 	
 	protected String characterEncoding = null;
+	
+	protected ResponseBase() {
+		headerMap.put("Server", "LZF-HTTPServer-1.0");
+	}
 	
 	@Override
 	public String getCharacterEncoding() {
@@ -124,7 +132,7 @@ public abstract class ResponseBase implements HttpServletResponse {
 	 * @param Cookie对象实例
 	 */
 	@Override
-	public void addCookie(Cookie cookie) {
+	public final void addCookie(Cookie cookie) {
 		if(cookie == null)
 			throw new IllegalArgumentException("Cookie is null");
 		
@@ -169,7 +177,7 @@ public abstract class ResponseBase implements HttpServletResponse {
 	}
 
 	@Override
-	public boolean containsHeader(String name) {
+	public final boolean containsHeader(String name) {
 		return headerMap.containsKey(name);
 	}
 
@@ -197,94 +205,148 @@ public abstract class ResponseBase implements HttpServletResponse {
 		return null;
 	}
 
+	/**
+	 * 设置有关日期的响应头，如果该响应头已经设置则覆盖原先的值
+	 * @param name 响应头名
+	 * @param date 时间戳
+	 */
 	@Override
-	public void sendError(int sc, String msg) throws IOException {
-		// TODO Auto-generated method stub
-
+	public final void setDateHeader(String name, long date) {
+		headerMap.put(name, HTTP_DATE_FORMAT.format(date));
 	}
 
+	/**
+	 * 添加有关日期的响应头，如果该响应头已经设置则往后添加
+	 * @param name 响应头名
+	 * @param date 时间戳
+	 */
 	@Override
-	public void sendError(int sc) throws IOException {
-		// TODO Auto-generated method stub
-
+	public final void addDateHeader(String name, long date) {
+		String val = headerMap.get(name);
+		if(val != null) {
+			val += "; " + HTTP_DATE_FORMAT.format(date);
+			headerMap.put(name, val);
+			return;
+		}
+		setDateHeader(name, date);
 	}
 
+	/**
+	 * 添加响应头，如果已有该响应头则覆盖
+	 * @param name 响应头名
+	 * @param value 响应头值
+	 */
 	@Override
-	public void sendRedirect(String location) throws IOException {
-		// TODO Auto-generated method stub
-
+	public final void setHeader(String name, String value) {
+		headerMap.put(name, value);
 	}
 
+	/**
+	 * 添加响应头，如果已有该响应头则往后添加
+	 * @param name 响应头名
+	 * @param value 响应头值
+	 */
 	@Override
-	public void setDateHeader(String name, long date) {
-		// TODO Auto-generated method stub
-
+	public final void addHeader(String name, String value) {
+		String val = headerMap.get(name);
+		if(val != null) {
+			val += "; " + value;
+			headerMap.put(name, val);
+			return;
+		}
+		setHeader(name, value);
 	}
 
+	/**
+	 * 添加int类型响应头，如果已有该响应头则覆盖
+	 * @param name 响应头名
+	 * @param value 响应头值
+	 */
 	@Override
-	public void addDateHeader(String name, long date) {
-		// TODO Auto-generated method stub
-
+	public final void setIntHeader(String name, int value) {
+		headerMap.put(name, String.valueOf(value));
 	}
 
+	/**
+	 * 添加int类型响应头，如果已有该响应头则往后添加
+	 * @param name 响应头名
+	 * @param value 响应头值
+	 */
 	@Override
-	public void setHeader(String name, String value) {
-		// TODO Auto-generated method stub
-
+	public final void addIntHeader(String name, int value) {
+		String val = headerMap.get(name);
+		if(val != null) {
+			val += "; " + String.valueOf(value);
+			headerMap.put(name, val);
+			return;
+		}
+		setIntHeader(name, value);
 	}
 
+	/**
+	 * 设置响应状态码
+	 * @param sc 状态码 范围从100~500
+	 */
 	@Override
-	public void addHeader(String name, String value) {
-		// TODO Auto-generated method stub
-
+	public final void setStatus(int sc) {
+		this.status = String.valueOf(sc);
 	}
 
+	/**
+	 * 设置响应状态码
+	 * @param sc 状态码 范围从100~500
+	 * @param sm 状态码描述
+	 */
 	@Override
-	public void setIntHeader(String name, int value) {
-		// TODO Auto-generated method stub
-
+	public final void setStatus(int sc, String sm) {
+		this.status = String.valueOf(sc) + " " + sm;
 	}
 
+	/**
+	 * 获取响应状态码，如200、404
+	 * @return 响应状态码
+	 */
 	@Override
-	public void addIntHeader(String name, int value) {
-		// TODO Auto-generated method stub
-
+	public final int getStatus() {
+		int index = status.indexOf(' ');
+		if(index == -1)
+			return Integer.valueOf(status);
+		else
+			return Integer.valueOf(status.substring(0, index));
 	}
 
+	/**
+	 * 根据响应头名获取值
+	 * @param name 响应头名
+	 * @return 对应的值
+	 */
 	@Override
-	public void setStatus(int sc) {
-		// TODO Auto-generated method stub
-
+	public final String getHeader(String name) {
+		return headerMap.get(name);
 	}
 
+	/**
+	 * 根据键名获取包含所有值的集合，如果该键包含多个值(用';'分开)
+	 * @return Collection集合
+	 */
 	@Override
-	public void setStatus(int sc, String sm) {
-		// TODO Auto-generated method stub
-
+	public final Collection<String> getHeaders(String name) {
+		if(headerMap.get(name) == null)
+			return null;
+		String[] headers = headerMap.get(name).split(";");
+		List<String> list = new ArrayList<>(headers.length);
+		for(String head : headers)
+			list.add(head);
+		return list;
 	}
 
+	/**
+	 * 获取该响应头所有键的名称集合
+	 * @return Collection集合
+	 */
 	@Override
-	public int getStatus() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public String getHeader(String name) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Collection<String> getHeaders(String name) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Collection<String> getHeaderNames() {
-		// TODO Auto-generated method stub
-		return null;
+	public final Collection<String> getHeaderNames() {
+		return headerMap.keySet();
 	}
 
 }

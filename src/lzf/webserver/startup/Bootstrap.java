@@ -39,7 +39,7 @@ public final class Bootstrap {
 			server.init();
 			server.start();
 			
-		} catch (LifecycleException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}

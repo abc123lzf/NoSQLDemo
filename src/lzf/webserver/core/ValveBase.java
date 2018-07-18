@@ -22,6 +22,7 @@ public abstract class ValveBase implements Valve {
 	 * 获取下一个管道
 	 * @return Valve 下一个管道
 	 */
+	@Override
 	public Valve getNext() {
 		return next;
 	}
@@ -30,6 +31,7 @@ public abstract class ValveBase implements Valve {
 	 * 设置下一个管道
 	 * @param valve 下一个管道实例
 	 */
+	@Override
 	public void setNext(Valve valve) {
 		this.next = valve;
 	}
@@ -39,6 +41,7 @@ public abstract class ValveBase implements Valve {
 	 * @param request 请求对象
 	 * @param response 响应对象
 	 */
+	@Override
 	public abstract void invoke(Request request, Response response)
 			throws IOException, ServletException;
 }

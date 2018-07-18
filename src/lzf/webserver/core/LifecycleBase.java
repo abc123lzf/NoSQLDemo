@@ -25,7 +25,7 @@ public abstract class LifecycleBase implements Lifecycle {
 	 * 组件初始化
 	 */
 	@Override
-	public final synchronized void init() throws LifecycleException {
+	public final synchronized void init() throws Exception {
 		if(state.after(LifecycleState.INITIALIZING))
 			throw new LifecycleException();
 		
@@ -44,7 +44,7 @@ public abstract class LifecycleBase implements Lifecycle {
 	 * 组件启动
 	 */
 	@Override
-	public final synchronized void start() throws LifecycleException {
+	public final synchronized void start() throws Exception {
 		if(state.after(LifecycleState.STARTING_PREP))
 			throw new LifecycleException();
 		
@@ -64,7 +64,7 @@ public abstract class LifecycleBase implements Lifecycle {
 	 * 组件停止
 	 */
 	@Override
-	public final synchronized void stop() throws LifecycleException {
+	public final synchronized void stop() throws Exception {
 		if(state.after(LifecycleState.STOPPING_PREP) || state.before(LifecycleState.INITIALIZED))
 			throw new LifecycleException();
 		
@@ -84,7 +84,7 @@ public abstract class LifecycleBase implements Lifecycle {
 	 * 组件停止
 	 */
 	@Override
-	public final synchronized void destory() throws LifecycleException {
+	public final synchronized void destory() throws Exception {
 		if(state.after(LifecycleState.DESTORYED))
 			throw new LifecycleException();
 		
@@ -103,25 +103,25 @@ public abstract class LifecycleBase implements Lifecycle {
 	 * 初始化组件细节
 	 * @throws LifecycleException 尝试在初始化后调用该方法
 	 */
-	protected abstract void initInternal() throws LifecycleException;
+	protected abstract void initInternal() throws Exception;
 	
 	/**
 	 * 启动组件细节
 	 * @throws LifecycleException 尝试在未经初始化或者启动之后调用该方法
 	 */
-	protected abstract void startInternal() throws LifecycleException;
+	protected abstract void startInternal() throws Exception;
 	
 	/**
 	 * 停止组件细节
 	 * @throws LifecycleException 尝试在未经初始化前或组件销毁后调用该方法
 	 */
-	protected abstract void stopInternal() throws LifecycleException;
+	protected abstract void stopInternal() throws Exception;
 	
 	/**
 	 * 停止组件细节
 	 * @throws LifecycleException 尝试在组件销毁后调用该方法
 	 */
-	protected abstract void destoryInternal() throws LifecycleException;
+	protected abstract void destoryInternal() throws Exception;
 
 	/**
 	 * 获取生命周期状态

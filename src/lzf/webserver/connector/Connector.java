@@ -17,7 +17,7 @@ public final class Connector extends LifecycleBase {
 	private static final Log log = LogFactory.getLog(Connector.class);
 	//
 	public static final int DEFAULT_PORT = 9090;
-	public static final int DEFAULT_TIMEOUT = 20000;
+	public static final int DEFAULT_TIMEOUT = 3000;
 	public static final int DEFAULT_MAX_CONNECTION = 200; 
 	
 	private Service service;
@@ -33,22 +33,22 @@ public final class Connector extends LifecycleBase {
 	}
 	
 	@Override
-	protected void initInternal() throws LifecycleException {
+	protected void initInternal() throws Exception {
 		handler.init();
 	}
 
 	@Override
-	protected void startInternal() throws LifecycleException {
+	protected void startInternal() throws Exception {
 		handler.start();
 	}
 
 	@Override
-	protected void stopInternal() throws LifecycleException {
+	protected void stopInternal() throws Exception {
 		handler.stop();
 	}
 
 	@Override
-	protected void destoryInternal() throws LifecycleException {
+	protected void destoryInternal() throws Exception {
 		handler.destory();
 	}
 
