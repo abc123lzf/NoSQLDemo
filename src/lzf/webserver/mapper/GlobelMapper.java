@@ -2,7 +2,6 @@ package lzf.webserver.mapper;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import lzf.webserver.Context;
 import lzf.webserver.Host;
@@ -19,10 +18,6 @@ public final class GlobelMapper {
 	private final Service service;
 	
 	private final Map<String, MappedHost> mapper = new LinkedHashMap<>();
-	
-	private String defaultHostName = null;
-	
-	private MappedHost defaultHost = null;
 	
 	public GlobelMapper(Service service) {
 		this.service = service;
@@ -41,11 +36,20 @@ public final class GlobelMapper {
 		mapper.remove(hostName);
 	}
 	
-	private MappedHost getHost(String hostName) {
+	private MappedHost getMappedHost(String hostName) {
 		MappedHost host = mapper.get(hostName);
 		if(host == null)
 			return null;
 		return host;
+	}
+	
+	/**
+	 * 根据主机名获取Host实例
+	 * @param hostName
+	 * @return
+	 */
+	public Host getHost(String hostName) {
+		return getMappedHost(hostName).object;
 	}
 	
 	/**
@@ -55,7 +59,7 @@ public final class GlobelMapper {
 	 * @return Context对象 没有找到则返回null
 	 */
 	public Context getContext(String hostName, String uri) {
-		MappedHost host = getHost(hostName);
+		MappedHost host = getMappedHost(hostName);
 		
 		//通过主机名寻找Host，如果没有找到主机则直接返回null
 		if(host == null)
@@ -69,7 +73,7 @@ public final class GlobelMapper {
 		//截取第二个"/"之前的字符串
 		int st = uri.indexOf('/', 1);
 		String contextName;
-		//若没有找到第二个"/"，则说明是类似"/demo"这样的uri，直接去除字符串开头"/"即可
+		//若没有找到第二个"/"，则说明是类似"/demo"这样的URI，直接去除字符串开头"/"即可
 		if(st == -1) {
 			contextName = uri.substring(1, uri.length() - 1);
 		//如果找到了，则说明是较为复杂的URL，类似"/demo/index.jsp"这样，截取出demo即可
@@ -82,6 +86,10 @@ public final class GlobelMapper {
 			return context;
 		//如果没有找到，则转至ROOT目录
 		return (Context) host.object.getChildContainer("ROOT");
+	}
+	
+	public Service getService() {
+		return service;
 	}
 }
 
