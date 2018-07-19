@@ -2,6 +2,7 @@ package lzf.webserver;
 import java.util.List;
 
 import lzf.webserver.connector.Connector;
+import lzf.webserver.mapper.GlobelMapper;
 
 /**
 * @author 李子帆
@@ -47,6 +48,12 @@ public interface Service extends Lifecycle {
 	 * @return 包含所有连接器的List
 	 */
 	public List<Connector> getConnectors();
+	
+	/**
+	 * 获取全局路由对象
+	 * @return GlobelMapper实例
+	 */
+	public GlobelMapper getGlobelMapper();
 	
 	/**
 	 * 设置全局引擎容器，每个Service组件仅可设置一个全局引擎容器

@@ -11,7 +11,7 @@ import lzf.webserver.Service;
 * @author 李子帆
 * @version 1.0
 * @date 2018年7月14日 下午5:02:43
-* @Description 全局URL路由器
+* @Description 全局URL路由器，每个Service对象拥有一个GlobelMapper对象
 */
 public final class GlobelMapper {
 
@@ -23,19 +23,36 @@ public final class GlobelMapper {
 		this.service = service;
 	}
 	
+	/**
+	 * 添加主机
+	 * @param host
+	 */
 	public synchronized void addHost(Host host) {
 		MappedHost mappedHost = new MappedHost(host.getName(), host);
 		mapper.put(host.getName(), mappedHost);
 	}
 	
+	/**
+	 * 根据Host对象移除MappedHost对象
+	 * @param host Host对象
+	 */
 	public synchronized void removeHost(Host host) {
 		mapper.remove(host.getName());
 	}
 	
+	/**
+	 * 根据主机名移除MappedHost对象
+	 * @param hostName
+	 */
 	public synchronized void removeHost(String hostName) {
 		mapper.remove(hostName);
 	}
 	
+	/**
+	 * 根据主机名称获取MappedHost
+	 * @param hostName 主机名
+	 * @return MappedHost对象 如没有找到则返回null
+	 */
 	private MappedHost getMappedHost(String hostName) {
 		MappedHost host = mapper.get(hostName);
 		if(host == null)
@@ -93,6 +110,10 @@ public final class GlobelMapper {
 	}
 }
 
+/**
+ * Mapper对应的元素对象
+ * @param <T> 容器实例
+ */
 abstract class MapElement<T> {
 	
 	public final String name;
@@ -105,8 +126,7 @@ abstract class MapElement<T> {
 }
 
 final class MappedHost extends MapElement<Host> {
-	public String defaultContextName;
-	
+
 	public MappedHost(String name, Host object) {
 		super(name, object);
 	}

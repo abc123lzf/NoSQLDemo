@@ -9,6 +9,7 @@ import lzf.webserver.LifecycleState;
 import lzf.webserver.Server;
 import lzf.webserver.Service;
 import lzf.webserver.connector.Connector;
+import lzf.webserver.mapper.GlobelMapper;
 
 /**
  * @author 李子帆
@@ -24,6 +25,7 @@ public class StandardService extends LifecycleBase implements Service {
 	//父组件Server实例
 	private Server server;
 
+	private GlobelMapper mapper = new GlobelMapper(this);
 	//连接器集合
 	private List<Connector> connectors = new CopyOnWriteArrayList<>();
 	//Engine组件
@@ -144,5 +146,14 @@ public class StandardService extends LifecycleBase implements Service {
 			throw new LifecycleException("无法设置Engine组件：Service已启动");
 		
 		this.engine = engine;
+	}
+
+	/**
+	 * 获取全局路由对象
+	 * @return GlobelMapper实例
+	 */
+	@Override
+	public GlobelMapper getGlobelMapper() {
+		return mapper;
 	}
 }
