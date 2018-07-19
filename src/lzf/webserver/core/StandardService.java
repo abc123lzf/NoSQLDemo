@@ -18,8 +18,9 @@ import lzf.webserver.connector.Connector;
  */
 public class StandardService extends LifecycleBase implements Service {
 
+	public static final String DEFAULT_NAME = "service0";
 	//组件名
-	private String name;
+	private String name = DEFAULT_NAME;
 	//父组件Server实例
 	private Server server;
 
@@ -68,19 +69,31 @@ public class StandardService extends LifecycleBase implements Service {
 		engine.destory();
 	}
 
-
+	/**
+	 * 设置Service组件名称
+	 * @param name 组件名
+	 * @throws LifecycleException 当已经调用Service组件的start方法后再调用此方法
+	 */
 	@Override
 	public void setName(String name) throws LifecycleException {
 		if(getLifecycleState().after(LifecycleState.STARTED))
 			throw new LifecycleException("无法设置名称：该组件已启用");
 		this.name = name;
 	}
-
+	
+	/**
+	 * 获得该Service组件的名称
+	 */
 	@Override
 	public String getName() {
 		return name;
 	}
 	
+	/**
+	 * 设置父组件
+	 * @param server Server实例
+	 * @throws LifecycleException 当设置父组件失败时抛出此异常
+	 */
 	@Override
 	public void setServer(Server server) throws LifecycleException {
 		if(getLifecycleState().after(LifecycleState.STARTING_PREP))
@@ -89,11 +102,18 @@ public class StandardService extends LifecycleBase implements Service {
 		this.server = server;
 	}
 
+	/**
+	 * 获得父组件：Server
+	 */
 	@Override
 	public Server getServer() {
 		return server;
 	}
 
+	/**
+	 * 添加连接器实例
+	 * @param connector 连接器实例
+	 */
 	@Override
 	public void addConnector(Connector connector) throws LifecycleException {
 		if(getLifecycleState().after(LifecycleState.STARTING_PREP))
@@ -103,12 +123,21 @@ public class StandardService extends LifecycleBase implements Service {
 			connectors.add(connector);
 		}
 	}
-
+	
+	/**
+	 * 获得Service组件所有的连接器
+	 * @return 包含所有连接器的List
+	 */
 	@Override
 	public List<Connector> getConnectors() {
 		return connectors;
 	}
 
+	/**
+	 * 设置全局引擎容器，每个Service组件仅可设置一个全局引擎容器
+	 * @param engine 容器实例
+	 * @throws LifecycleException 当已经调用Service组件的start方法后再调用此方法
+	 */
 	@Override
 	public void setEngine(Engine engine) throws LifecycleException {
 		if(getLifecycleState().after(LifecycleState.STARTING_PREP))

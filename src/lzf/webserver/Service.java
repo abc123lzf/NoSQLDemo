@@ -49,7 +49,7 @@ public interface Service extends Lifecycle {
 	public List<Connector> getConnectors();
 	
 	/**
-	 * 设置全局引擎容器
+	 * 设置全局引擎容器，每个Service组件仅可设置一个全局引擎容器
 	 * @param engine 容器实例
 	 * @throws LifecycleException 当已经调用Service组件的start方法后再调用此方法
 	 */

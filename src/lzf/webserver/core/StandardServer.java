@@ -53,8 +53,13 @@ public class StandardServer extends LifecycleBase implements Server {
 		this.shutdownCmd = shutdownCmd;
 	}
 	
+	/**
+	 * 这个类用于监听关闭指令，当接收到客户端传送过来的合法关闭指令时，该线程会调用这个Server
+	 * 对象的stop方法停止服务器所有的服务。
+	 * 该线程采用单客户端阻塞模型构建
+	 */
 	protected final class ShutdownListener implements Runnable {
-
+		
 		private final ServerSocket socket;
 		
 		public ShutdownListener() throws IOException {
@@ -116,51 +121,89 @@ public class StandardServer extends LifecycleBase implements Server {
 			service.init();
 	}
 
+	/**
+	 * 该方法会调用所有Service组件的start方法
+	 */
 	@Override
 	protected void startInternal() throws Exception {
 		for(Service service : services)
 			service.start();
 	}
 
+	/**
+	 * 该方法会调用所有Service组件的stop方法
+	 */
 	@Override
 	protected void stopInternal() throws Exception {
 		for(Service service : services)
 			service.stop();
 	}
 
+	/**
+	 * 该方法会调用所有Service组件的destory方法
+	 */
 	@Override
 	protected void destoryInternal() throws Exception {
+		for(Service service : services)
+			service.destory();
 		System.exit(0);
 	}
 	
-
+	/**
+	 * 获取服务器主用户目录，这个用户目录会在新建Server实例时自动获取
+	 * 即调用System.getProperties().get("user.dir")获取
+	 * @return 主用户目录
+	 */
 	@Override
 	public File getMainPath() {
 		return mainPath;
 	}
 
+	/**
+	 * 设置监听关闭服务器命令的端口
+	 * @param port 端口号，默认为9005
+	 * @throws LifecycleException 当组件启动后调用该方法
+	 */
 	@Override
 	public void setPort(int port) throws LifecycleException {
 		if(getLifecycleState().after(LifecycleState.INITIALIZING))
 			throw new LifecycleException("无法设置端口，容器已初始化");
 		this.port = port;
 	}
-
+	
+	/**
+	 * 获取关闭命令的端口
+	 * @return 端口号
+	 */
 	@Override
 	public int getPort() {
 		return port;
 	}
 
+	/**
+	 * 设置关闭服务器指令，如果没有设置则默认为SHUTDOWN
+	 * @param cmd 关闭指令，当Socket监听到该字符串后会调用stop()方法
+	 * @throws LifecycleException 当组件启动后调用该方法
+	 */
 	@Override
 	public void setShutdownCommand(String cmd) {
 		this.shutdownCmd = cmd;
 	}
-
+	
+	/**
+	 * 获取关闭服务器指令
+	 * @return 关闭指令字符串
+	 */
 	@Override
 	public String getShutdownCommand() {
 		return shutdownCmd;
 	}
 
+	/**
+	 * 设置Service组件
+	 * @param service Service实例，一般为lzf.webserver.core.StandardServer
+	 * @throws LifecycleException 当组件启动后调用该方法
+	 */
 	@Override
 	public void addService(Service service) throws LifecycleException {
 		String name = service.getName();
@@ -172,7 +215,12 @@ public class StandardServer extends LifecycleBase implements Server {
 			services.add(service);
 		}
 	}
-
+	
+	/**
+	 * 根据Service名称获取Service组件
+	 * @param name 名称
+	 * @return 该Service实例，如果没有找到则返回null
+	 */
 	@Override
 	public Service getService(String name) {
 		for(Service service : services) {
@@ -182,6 +230,10 @@ public class StandardServer extends LifecycleBase implements Server {
 		return null;
 	}
 
+	/**
+	 * 获取Service组件列表
+	 * @return 所有的Service组件集合
+	 */
 	@Override
 	public List<Service> getServices() {
 		return services;
