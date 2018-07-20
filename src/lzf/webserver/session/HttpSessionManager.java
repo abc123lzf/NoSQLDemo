@@ -39,11 +39,12 @@ public final class HttpSessionManager extends SessionManagerBase {
 	
 	@Override
 	protected void initInternal() throws LifecycleException {
-		// NOOP
+		log.info("HTTPSessionManager init");
 	}
 
 	@Override
 	protected void startInternal() throws LifecycleException {
+		log.info("HTTPSessionManager start");
 		new Thread(processer).start();
 	}
 

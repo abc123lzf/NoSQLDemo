@@ -51,23 +51,31 @@ public class StandardService extends LifecycleBase implements Service {
 
 	@Override
 	protected void initInternal() throws Exception {
+		if(engine != null)
+			engine.init();
 		for(Connector c : connectors)
 			c.init();
 	}
 
 	@Override
 	protected void startInternal() throws Exception {
+		if(engine != null)
+			engine.start();
 		for(Connector c : connectors)
 			c.start();
 	}
 
 	@Override
 	protected void stopInternal() throws Exception {
+		if(engine != null)
+			engine.stop();
 		engine.stop();
 	}
 
 	@Override
 	protected void destoryInternal() throws Exception {
+		if(engine != null)
+			engine.destory();
 		engine.destory();
 	}
 

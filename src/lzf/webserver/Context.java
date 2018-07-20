@@ -30,4 +30,63 @@ public interface Context extends Container {
 	 * @return 返回默认SessionID名
 	 */
 	public String getSessionIdName();
+	
+	/**
+	 * 获取URL解码的编码格式
+	 * @return "UTF-8"
+	 */
+	public String getEncodedPath();
+	
+	/**
+	 * 获取该web应用主目录
+	 * @return
+	 */
+	public String getPath();
+	
+	/**
+	 * 设置该web应用的主目录
+	 * @param path 目录相对、绝对路径
+	 */
+	public void setPath(String path);
+	
+	/**
+	 * @return 该web应用支持运行时重加载吗
+	 */
+	public boolean getReloadable();
+	
+	/**
+	 * @param reloadable 该web应用支持重加载吗
+	 */
+	public void setReloadable(boolean reloadable);
+	
+	/**
+	 * @return Session过期时间毫秒数
+	 */
+	public int getSessionTimeout();
+	
+	/**
+	 * @param timeout Session过期时间(单位：毫秒)
+	 */
+	public void setSessionTimeout(int timeout);
+	
+	/**
+	 * @param webappVersion webapp版本号，由web.xml文件配置
+	 */
+	public void setWebappVersion(String webappVersion);
+	
+	/**
+	 * @return 获取该webapp版本号，由web.xml文件配置
+	 */
+	public String getWebappVersion();
+	
+	/**
+	 * @param encoding
+	 */
+	public void setRequestCharacterEncoding(String encoding);
+	
+	public String getRequestCharacterEncoding();
+	
+	public void setResponseCharacterEncoding(String encoding);
+	
+	public String getResponseCharacterEncoding();
 }

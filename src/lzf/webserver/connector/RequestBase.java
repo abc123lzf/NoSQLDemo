@@ -38,13 +38,15 @@ public abstract class RequestBase implements HttpServletRequest {
 	protected Cookie[] cookies = new Cookie[0];
 	
 	//客户端信息
-	protected String remoteAddr;
-	protected String remoteHost;
-	protected int remotePort;
+	protected String remoteAddr = null;
+	protected String remoteHost = null;
+	protected int remotePort = 0;
 	
 	//请求体Reader
-	protected BufferedReader contentReader;
-	protected ServletInputStream sis;
+	protected BufferedReader contentReader = null;
+	protected ServletInputStream sis = null;
+	
+	protected String characterEncoding = null;
 
 	protected void putHeader(String name, String value) {
 		headerMap.put(name.toLowerCase(), value);
@@ -73,7 +75,12 @@ public abstract class RequestBase implements HttpServletRequest {
 	 */
 	@Override
 	public final String getContentType() {
-		return getHeader(getHeader("Content-Type"));
+		return getHeader("Content-Type");
+	}
+	
+	@Override
+	public final String getCharacterEncoding() {
+		return getHeader("Content-Type");
 	}
 	
 	/**

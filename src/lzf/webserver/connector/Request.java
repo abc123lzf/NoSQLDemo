@@ -45,7 +45,6 @@ public abstract class Request extends RequestBase {
 	//属性Map
 	protected final Map<String, Object> attributeMap = new ConcurrentHashMap<>();
 
-	protected String characterEncoding = null;
 	
 	/**
 	 * 设置web上下文容器
@@ -74,14 +73,10 @@ public abstract class Request extends RequestBase {
 		return new IteratorEnumeration<String>(attributeMap.keySet().iterator());
 	}
 
-	@Override
-	public String getCharacterEncoding() {
-		return characterEncoding;
-	}
-
+	
 	@Override
 	public void setCharacterEncoding(String env) throws UnsupportedEncodingException {
-		this.characterEncoding = env;
+		characterEncoding = env;
 	}
 
 	/**
@@ -159,7 +154,7 @@ public abstract class Request extends RequestBase {
 
 	@Override
 	public AsyncContext startAsync(ServletRequest servletRequest, ServletResponse servletResponse)
-			throws IllegalStateException {
+			throws IllegalStateException {动态服务器
 		throw new UnsupportedOperationException();
 	}
 

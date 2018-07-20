@@ -73,6 +73,14 @@ public abstract class SessionManagerBase extends LifecycleBase {
 	}
 	
 	/**
+	 * 设置Session最大非活跃生存时间
+	 * @param timeout 毫秒数
+	 */
+	public final void setSessionMaxInactiveTime(int timeout) {
+		this.defaultMaxSessionInactiveTime = timeout;
+	}
+	
+	/**
 	 * 创建一个新的Session对象
 	 * @return StrandardSession实例
 	 */
