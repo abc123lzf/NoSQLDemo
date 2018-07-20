@@ -24,6 +24,8 @@ import javax.servlet.http.Part;
 
 import lzf.webserver.util.IteratorEnumeration;
 import lzf.webserver.Context;
+import lzf.webserver.Host;
+import lzf.webserver.Wrapper;
 
 /**
 * @author 李子帆
@@ -32,8 +34,6 @@ import lzf.webserver.Context;
 * @Description HTTP请求类，由连接器进行封装
 */
 public abstract class Request extends RequestBase {
-	
-	private Context context;
 	
 	//从Cookie或URL获取的sessionID(不是容器中的SessionID)
 	private String sessionId;
@@ -45,14 +45,12 @@ public abstract class Request extends RequestBase {
 	//属性Map
 	protected final Map<String, Object> attributeMap = new ConcurrentHashMap<>();
 
+	protected Host host = null;
 	
-	/**
-	 * 设置web上下文容器
-	 * @param context Context容器实例
-	 */
-	public void setContext(Context context) {
-		this.context = context;
-	}
+	protected Context context = null;
+	
+	protected Wrapper wrapper = null;
+
 	
 	/**
 	 * 获取属性值
@@ -374,5 +372,17 @@ public abstract class Request extends RequestBase {
 			throws IOException, ServletException {
 		// TODO Auto-generated method stub
 		return null;
+	}
+	
+	public Host getHost() {
+		return this.host;
+	}
+	
+	public Context getContext() {
+		return this.context;
+	}
+	
+	public Wrapper getWrapper() {
+		return this.wrapper;
 	}
 }

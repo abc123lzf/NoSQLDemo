@@ -63,20 +63,10 @@ public abstract class ValveBase implements Valve {
 	 * @param response 响应对象
 	 */
 	@Override
-	public final void invoke(Request request, Response response)
-			throws IOException, ServletException {
-		invoke0(request, response);
-		next.invoke(request, response);
-	}
-	
-	/**
-	 * 阀门具体的业务逻辑实现细节，实现阀门的对象需重写该方法
-	 * @param request 请求对象
-	 * @param response 响应对象
-	 */
-	protected abstract void invoke0(Request request, Response response)
+	public abstract void invoke(Request request, Response response)
 			throws IOException, ServletException;
 	
+
 	/**
 	 * 包含这个管道的类名、容器的名称
 	 * @return 类似lzf.webserver.valve[containerName]

@@ -34,26 +34,51 @@ public class StandardWrapper extends ContainerBase implements Wrapper {
 		this.context = context;
 	}
 
+	/**
+	 * 返回该Servlet可用的时间戳，如果Request请求到达的时间小于它，那么该Servlet不可用
+	 * 返回404错误
+	 * @return 时间戳
+	 */
 	@Override
 	public long getAvailable() {
 		return availableTime;
 	}
 
+	/**
+	 * 设置该Servlet可用时间戳，只有GMT时间超过该时间，该Servlet才可被访问
+	 * @param available 可用时间戳
+	 */
 	@Override
 	public void setAvailable(long available) {
 		this.availableTime = available;
 	}
 
+	/**
+	 * 标记容器是否在启动的时候就加载这个servlet
+	 * 当值为0或者大于0时，表示容器在应用启动时就加载这个servlet，并且值越小加载优先级越高，
+	 * 当是一个负数时或者没有指定时，则指示容器在该servlet被选择时才加载，在web.xml中的load-on-startup设置
+	 * @return load-on-startup参数值
+	 */
 	@Override
 	public int getLoadOnStartup() {
 		return loadOnStartup;
 	}
 
+	/**
+	 * 标记容器是否在启动的时候就加载这个servlet
+	 * 当值为0或者大于0时，表示容器在应用启动时就加载这个servlet，并且值越小加载优先级越高，
+	 * 当是一个负数时或者没有指定时，则指示容器在该servlet被选择时才加载，在web.xml中的load-on-startup设置
+	 * @param value web.xml中的load-on-startup参数值
+	 */
 	@Override
 	public void setLoadOnStartup(int value) {
 		this.loadOnStartup = value;
 	}
 
+	/**
+	 * 返回这个Servlet类名
+	 * @return 类名字符串
+	 */
 	@Override
 	public String getServletClass() {
 		if(servletClass == null) {
@@ -64,11 +89,19 @@ public class StandardWrapper extends ContainerBase implements Wrapper {
 		return servletClass;
 	}
 
+	/**
+	 * 设置Servlet类名，由web.xml文件的servlet-class制定
+	 * @param servletClass Servlet类名
+	 */
 	@Override
 	public void setServletClass(String servletClass) {
 		this.servletClass = servletClass;
 	}
 
+	/**
+	 * 这个Servlet目前可用吗
+	 * @return true表示不可用
+	 */
 	@Override
 	public boolean isUnavailable() {
 		if(availableTime == 0)
@@ -79,16 +112,29 @@ public class StandardWrapper extends ContainerBase implements Wrapper {
 		return false;
 	}
 
+	/**
+	 * 添加Servlet初始化参数，此参数应由web.xml文件init-parameter指定
+	 * @param name 参数名
+	 * @param value 参数值
+	 */
 	@Override
 	public void addInitParameter(String name, String value) {
 		parameterMap.put(name, value);
 	}
 
+	/**
+	 * 根据参数名获取参数值，此参数应由web.xml文件init-parameter指定
+	 * @param name
+	 * @return 参数值
+	 */
 	@Override
 	public String getInitParameter(String name) {
 		return parameterMap.get(name);
 	}
 
+	/**
+	 * @return 包含所有参数名的字符串数组
+	 */
 	@Override
 	public String[] getInitParameters() {
 		String[] parameters = new String[parameterMap.size()];
@@ -99,11 +145,20 @@ public class StandardWrapper extends ContainerBase implements Wrapper {
 		return parameters;
 	}
 
+	/**
+	 * 根据参数名移除参数值
+	 * @param name 参数名
+	 */
 	@Override
 	public void removeInitParameter(String name) {
 		parameterMap.remove(name);
 	}
 
+	/**
+	 * 复制一个Servlet实例
+	 * @return 新复制的Servlet
+	 * @throws ServletException
+	 */
 	@Override
 	public Servlet allocate() throws ServletException {
 		if(servlet == null)
@@ -116,33 +171,40 @@ public class StandardWrapper extends ContainerBase implements Wrapper {
 		}
 	}
 
+	/*
+	 * 初始化一个Servlet实例
+	 */
 	@Override
 	public void load() throws ServletException {
 		// TODO Auto-generated method stub
 
 	}
 
+	/**
+	 * 卸载当前Wrapper中所有的Servlet
+	 * @throws ServletException
+	 */
 	@Override
 	public void unload() throws ServletException {
 		// TODO Auto-generated method stub
 
 	}
 
+	/**
+	 * 添加Servlet对象
+	 * @param servlet
+	 */
 	@Override
 	public void addServlet(Servlet servlet) {
-		// TODO Auto-generated method stub
-
+		this.servlet = servlet;
 	}
 
+	/**
+	 * @return 当前Servlet实例
+	 */
 	@Override
 	public Servlet getServlet() {
 		return servlet;
-	}
-
-	@Override
-	public boolean isSingleThreadModel() {
-		// TODO Auto-generated method stub
-		return false;
 	}
 
 	@Override
@@ -173,5 +235,4 @@ public class StandardWrapper extends ContainerBase implements Wrapper {
 		// TODO Auto-generated method stub
 
 	}
-
 }

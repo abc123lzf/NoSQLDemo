@@ -113,9 +113,4 @@ public interface Wrapper extends Container {
 	 */
 	public Servlet getServlet();
 	
-	/**
-	 * @return 这个Servlet是单线程模式吗
-	 */
-	public boolean isSingleThreadModel();
-	
 }
