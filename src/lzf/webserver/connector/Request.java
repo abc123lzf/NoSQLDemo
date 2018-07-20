@@ -154,7 +154,7 @@ public abstract class Request extends RequestBase {
 
 	@Override
 	public AsyncContext startAsync(ServletRequest servletRequest, ServletResponse servletResponse)
-			throws IllegalStateException {¶¯Ì¬·þÎñÆ÷
+			throws IllegalStateException {
 		throw new UnsupportedOperationException();
 	}
 

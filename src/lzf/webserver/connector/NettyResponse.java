@@ -52,7 +52,7 @@ public class NettyResponse extends Response {
 
 	@Override
 	protected void sendError0(int sc, String msg) {
-		
+		//TODO
 	}
 
 	@Override
