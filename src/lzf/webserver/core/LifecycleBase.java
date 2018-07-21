@@ -27,7 +27,7 @@ public abstract class LifecycleBase implements Lifecycle {
 	@Override
 	public final synchronized void init() throws Exception {
 		if(state.after(LifecycleState.INITIALIZING))
-			throw new LifecycleException();
+			throw new LifecycleException("该组件已初始化");
 		
 		state = LifecycleState.INITIALIZING;
 		runLifecycleEvent(null);
@@ -46,7 +46,7 @@ public abstract class LifecycleBase implements Lifecycle {
 	@Override
 	public final synchronized void start() throws Exception {
 		if(state.after(LifecycleState.STARTING_PREP))
-			throw new LifecycleException();
+			throw new LifecycleException("该组件已启用");
 		
 		state = LifecycleState.STARTING_PREP;
 		runLifecycleEvent(null);
@@ -66,7 +66,7 @@ public abstract class LifecycleBase implements Lifecycle {
 	@Override
 	public final synchronized void stop() throws Exception {
 		if(state.after(LifecycleState.STOPPING_PREP) || state.before(LifecycleState.INITIALIZED))
-			throw new LifecycleException();
+			throw new LifecycleException("该组件已停止");
 		
 		state = LifecycleState.STOPPING_PREP;
 		runLifecycleEvent(null);
@@ -86,7 +86,7 @@ public abstract class LifecycleBase implements Lifecycle {
 	@Override
 	public final synchronized void destory() throws Exception {
 		if(state.after(LifecycleState.DESTORYED))
-			throw new LifecycleException();
+			throw new LifecycleException("该组件已销毁");
 		
 		state = LifecycleState.DESTORYING;
 		runLifecycleEvent(null);

@@ -73,13 +73,16 @@ public abstract class ValveBase implements Valve {
 	 */
 	@Override
 	public String toString() {
+		
 		StringBuilder sb = new StringBuilder(this.getClass().getName());
 		sb.append('[');
+		
 		if(getContainer() == null) {
 			sb.append("Container is null");
 		} else {
 			sb.append(getContainer().getName());
 		}
+		
 		sb.append(']');
 		return sb.toString();
 	}

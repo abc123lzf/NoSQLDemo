@@ -25,26 +25,29 @@ public interface Pipeline {
 	/**
 	 * 设置基础阀门(即最后一个阀门)
 	 * @param 基础阀门实例
+	 * @throws LifecycleException 当组件已经启动后调用此方法
 	 */
-	public void setBasic(Valve valve);
+	public void setBasic(Valve valve) throws LifecycleException;
 	
 	/**
 	 * 向管道添加非基础阀门，添加在阀门最前端
 	 * @param valve 非基础阀门
 	 */
-	public void addValve(Valve valve);
+	public void addValve(Valve valve) throws LifecycleException;
 	
 	/**
 	 * 获取管道中所有阀门的数组
 	 * @return List数组
+	 * @throws LifecycleException 当组件已经启动后调用此方法
 	 */
 	public Valve[] getValves();
 	
 	/**
 	 * 移除指定的阀门，若没有找到则不做任何调整
 	 * @param valve 指定的阀门对象
+	 * @throws LifecycleException 当组件已经启动后调用此方法
 	 */
-	public void removeValve(Valve valve);
+	public void removeValve(Valve valve) throws LifecycleException;
 	
 	/**
 	 * 返回该管道所属的容器
@@ -55,6 +58,7 @@ public interface Pipeline {
 	/**
 	 * 设置该管道所属的容器
 	 * @param container 容器实例，可以为Engine、Host、Context、Wrapper
+	 * @throws LifecycleException 当组件已经启动后调用此方法
 	 */
-	public void setContainer(Container container);
+	public void setContainer(Container container) throws LifecycleException;
 }

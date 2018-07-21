@@ -18,20 +18,18 @@ import lzf.webserver.Wrapper;
 */
 public class StandardWrapper extends ContainerBase implements Wrapper {
 	
-	private final Context context;
-	
 	private long availableTime = 0L;
 	
 	private int loadOnStartup = 0;
 	
-	private String servletClass;
-	
 	private Servlet servlet;
 	
-	private final Map<String, String> parameterMap = new LinkedHashMap<>();
+	private ApplicationServletConfig servletConfig = new ApplicationServletConfig(this);
+	
 	
 	public StandardWrapper(Context context) {
-		this.context = context;
+		super();
+		this.parentContainer = context;
 	}
 
 	/**
@@ -81,12 +79,12 @@ public class StandardWrapper extends ContainerBase implements Wrapper {
 	 */
 	@Override
 	public String getServletClass() {
-		if(servletClass == null) {
+		if(servletConfig.servletClass == null) {
 			if(servlet != null)
 				return servlet.getClass().getName();
 			return null;
 		}
-		return servletClass;
+		return servletConfig.servletClass;
 	}
 
 	/**
@@ -95,7 +93,7 @@ public class StandardWrapper extends ContainerBase implements Wrapper {
 	 */
 	@Override
 	public void setServletClass(String servletClass) {
-		this.servletClass = servletClass;
+		servletConfig.servletClass = servletClass;
 	}
 
 	/**
@@ -119,7 +117,7 @@ public class StandardWrapper extends ContainerBase implements Wrapper {
 	 */
 	@Override
 	public void addInitParameter(String name, String value) {
-		parameterMap.put(name, value);
+		servletConfig.parameterMap.put(name, value);
 	}
 
 	/**
@@ -129,7 +127,7 @@ public class StandardWrapper extends ContainerBase implements Wrapper {
 	 */
 	@Override
 	public String getInitParameter(String name) {
-		return parameterMap.get(name);
+		return servletConfig.parameterMap.get(name);
 	}
 
 	/**
@@ -137,9 +135,9 @@ public class StandardWrapper extends ContainerBase implements Wrapper {
 	 */
 	@Override
 	public String[] getInitParameters() {
-		String[] parameters = new String[parameterMap.size()];
+		String[] parameters = new String[servletConfig.parameterMap.size()];
 		int i = 0;
-		for(String parameter : parameterMap.keySet()) {
+		for(String parameter : servletConfig.parameterMap.keySet()) {
 			parameters[i++] = parameter;
 		}
 		return parameters;
@@ -151,7 +149,7 @@ public class StandardWrapper extends ContainerBase implements Wrapper {
 	 */
 	@Override
 	public void removeInitParameter(String name) {
-		parameterMap.remove(name);
+		servletConfig.parameterMap.remove(name);
 	}
 
 	/**
@@ -176,8 +174,7 @@ public class StandardWrapper extends ContainerBase implements Wrapper {
 	 */
 	@Override
 	public void load() throws ServletException {
-		// TODO Auto-generated method stub
-
+		
 	}
 
 	/**
@@ -186,8 +183,7 @@ public class StandardWrapper extends ContainerBase implements Wrapper {
 	 */
 	@Override
 	public void unload() throws ServletException {
-		// TODO Auto-generated method stub
-
+		servlet.destroy();
 	}
 
 	/**
