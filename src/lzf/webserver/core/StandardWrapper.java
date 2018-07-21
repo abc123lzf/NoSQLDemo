@@ -1,8 +1,5 @@
 package lzf.webserver.core;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 
@@ -22,10 +19,9 @@ public class StandardWrapper extends ContainerBase implements Wrapper {
 	
 	private int loadOnStartup = 0;
 	
-	private Servlet servlet;
+	private volatile Servlet servlet;
 	
-	private ApplicationServletConfig servletConfig = new ApplicationServletConfig(this);
-	
+	private volatile ApplicationServletConfig servletConfig = new ApplicationServletConfig(this);
 	
 	public StandardWrapper(Context context) {
 		super();
@@ -230,5 +226,11 @@ public class StandardWrapper extends ContainerBase implements Wrapper {
 	protected void destoryInternal() throws Exception {
 		// TODO Auto-generated method stub
 
+	}
+
+	@Override
+	public String toString() {
+		return "StandardWrapper [availableTime=" + availableTime + ", loadOnStartup=" + loadOnStartup
+				+ ", servletConfig=" + servletConfig.toString() + "]";
 	}
 }

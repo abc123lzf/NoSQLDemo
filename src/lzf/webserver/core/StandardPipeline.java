@@ -137,6 +137,11 @@ public final class StandardPipeline extends LifecycleBase implements Pipeline {
 		return container;
 	}
 
+	/**
+	 * 设置该管道所属的容器
+	 * @param container 容器实例，可以为Engine、Host、Context、Wrapper
+	 * @throws LifecycleException 当组件已经启动后调用此方法
+	 */
 	@Override
 	public void setContainer(Container container) throws LifecycleException {
 		

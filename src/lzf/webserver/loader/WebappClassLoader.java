@@ -1,5 +1,7 @@
 package lzf.webserver.loader;
 
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
 
@@ -22,12 +24,12 @@ public class WebappClassLoader extends URLClassLoader {
 		return "WebappClassLoader:" + name;
 	}
 	
-	/*
+	
 	@Override
 	public Class<?> findClass(String name) {
 		InputStream is = null;
 		byte[] data = null;
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-	
-	}*/
+		return null;
+	}
 }

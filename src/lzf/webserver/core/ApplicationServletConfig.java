@@ -15,18 +15,20 @@ import lzf.webserver.util.IteratorEnumeration;
 * @author 李子帆
 * @version 1.0
 * @date 2018年7月21日 下午3:14:36
-* @Description 类说明
+* @Description ServletConfig类，每个Servlet实例应持有对应的ServletConfig类
 */
 public final class ApplicationServletConfig implements ServletConfig {
 	
+	//所属的Wrapper容器
 	private final Wrapper wrapper;
 	
+	//Servlet名称，由web.xml文件的servlet-name决定
 	String servletName = null;
 	
+	//
 	String servletClass = null;
 	
 	final Map<String, String> parameterMap = new LinkedHashMap<>();
-	
 	
 	ApplicationServletConfig(Wrapper wrapper) {
 		this.wrapper = wrapper;
@@ -49,7 +51,6 @@ public final class ApplicationServletConfig implements ServletConfig {
 
 	@Override
 	public Enumeration<String> getInitParameterNames() {
-		
 		return new IteratorEnumeration<String>(parameterMap.keySet().iterator());
 	}
 
@@ -61,4 +62,8 @@ public final class ApplicationServletConfig implements ServletConfig {
 		this.servletClass = servletClass;
 	}
 
+	@Override
+	public String toString() {
+		return "ApplicationServletConfig [servletName=" + servletName + ", servletClass=" + servletClass + "]";
+	}
 }
