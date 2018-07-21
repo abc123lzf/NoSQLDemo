@@ -8,6 +8,8 @@ import lzf.webserver.Container;
 import lzf.webserver.Valve;
 import lzf.webserver.connector.Request;
 import lzf.webserver.connector.Response;
+import lzf.webserver.log.Log;
+import lzf.webserver.log.LogFactory;
 
 /**
 * @author 李子帆
@@ -16,6 +18,8 @@ import lzf.webserver.connector.Response;
 * @Description 阀门抽象类，阀门实现类应继承该抽象类
 */
 public abstract class ValveBase implements Valve {
+	
+	protected final Log log = LogFactory.getLog(ValveBase.class); 
 	
 	protected Valve next = null;
 	

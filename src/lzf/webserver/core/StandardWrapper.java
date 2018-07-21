@@ -6,6 +6,7 @@ import javax.servlet.ServletException;
 import lzf.webserver.Container;
 import lzf.webserver.Context;
 import lzf.webserver.Wrapper;
+import lzf.webserver.servlets.DefaultServlet;
 
 /**
 * @author Àî×Ó·«
@@ -170,7 +171,7 @@ public class StandardWrapper extends ContainerBase implements Wrapper {
 	 */
 	@Override
 	public void load() throws ServletException {
-		
+		this.servlet = new DefaultServlet();
 	}
 
 	/**
@@ -206,8 +207,8 @@ public class StandardWrapper extends ContainerBase implements Wrapper {
 
 	@Override
 	protected void initInternal() throws Exception {
-		// TODO Auto-generated method stub
-
+		pipeline.addValve(new StandardWrapperValve());
+		load();
 	}
 
 	@Override

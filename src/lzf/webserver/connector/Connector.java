@@ -27,6 +27,10 @@ public final class Connector extends LifecycleBase {
 	private int port = DEFAULT_PORT;
 	private int timeOut = DEFAULT_TIMEOUT;
 	private int maxConnection = DEFAULT_MAX_CONNECTION;
+	
+	public Connector(Service service) {
+		this.service = service;
+	}
 
 	public Service getService() {
 		return service;

@@ -31,6 +31,7 @@ public final class StandardHostValve extends ValveBase {
 			return;
 		}
 		
+		log.info("Recive request in HostValve");
 		context.getPipeline().getFirst().invoke(request, response);
 	}
 }

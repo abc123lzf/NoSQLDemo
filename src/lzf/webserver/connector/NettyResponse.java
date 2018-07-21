@@ -37,9 +37,11 @@ public class NettyResponse extends Response {
 
 	@Override
 	public synchronized void sendResponse() {
-		response.setStatus(HttpResponseStatus.valueOf(status));
+		response.setStatus(HttpResponseStatus.valueOf(200)); //status
+		
 		for(Map.Entry<String, String> entry : headerMap.entrySet())
 			response.headers().add(entry.getKey(), entry.getValue());
+		System.out.println("send!!!");
 		ctx.writeAndFlush(response);
 		super.committed = true;
 	}
@@ -52,7 +54,8 @@ public class NettyResponse extends Response {
 
 	@Override
 	protected void sendError0(int sc, String msg) {
-		//TODO
+		response.setStatus(HttpResponseStatus.valueOf(sc));
+		ctx.writeAndFlush(response);
 	}
 
 	@Override

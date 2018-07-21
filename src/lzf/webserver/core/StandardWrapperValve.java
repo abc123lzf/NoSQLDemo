@@ -31,6 +31,9 @@ public final class StandardWrapperValve extends ValveBase {
 		Wrapper wrapper = request.getWrapper();
 		
 		wrapper.getServlet().service(requestFacade, responseFacade);
+		
+		log.info("Recive request in WrapperValve");
+		response.sendResponse();
 	}
 
 }

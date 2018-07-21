@@ -56,11 +56,14 @@ public class NettyRequest extends Request {
 		System.out.println(method);
 		System.out.println(requestUrl);
 		System.out.println(protocol);
+		
 		for(Map.Entry<String, String> entry : list) {
 			super.putHeader(entry.getKey(), entry.getValue());
 			System.out.println(entry.getKey() + ": " + entry.getValue());
 		}
+		
 		byte[] content = contentBuf.array();
+		
 		InputStream is = new ByteArrayInputStream(content);
 		super.sis = new DefaultServletInputStream(is);
 		InputStreamReader isr = new InputStreamReader(is);

@@ -1,8 +1,11 @@
 package lzf.webserver.connector;
 
+import java.io.IOException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+
+import javax.servlet.ServletException;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
@@ -22,8 +25,11 @@ import io.netty.handler.codec.http.HttpResponseEncoder;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.handler.timeout.IdleStateHandler;
+import lzf.webserver.Context;
+import lzf.webserver.Host;
 import lzf.webserver.LifecycleException;
 import lzf.webserver.LifecycleState;
+import lzf.webserver.Wrapper;
 import lzf.webserver.core.LifecycleBase;
 
 /**
@@ -132,10 +138,13 @@ public class NettyHandler extends LifecycleBase implements Handler {
 		//NOOP
 	}
 
+	//测试用
+	public Host tH; public Context tC; public Wrapper tW;
 	/**
 	 * 负责处理业务逻辑的专用线程，必须通过调用runRequestProcesser实现
 	 */
-	protected static class RequestProcesser implements Runnable {
+	protected class RequestProcesser implements Runnable {
+		
 		private final FullHttpRequest fullRequest;
 		private final ChannelHandlerContext ctx;
 		
@@ -149,6 +158,14 @@ public class NettyHandler extends LifecycleBase implements Handler {
 			Request request = NettyRequest.newRequest(fullRequest, ctx);
 			Response response = NettyResponse.newResponse(ctx);
 			//ctx.writeAndFlush(resp).addListener(ChannelFutureListener.CLOSE);
+			try {
+				request.host = tH;
+				request.context = tC;
+				request.wrapper = tW;
+				connector.getService().getEngine().getPipeline().getFirst().invoke(request, response);
+			} catch (IOException | ServletException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 	

@@ -7,10 +7,12 @@ import org.dom4j.Element;
 
 import lzf.webserver.connector.Connector;
 import lzf.webserver.connector.NettyHandler;
+import lzf.webserver.core.StandardContext;
 import lzf.webserver.core.StandardEngine;
 import lzf.webserver.core.StandardHost;
 import lzf.webserver.core.StandardServer;
 import lzf.webserver.core.StandardService;
+import lzf.webserver.core.StandardWrapper;
 import lzf.webserver.log.Log;
 import lzf.webserver.log.LogFactory;
 import lzf.webserver.util.XMLUtil;
@@ -55,17 +57,18 @@ public final class Bootstrap {
 		if(shutdownCmd != null)
 			server.setShutdownCommand(shutdownCmd);
 		
-		for(Element serviceRoot: serverRoot.elements("service")) {
+		for(Element serviceRoot: serverRoot.elements("Service")) {
 			
 			StandardService service = new StandardService();
 			
 			String serviceName = serviceRoot.attributeValue("name");
+			System.out.println(serviceName);
 			if(serviceName != null)
 				service.setName(serviceName);
 			
 			for(Element connectorRoot : serviceRoot.elements("Connector")) {
 				
-				Connector connector = new Connector();
+				Connector connector = new Connector(service);
 				String connectorPort = connectorRoot.attributeValue("port");
 				String connectionTimeout = connectorRoot.attributeValue("connectionTimeout");
 				String handlerType = connectorRoot.attributeValue("handler");
@@ -87,26 +90,36 @@ public final class Bootstrap {
 				service.addConnector(connector);
 			}
 			
-			Element engineRoot = serviceRoot.element("engine");
+			Element engineRoot = serviceRoot.element("Engine");
 			
 			if(engineRoot == null)
 				continue;
 			
-			StandardEngine engine = new StandardEngine();
+			StandardEngine engine = new StandardEngine(service);
+			
+			service.setEngine(engine);
 			
 			String engineName = engineRoot.attributeValue("name");
 			if(engineName != null)
 				engine.setName(engineName);
 				
-			for(Element hostRoot : engineRoot.elements("host")) {
-				StandardHost host = new StandardHost();
+			for(Element hostRoot : engineRoot.elements("Host")) {
+				StandardHost host = new StandardHost(engine);
+				
 				String hostName = hostRoot.attributeValue("name");
 				String hostAppBase = hostRoot.attributeValue("appBase");
 				if(hostName != null)
 					host.setName(hostName);
 				if(hostAppBase != null)
 					host.setWebappBaseFolder(new File(hostAppBase));
-				
+				//-----------------------------------------------------------------------------
+				StandardContext context = new StandardContext(host);
+				host.addChildContainer(context);
+				StandardWrapper wrapper = new StandardWrapper(context);
+				context.addChildContainer(wrapper);
+				NettyHandler handler = ((NettyHandler)((Connector)(engine.getService().getConnectors().get(0))).getHandler());
+				handler.tH = host; handler.tC = context; handler.tW = wrapper;
+				//-----------------------------------------------------------------------------
 				engine.addChildContainer(host);
 			}
 			

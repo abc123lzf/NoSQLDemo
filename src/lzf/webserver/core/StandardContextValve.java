@@ -29,6 +29,9 @@ public class StandardContextValve extends ValveBase {
 		if(wrapper == null) {
 			response.sendError(HttpServletResponse.SC_NOT_FOUND);
 		}
+		
+		log.info("Recive request in ContextValve");
+		wrapper.getPipeline().getFirst().invoke(request, response);
 	}
 
 }

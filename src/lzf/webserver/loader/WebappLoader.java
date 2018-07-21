@@ -15,7 +15,7 @@ import lzf.webserver.core.LifecycleBase;
 */
 public class WebappLoader extends LifecycleBase implements Loader {
 
-	public static final String WEBAPP_FOLDER = System.getProperty("user.dir") + File.separator + "webapps";
+	public static final String WEBAPP_URL = "file:/" + System.getProperty("user.dir") + File.separator + "webapps";
 	
 	private Context context = null;
 	

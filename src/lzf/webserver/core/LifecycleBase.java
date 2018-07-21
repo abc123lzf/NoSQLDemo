@@ -8,6 +8,8 @@ import lzf.webserver.LifecycleEvent;
 import lzf.webserver.LifecycleException;
 import lzf.webserver.LifecycleListener;
 import lzf.webserver.LifecycleState;
+import lzf.webserver.log.Log;
+import lzf.webserver.log.LogFactory;
 
 /**
 * @author 李子帆
@@ -17,6 +19,8 @@ import lzf.webserver.LifecycleState;
 */
 public abstract class LifecycleBase implements Lifecycle {
 
+	private final Log log = LogFactory.getLog(LifecycleBase.class);
+	
 	private final List<LifecycleListener> listeners = new CopyOnWriteArrayList<>();
 	
 	private volatile LifecycleState state = LifecycleState.NEW;
@@ -28,6 +32,8 @@ public abstract class LifecycleBase implements Lifecycle {
 	public final synchronized void init() throws Exception {
 		if(state.after(LifecycleState.INITIALIZING))
 			throw new LifecycleException("该组件已初始化");
+		
+		log.info(this.getClass().getName() + " init");
 		
 		state = LifecycleState.INITIALIZING;
 		runLifecycleEvent(null);
@@ -48,6 +54,8 @@ public abstract class LifecycleBase implements Lifecycle {
 		if(state.after(LifecycleState.STARTING_PREP))
 			throw new LifecycleException("该组件已启用");
 		
+		log.info(this.getClass().getName() + " start");
+		
 		state = LifecycleState.STARTING_PREP;
 		runLifecycleEvent(null);
 		
@@ -67,6 +75,8 @@ public abstract class LifecycleBase implements Lifecycle {
 	public final synchronized void stop() throws Exception {
 		if(state.after(LifecycleState.STOPPING_PREP) || state.before(LifecycleState.INITIALIZED))
 			throw new LifecycleException("该组件已停止");
+		
+		log.info(this.getClass().getName() + " stop");
 		
 		state = LifecycleState.STOPPING_PREP;
 		runLifecycleEvent(null);

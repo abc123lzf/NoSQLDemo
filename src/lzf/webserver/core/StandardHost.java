@@ -6,6 +6,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import lzf.webserver.Container;
 import lzf.webserver.Context;
+import lzf.webserver.Engine;
 import lzf.webserver.Host;
 
 /**
@@ -19,8 +20,11 @@ public class StandardHost extends ContainerBase implements Host {
 	public static final File DEFAULT_CONTEXT_FOLDER = new File((String)System.getProperty("user.dir") 
 			+ File.separator + "webapps");
 	
-	private List<Context> contexts = new CopyOnWriteArrayList<>();
 	private File appBaseFolder = DEFAULT_CONTEXT_FOLDER;
+	
+	public StandardHost(Engine engine) {
+		super.parentContainer = engine;
+	}
 	
 	@Override
 	public File getWebappBaseFolder() {
@@ -40,28 +44,29 @@ public class StandardHost extends ContainerBase implements Host {
 
 	@Override
 	protected void initInternal() throws Exception {
-		for(Context context: contexts) {
+		for(Container context: childContainers) {
 			context.init();
 		}
+		pipeline.addValve(new StandardHostValve());
 	}
 
 	@Override
 	protected void startInternal() throws Exception {
-		for(Context context: contexts) {
+		for(Container context: childContainers) {
 			context.start();
 		}
 	}
 
 	@Override
 	protected void stopInternal() throws Exception {
-		for(Context context: contexts) {
+		for(Container context: childContainers) {
 			context.stop();
 		}
 	}
 
 	@Override
 	protected void destoryInternal() throws Exception {
-		for(Context context: contexts) {
+		for(Container context: childContainers) {
 			context.destory();
 		}
 	}

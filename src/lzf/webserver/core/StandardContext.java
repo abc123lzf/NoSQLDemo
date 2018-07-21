@@ -4,6 +4,7 @@ import javax.servlet.ServletContext;
 
 import lzf.webserver.Container;
 import lzf.webserver.Context;
+import lzf.webserver.Host;
 import lzf.webserver.Wrapper;
 import lzf.webserver.session.HttpSessionManager;
 
@@ -33,6 +34,9 @@ public final class StandardContext extends ContainerBase implements Context {
 	
 	private final HttpSessionManager sessionManager = new HttpSessionManager(this);
 	
+	public StandardContext(Host host) {
+		super.parentContainer = host;
+	}
 	
 	@Override
 	public ServletContext getServletContext() {
@@ -123,25 +127,31 @@ public final class StandardContext extends ContainerBase implements Context {
 
 	@Override
 	protected void initInternal() throws Exception {
-		// TODO Auto-generated method stub
-
+		for(Container wrapper: childContainers) {
+			wrapper.init();
+		}
+		pipeline.addValve(new StandardContextValve());
+		//∆Ù∂ØSessionπ‹¿Ì∆˜
 	}
 
 	@Override
 	protected void startInternal() throws Exception {
-		// TODO Auto-generated method stub
-
+		for(Container wrapper: childContainers) {
+			wrapper.start();
+		}
 	}
 
 	@Override
 	protected void stopInternal() throws Exception {
-		// TODO Auto-generated method stub
-
+		for(Container wrapper: childContainers) {
+			wrapper.stop();
+		}
 	}
 
 	@Override
 	protected void destoryInternal() throws Exception {
-		// TODO Auto-generated method stub
-
+		for(Container wrapper: childContainers) {
+			wrapper.destory();
+		}
 	}
 }

@@ -37,6 +37,7 @@ public class StandardEngine extends ContainerBase implements Engine {
 		for(Container c : childContainers) {
 			c.init();
 		}
+		pipeline.addValve(new StandardEngineValve());
 	}
 
 	@Override
