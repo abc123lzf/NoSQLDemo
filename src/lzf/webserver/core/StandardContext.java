@@ -9,6 +9,7 @@ import lzf.webserver.Context;
 import lzf.webserver.Host;
 import lzf.webserver.Wrapper;
 import lzf.webserver.loader.WebappLoader;
+import lzf.webserver.mapper.ContextMapper;
 import lzf.webserver.session.HttpSessionManager;
 
 /**
@@ -38,6 +39,8 @@ public final class StandardContext extends ContainerBase implements Context {
 	private final HttpSessionManager sessionManager = new HttpSessionManager(this);
 	
 	private final WebappLoader loader = new WebappLoader(this);
+	
+	private final ContextMapper mapper = new ContextMapper(this);
 	
 	public StandardContext(Host host) {
 		super(host);

@@ -30,7 +30,7 @@ public class StandardWrapper extends ContainerBase implements Wrapper {
 	
 	private volatile ApplicationServletConfig servletConfig = new ApplicationServletConfig(this);
 	
-	private File path;
+	private File path = null;
 	
 	private String uriPath = null;
 	
@@ -308,6 +308,14 @@ public class StandardWrapper extends ContainerBase implements Wrapper {
 		
 		wrapper.setServlet(new DefaultServlet(path.getName(), b));
 		wrapper.setPath(path);
+		
+		if(context.getName().equals("ROOT")) {
+			String p = path.getPath();
+			//TODO;
+		} else {
+			
+		}
+		
 		wrapper.servletConfig.servletName = "Default";
 		
 		return wrapper;

@@ -8,6 +8,7 @@ import lzf.webserver.Container;
 import lzf.webserver.Context;
 import lzf.webserver.Engine;
 import lzf.webserver.Host;
+import lzf.webserver.mapper.GlobelMappedListener;
 
 /**
 * @author Àî×Ó·«
@@ -24,6 +25,8 @@ public class StandardHost extends ContainerBase implements Host {
 	
 	public StandardHost(Engine parentConatiner) {
 		super(parentConatiner);
+		addContainerListener(new GlobelMappedListener(((Engine)getParentContainer())
+				.getService().getGlobelMapper()));
 	}
 	
 	@Override

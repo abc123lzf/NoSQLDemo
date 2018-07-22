@@ -29,7 +29,7 @@ public class GlobelMappedListener implements ContainerListener {
 		
 		if(type.equals(Container.ADD_CHILD_EVENT)) {
 			
-			if(data instanceof Engine)
+			if(data instanceof Host)
 				hostAddEvent((Host)data);
 			else if(data instanceof Context)
 				contextAddEvent((Context)data);
