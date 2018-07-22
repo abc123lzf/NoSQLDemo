@@ -44,14 +44,17 @@ public class StandardHost extends ContainerBase implements Host {
 
 	@Override
 	protected void initInternal() throws Exception {
+		
 		for(Container context: childContainers) {
 			context.init();
 		}
 		pipeline.addValve(new StandardHostValve());
+		findWebappAndLoad();
 	}
 
 	@Override
 	protected void startInternal() throws Exception {
+		
 		for(Container context: childContainers) {
 			context.start();
 		}
@@ -59,6 +62,7 @@ public class StandardHost extends ContainerBase implements Host {
 
 	@Override
 	protected void stopInternal() throws Exception {
+		
 		for(Container context: childContainers) {
 			context.stop();
 		}
@@ -66,9 +70,23 @@ public class StandardHost extends ContainerBase implements Host {
 
 	@Override
 	protected void destoryInternal() throws Exception {
+		
 		for(Container context: childContainers) {
 			context.destory();
 		}
 	}
 
+	private void findWebappAndLoad() {
+		
+		if(appBaseFolder.exists()) {
+			File[] folders = appBaseFolder.listFiles();
+			for(File folder : folders) {
+				if(folder.isDirectory()) {
+					StandardContext context = (StandardContext) StandardContext.createContextByFolder(this, folder.getAbsolutePath());
+					if(context != null)
+						addChildContainer(context);
+				}
+			}
+		}
+	}
 }

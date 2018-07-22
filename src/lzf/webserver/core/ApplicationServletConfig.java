@@ -19,6 +19,10 @@ import lzf.webserver.util.IteratorEnumeration;
 */
 public final class ApplicationServletConfig implements ServletConfig {
 	
+	public static final String STATIC = "static";
+	public static final String SERVLET = "servlet";
+	public static final String JSP = "jsp";
+	
 	//ËùÊôµÄWrapperÈÝÆ÷
 	private final Wrapper wrapper;
 	
@@ -27,6 +31,8 @@ public final class ApplicationServletConfig implements ServletConfig {
 	
 	//
 	String servletClass = null;
+	
+	String servletType;
 	
 	final Map<String, String> parameterMap = new LinkedHashMap<>();
 	

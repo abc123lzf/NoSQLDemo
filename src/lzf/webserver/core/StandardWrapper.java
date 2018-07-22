@@ -6,6 +6,8 @@ import javax.servlet.ServletException;
 import lzf.webserver.Container;
 import lzf.webserver.Context;
 import lzf.webserver.Wrapper;
+import lzf.webserver.log.Log;
+import lzf.webserver.log.LogFactory;
 import lzf.webserver.servlets.DefaultServlet;
 
 /**
@@ -15,6 +17,8 @@ import lzf.webserver.servlets.DefaultServlet;
 * @Description 最小的容器，用于保存单个Servlet
 */
 public class StandardWrapper extends ContainerBase implements Wrapper {
+	
+	private static final Log log = LogFactory.getLog(StandardWrapper.class);
 	
 	private long availableTime = 0L;
 	
@@ -171,7 +175,24 @@ public class StandardWrapper extends ContainerBase implements Wrapper {
 	 */
 	@Override
 	public void load() throws ServletException {
-		this.servlet = new DefaultServlet();
+		if(servlet != null) {
+			servlet.init(servletConfig);
+			return;
+		}
+		if(getServletClass() != null) {
+			try {
+				servlet = (Servlet) Class.forName(servletConfig.getServletClass()).newInstance();
+				servlet.init(servletConfig);
+			} catch (InstantiationException e) {
+				log.error("", e);
+			} catch (IllegalAccessException e) {
+				log.error("", e);
+			} catch (ClassNotFoundException e) {
+				log.error("", e);
+			}
+			return;
+		}
+		throw new ServletException("Servlet class not set.");
 	}
 
 	/**
@@ -198,6 +219,13 @@ public class StandardWrapper extends ContainerBase implements Wrapper {
 	@Override
 	public Servlet getServlet() {
 		return servlet;
+	}
+	
+	/**
+	 * @param servlet Servlet实例
+	 */
+	void setServlet(Servlet servlet) {
+		this.servlet = servlet;
 	}
 
 	@Override
@@ -231,7 +259,25 @@ public class StandardWrapper extends ContainerBase implements Wrapper {
 
 	@Override
 	public String toString() {
+		
 		return "StandardWrapper [availableTime=" + availableTime + ", loadOnStartup=" + loadOnStartup
 				+ ", servletConfig=" + servletConfig.toString() + "]";
+	}
+	
+	/**
+	 * 返回一个持有默认Servlet的Wrapper
+	 * @param context Context父容器
+	 * @param fileName 文件名
+	 * @param b 二进制数据
+	 * @return 已配置好的Wrapper实例
+	 */
+	public static Wrapper getDefaultWrapper(Context context, String fileName, byte[] b) {
+		
+		StandardWrapper wrapper = new StandardWrapper(context);
+		
+		wrapper.setServlet(new DefaultServlet(fileName, b));
+		wrapper.servletConfig.servletName = "Default";
+		return wrapper;
+		
 	}
 }

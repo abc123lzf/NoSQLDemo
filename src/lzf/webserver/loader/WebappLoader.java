@@ -1,11 +1,15 @@
 package lzf.webserver.loader;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
 import lzf.webserver.Context;
 import lzf.webserver.LifecycleException;
 import lzf.webserver.Loader;
 import lzf.webserver.core.LifecycleBase;
+import lzf.webserver.core.StandardWrapper;
 import lzf.webserver.log.Log;
 import lzf.webserver.log.LogFactory;
 
@@ -74,8 +78,7 @@ public class WebappLoader extends LifecycleBase implements Loader {
 
 	@Override
 	protected void initInternal() throws Exception {
-		// TODO Auto-generated method stub
-
+		resourceLoad(context.getPath());
 	}
 
 	@Override
@@ -94,22 +97,51 @@ public class WebappLoader extends LifecycleBase implements Loader {
 
 	}
 
-	protected void resourceLoad(String path) {
+	/**
+	 * @param path 单个Web应用主目录，该方法会载入里面的文件
+	 */
+	private void resourceLoad(String path) {
+		
 		File file = new File(path);
 		if (file.exists()) {
 			File[] files = file.listFiles();
+			
 			if (files.length == 0) {
 				return;
 			} else {
 				for (File file2 : files) {
 					if (file2.isDirectory()) {
-						System.out.println("文件夹:" + file2.getAbsolutePath());
 						resourceLoad(file2.getAbsolutePath());
 					} else {
-						System.out.println("文件:" + file2.getAbsolutePath());
+						byte[] b = loadFile(file2);
+						if(b == null)
+							return;
+						String fileName = file2.getName();
+						if(!(fileName.endsWith("class") || fileName.endsWith("jsp"))) {
+							context.addChildContainer(StandardWrapper.getDefaultWrapper(context, fileName, b));
+						}
 					}
 				}
 			}
 		}
+	}
+	
+	/**
+	 * @param file 需要载入的资源文件File对象
+	 * @return 资源文件二进制数据
+	 */
+	private byte[] loadFile(File file) {
+		try {
+			@SuppressWarnings("resource")
+			FileInputStream fis = new FileInputStream(file);
+			byte[] b = new byte[(int) file.length()];
+			fis.read(b);
+			return b;
+		} catch (FileNotFoundException e) {
+			log.error("找不到资源文件：" + file.getAbsolutePath(), e);
+		} catch (IOException e) {
+			log.error("无法读入资源文件：" + file.getAbsolutePath() , e);
+		}
+		return null;
 	}
 }

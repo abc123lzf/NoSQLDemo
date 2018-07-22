@@ -22,6 +22,8 @@ import javax.servlet.SessionTrackingMode;
 import javax.servlet.descriptor.JspConfigDescriptor;
 
 import lzf.webserver.Context;
+import lzf.webserver.log.Log;
+import lzf.webserver.log.LogFactory;
 import lzf.webserver.util.IteratorEnumeration;
 
 /**
@@ -31,6 +33,8 @@ import lzf.webserver.util.IteratorEnumeration;
 * @Description 此类应包含在Context中
 */
 public class ApplicationServletContext implements ServletContext {
+	
+	private final Log log = LogFactory.getLog(ApplicationServletContext.class);
 
 	//该ServletContext所属的web容器
 	private final Context context;
@@ -120,7 +124,6 @@ public class ApplicationServletContext implements ServletContext {
 
 	@Override
 	public Enumeration<Servlet> getServlets() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -132,26 +135,22 @@ public class ApplicationServletContext implements ServletContext {
 
 	@Override
 	public void log(String msg) {
-		// TODO Auto-generated method stub
-
+		log.info(msg);
 	}
 
 	@Override
 	public void log(Exception exception, String msg) {
-		// TODO Auto-generated method stub
-
+		log.error(msg, exception);
 	}
 
 	@Override
 	public void log(String message, Throwable throwable) {
-		// TODO Auto-generated method stub
-
+		log.error(message, throwable);
 	}
 
 	@Override
 	public String getRealPath(String path) {
-		// TODO Auto-generated method stub
-		return null;
+		return context.getPath();
 	}
 
 	@Override

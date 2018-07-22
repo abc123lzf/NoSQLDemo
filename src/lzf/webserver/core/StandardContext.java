@@ -6,6 +6,7 @@ import lzf.webserver.Container;
 import lzf.webserver.Context;
 import lzf.webserver.Host;
 import lzf.webserver.Wrapper;
+import lzf.webserver.loader.WebappLoader;
 import lzf.webserver.session.HttpSessionManager;
 
 /**
@@ -33,6 +34,8 @@ public final class StandardContext extends ContainerBase implements Context {
 	private final ApplicationServletContext servletContext = new ApplicationServletContext(this); 
 	
 	private final HttpSessionManager sessionManager = new HttpSessionManager(this);
+	
+	private final WebappLoader loader = new WebappLoader(this);
 	
 	public StandardContext(Host host) {
 		super(host);
@@ -127,34 +130,58 @@ public final class StandardContext extends ContainerBase implements Context {
 
 	@Override
 	protected void initInternal() throws Exception {
+		
 		for(Container wrapper: childContainers) {
 			wrapper.init();
 		}
 		pipeline.addValve(new StandardContextValve());
 		sessionManager.init();
+		loader.init();
 	}
 
 	@Override
 	protected void startInternal() throws Exception {
+		
 		for(Container wrapper: childContainers) {
 			wrapper.start();
 		}
 		sessionManager.start();
+		loader.start();
 	}
 
 	@Override
 	protected void stopInternal() throws Exception {
+		
 		for(Container wrapper: childContainers) {
 			wrapper.stop();
 		}
 		sessionManager.stop();
+		loader.stop();
 	}
 
 	@Override
 	protected void destoryInternal() throws Exception {
+		
 		for(Container wrapper: childContainers) {
 			wrapper.destory();
 		}
 		sessionManager.destory();
+		loader.stop();
+	}
+	
+	/**
+	 * 根据webapp目录下的文件夹生成Context对象
+	 * @param host 主机名
+	 * @param path 路径
+	 * @return 组装好的StandardContext实例
+	 */
+	public static Context createContextByFolder(Host host, String path) {
+		
+		if(host == null || path == null)
+			throw new IllegalArgumentException();
+		
+		StandardContext context = new StandardContext(host);
+		context.setPath(path);
+		return context;
 	}
 }
