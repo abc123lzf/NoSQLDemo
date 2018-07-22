@@ -1,6 +1,5 @@
 package lzf.webserver.connector;
 
-import java.io.PrintWriter;
 import java.util.Map;
 
 import io.netty.buffer.ByteBuf;
@@ -8,6 +7,8 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
+import lzf.webserver.util.ByteBufOutputStream;
+import lzf.webserver.util.ByteBufPrintWriter;
 
 /**
  * @author 李子帆
@@ -15,7 +16,7 @@ import io.netty.handler.codec.http.HttpVersion;
  * @date 2018年7月18日 上午11:04:40
  * @Description 由NettyHandler构建的Netty专用Response类
  */
-public class NettyResponse extends Response {
+public final class NettyResponse extends Response {
 
 	private final ChannelHandlerContext ctx;
 
@@ -24,24 +25,25 @@ public class NettyResponse extends Response {
 	
 	private ByteBuf content = response.content();
 
-	public NettyResponse(ChannelHandlerContext ctx) {
+	private NettyResponse(ChannelHandlerContext ctx) {
 		super();
-		super.sos = new lzf.webserver.util.ByteBufOutputStream(content);
-		super.pw = new PrintWriter(new io.netty.buffer.ByteBufOutputStream(content));
+		ByteBufOutputStream bbos = new ByteBufOutputStream(content);
+		super.sos = bbos;
+		super.pw = new ByteBufPrintWriter(bbos, content);
 		this.ctx = ctx;
 	}
 
-	public static Response newResponse(ChannelHandlerContext ctx) {
+	static Response newResponse(ChannelHandlerContext ctx) {
 		return new NettyResponse(ctx);
 	}
 
 	@Override
 	public synchronized void sendResponse() {
-		response.setStatus(HttpResponseStatus.valueOf(200)); //status
+		response.setStatus(HttpResponseStatus.valueOf(200)); //应从Request中获取status
 		
 		for(Map.Entry<String, String> entry : headerMap.entrySet())
 			response.headers().add(entry.getKey(), entry.getValue());
-		System.out.println("send!!!");
+		
 		ctx.writeAndFlush(response);
 		super.committed = true;
 	}

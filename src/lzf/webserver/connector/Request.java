@@ -51,6 +51,7 @@ public abstract class Request extends RequestBase {
 	
 	protected Wrapper wrapper = null;
 
+	private HttpSession session = null;
 	
 	/**
 	 * 获取属性值
@@ -244,9 +245,8 @@ public abstract class Request extends RequestBase {
 		Cookie[] cookies = getCookies();
 		for(Cookie cookie : cookies) {
 			if(cookie.getName().equals(context.getSessionIdName())) {
-				
 				this.sessionFromCookie = true;
-				return cookie.getName();
+				return cookie.getValue();
 			}
 		}
 		String sessionId = super.getParameter(context.getSessionIdName());
@@ -265,33 +265,48 @@ public abstract class Request extends RequestBase {
 	public HttpSession getSession(boolean create) {
 		if(create)
 			return getSession();
+		
 		//从URL和Cookie中查找SessionID
 		if(this.sessionId == null)
 			this.sessionId = getRequestedSessionId();
+		
 		//如果没有找到则返回null
 		if(this.sessionId == null)
 			return null;
-		//如果从从URL和Cookie中找到SessionID则从Session管理器查找该Session对象
-		return context.getSessionManager().getHttpSession(sessionId, false);
+		
+		//如果从URL和Cookie中找到SessionID则从Session管理器查找该Session对象，该返回值可能为null，
+		//如果用户是第一次访问页面或者会话已过期
+		session = context.getSessionManager().getHttpSession(sessionId, false);
+		return session;
 	}
 
 	/**
-	 * 获取Session对象，如果没有找到则创建一个新的Session
+	 * 根据请求中的Session字段获取Session对象，如果没有找到则创建一个新的Session
 	 * 等同于getSession(true)
 	 */
 	@Override
 	public HttpSession getSession() {
+		
+		if(session != null)
+			return session;
+		
 		if(this.sessionId == null)
 			this.sessionId = getRequestedSessionId();
+		
 		if(sessionId == null) {
-			return context.getSessionManager().getHttpSession(sessionId, true);
+			session = context.getSessionManager().getHttpSession(null, true);
 		} else {
-			return context.getSessionManager().getHttpSession(sessionId, true);
+			session = context.getSessionManager().getHttpSession(sessionId, true);
 		}
+		return this.session;
 	}
 
 	@Override
 	public String changeSessionId() {
+		
+		if(session != null)
+			return context.getSessionManager().changeSessionId(session.getId());
+		
 		return context.getSessionManager().changeSessionId(getSession().getId());
 	}
 
@@ -301,6 +316,7 @@ public abstract class Request extends RequestBase {
 	 */
 	@Override
 	public boolean isRequestedSessionIdValid() {
+		
 		if(this.sessionId == null)
 			getRequestedSessionId();
 		if(context.getSessionManager().getSession(sessionId, false) == null)
@@ -314,6 +330,7 @@ public abstract class Request extends RequestBase {
 	 */
 	@Override
 	public boolean isRequestedSessionIdFromCookie() {
+		
 		if(this.sessionId == null)
 			getRequestedSessionId();
 		return sessionFromCookie;
@@ -325,6 +342,7 @@ public abstract class Request extends RequestBase {
 	 */
 	@Override
 	public boolean isRequestedSessionIdFromURL() {
+		
 		if(this.sessionId == null)
 			getRequestedSessionId();
 		return sessionFromURL;

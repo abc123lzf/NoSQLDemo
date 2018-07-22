@@ -281,6 +281,8 @@ public abstract class RequestBase implements HttpServletRequest {
 	public final String getParameter(String name) {
 		if(parameterMap.size() == 0)
 			docodeParameter();
+		if(parameterMap.get(name) == null)
+			return null;
 		return parameterMap.get(name)[0];
 	}
 
@@ -386,13 +388,14 @@ public abstract class RequestBase implements HttpServletRequest {
 	 * 根据HTTP报文解析Cookie
 	 */
 	private void cookieDecode() {
-		String cookie = headerMap.get("Cookie");
-		if(cookie == null)
+		String cookie = getHeader("Cookie");
+		if(cookie == null) {
 			return;
-		
+		}
 		String[] entry = cookie.split("; ");
 		Cookie[] cookies = new Cookie[entry.length];
-		for(int i = 0; i < entry.length; i++) {
+		
+		for(int i = 0; i < cookies.length; i++) {
 			String[] kv = cookie.split("=");
 			cookies[i] = new Cookie(kv[0], kv[1]);
 		}

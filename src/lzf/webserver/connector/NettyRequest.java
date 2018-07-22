@@ -20,7 +20,7 @@ import lzf.webserver.util.DefaultServletInputStream;
 * @date 2018年7月15日 上午11:10:50
 * @Description 
 */
-public class NettyRequest extends Request {
+public final class NettyRequest extends Request {
 
 	private final ChannelHandlerContext ctx;
 	
@@ -66,6 +66,7 @@ public class NettyRequest extends Request {
 		
 		InputStream is = new ByteArrayInputStream(content);
 		super.sis = new DefaultServletInputStream(is);
+		
 		InputStreamReader isr = new InputStreamReader(is);
 		super.contentReader = new BufferedReader(isr);
 	}
@@ -87,7 +88,7 @@ public class NettyRequest extends Request {
 	 * @param ctx ChannelHandlerContext实例
 	 * @return 封装了完整HTTP请求的Request对象
 	 */
-	public static Request newRequest(FullHttpRequest request, ChannelHandlerContext ctx) {
+	static Request newRequest(FullHttpRequest request, ChannelHandlerContext ctx) {
 		if(request == null || ctx == null)
 			throw new IllegalArgumentException();
 		

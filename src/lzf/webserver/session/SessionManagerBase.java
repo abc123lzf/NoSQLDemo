@@ -40,6 +40,7 @@ public abstract class SessionManagerBase extends LifecycleBase {
 		@Override
 		public void run() {
 			log.info("LifeCheckProcesser run");
+			
 			while(true) {
 				if(getLifecycleState().after(LifecycleState.STOPPING_PREP))
 					break;
@@ -103,11 +104,15 @@ public abstract class SessionManagerBase extends LifecycleBase {
 	 * @return SessionÊµÀý
 	 */
 	public final Session getSession(String sessionId, boolean create) {
+		if(sessionId == null)
+			return newSession();
+		
 		Session session = sessions.get(sessionId);
 		if(session != null) {
 			session.updateLastAccessedTime();
 			return session;
 		}
+		
 		if(create)
 			return newSession();
 		return null;

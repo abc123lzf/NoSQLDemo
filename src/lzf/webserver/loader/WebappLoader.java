@@ -14,9 +14,11 @@ import lzf.webserver.core.LifecycleBase;
 * @Description web应用载入器，包括XML文件解析，静态资源文件的读取，类加载实现
 */
 public class WebappLoader extends LifecycleBase implements Loader {
-
+	
+	//web应用URL路径
 	public static final String WEBAPP_URL = "file:/" + System.getProperty("user.dir") + File.separator + "webapps";
 	
+	//
 	private Context context = null;
 	
 	private ClassLoader classLoader = null;
@@ -84,6 +86,10 @@ public class WebappLoader extends LifecycleBase implements Loader {
 
 	@Override
 	protected void destoryInternal() throws Exception {
+		
+	}
+	
+	protected void resourceLoader() {
 		
 	}
 }

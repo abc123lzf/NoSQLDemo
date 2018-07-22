@@ -3,7 +3,9 @@ package lzf.webserver.core;
 import java.io.IOException;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import lzf.webserver.Context;
 import lzf.webserver.connector.Request;
@@ -30,6 +32,9 @@ public final class StandardHostValve extends ValveBase {
 			response.sendError(HttpServletResponse.SC_NOT_FOUND);
 			return;
 		}
+		
+		HttpSession serverSession = request.getSession();
+		response.addCookie(new Cookie(context.getSessionIdName(), serverSession.getId()));
 		
 		log.info("Recive request in HostValve");
 		context.getPipeline().getFirst().invoke(request, response);
