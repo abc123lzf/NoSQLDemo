@@ -22,10 +22,6 @@ import lzf.webserver.log.LogFactory;
 public class WebappLoader extends LifecycleBase implements Loader {
 
 	public static final Log log = LogFactory.getLog(WebappLoader.class);
-	
-	public static final String WEBAPP_PATH = System.getProperty("user.dir") + File.separator + "webapps";
-	// web应用URL路径
-	public static final String WEBAPP_URL = "file:/" + WEBAPP_PATH;
 
 	// 该Web加载器所属的Context容器
 	private Context context = null;
@@ -100,9 +96,8 @@ public class WebappLoader extends LifecycleBase implements Loader {
 	/**
 	 * @param path 单个Web应用主目录，该方法会载入里面的文件
 	 */
-	private void resourceLoad(String path) {
-		
-		File file = new File(path);
+	private void resourceLoad(File file) {
+	
 		if (file.exists()) {
 			File[] files = file.listFiles();
 			
@@ -111,14 +106,14 @@ public class WebappLoader extends LifecycleBase implements Loader {
 			} else {
 				for (File file2 : files) {
 					if (file2.isDirectory()) {
-						resourceLoad(file2.getAbsolutePath());
+						resourceLoad(file2);
 					} else {
 						byte[] b = loadFile(file2);
 						if(b == null)
 							return;
 						String fileName = file2.getName();
 						if(!(fileName.endsWith("class") || fileName.endsWith("jsp"))) {
-							context.addChildContainer(StandardWrapper.getDefaultWrapper(context, fileName, b));
+							context.addChildContainer(StandardWrapper.getDefaultWrapper(context, file2, b));
 						}
 					}
 				}

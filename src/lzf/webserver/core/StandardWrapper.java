@@ -1,5 +1,7 @@
 package lzf.webserver.core;
 
+import java.io.File;
+
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 
@@ -27,6 +29,10 @@ public class StandardWrapper extends ContainerBase implements Wrapper {
 	private volatile Servlet servlet;
 	
 	private volatile ApplicationServletConfig servletConfig = new ApplicationServletConfig(this);
+	
+	private File path;
+	
+	private String uriPath = null;
 	
 	public StandardWrapper(Context context) {
 		super();
@@ -221,6 +227,32 @@ public class StandardWrapper extends ContainerBase implements Wrapper {
 		return servlet;
 	}
 	
+	@Override
+	public File getPath() {
+		return path;
+	}
+	
+	@Override
+	public void setPath(File path) {
+		this.path = path;
+	}
+	
+	/**
+	 * @return 在URI上映射的路径
+	 */
+	@Override
+	public String getURIPath() {
+		return uriPath;
+	}
+	
+	/**
+	 * @param uri 在URI上映射的路径
+	 */
+	@Override
+	public void setURIPath(String uri) {
+		this.uriPath = uri;
+	}
+	
 	/**
 	 * @param servlet Servlet实例
 	 */
@@ -247,8 +279,7 @@ public class StandardWrapper extends ContainerBase implements Wrapper {
 
 	@Override
 	protected void stopInternal() throws Exception {
-		// TODO Auto-generated method stub
-
+		unload();
 	}
 
 	@Override
@@ -265,18 +296,20 @@ public class StandardWrapper extends ContainerBase implements Wrapper {
 	}
 	
 	/**
-	 * 返回一个持有默认Servlet的Wrapper
+	 * 返回一个持有默认Servlet的Wrapper，使用时注意要手动添加至Context容器
 	 * @param context Context父容器
 	 * @param fileName 文件名
 	 * @param b 二进制数据
 	 * @return 已配置好的Wrapper实例
 	 */
-	public static Wrapper getDefaultWrapper(Context context, String fileName, byte[] b) {
+	public static Wrapper getDefaultWrapper(Context context, File path, byte[] b) {
 		
 		StandardWrapper wrapper = new StandardWrapper(context);
 		
-		wrapper.setServlet(new DefaultServlet(fileName, b));
+		wrapper.setServlet(new DefaultServlet(path.getName(), b));
+		wrapper.setPath(path);
 		wrapper.servletConfig.servletName = "Default";
+		
 		return wrapper;
 		
 	}

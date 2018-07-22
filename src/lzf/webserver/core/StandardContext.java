@@ -1,5 +1,7 @@
 package lzf.webserver.core;
 
+import java.io.File;
+
 import javax.servlet.ServletContext;
 
 import lzf.webserver.Container;
@@ -21,7 +23,7 @@ public final class StandardContext extends ContainerBase implements Context {
 	
 	private String webappVersion = null;
 	
-	private String path = null;
+	private File path = null;
 	
 	private String requestCharacterEncoding = "UTF-8";
 	
@@ -62,12 +64,12 @@ public final class StandardContext extends ContainerBase implements Context {
 	}
 
 	@Override
-	public String getPath() {
+	public File getPath() {
 		return path;
 	}
 
 	@Override
-	public void setPath(String path) {
+	public void setPath(File path) {
 		this.path = path;
 	}
 
@@ -155,6 +157,7 @@ public final class StandardContext extends ContainerBase implements Context {
 		for(Container wrapper: childContainers) {
 			wrapper.stop();
 		}
+		
 		sessionManager.stop();
 		loader.stop();
 	}
@@ -175,13 +178,15 @@ public final class StandardContext extends ContainerBase implements Context {
 	 * @param path 路径
 	 * @return 组装好的StandardContext实例
 	 */
-	public static Context createContextByFolder(Host host, String path) {
+	public static Context createContextByFolder(Host host, File path) {
 		
 		if(host == null || path == null)
 			throw new IllegalArgumentException();
 		
 		StandardContext context = new StandardContext(host);
 		context.setPath(path);
+		//以文件夹命名
+		context.setName(path.getName());
 		return context;
 	}
 }

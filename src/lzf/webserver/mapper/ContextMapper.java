@@ -27,12 +27,26 @@ public final class ContextMapper {
 	}
 	
 	public Wrapper getWrapper(String uri) {
-		return mapper.get(uri).object;
+		
+		if(context.getName().equals("ROOT")) {
+			return mapper.get(uri).object;
+		}
+		
+		//截取第二个"/"之前的字符串
+		int st = uri.indexOf('/', 1);
+		//若没有找到第二个"/"，则说明是类似"/demo"这样的URI，直接去除字符串开头"/"即可
+		if(st == -1) {
+			return mapper.get("index.html").object;
+		//如果找到了，则说明是较为复杂的URL，类似"/demo/index.jsp"这样，截取出demo即可
+		} else {
+			return mapper.get(uri.substring(st, uri.length() - 1)).object;
+		}
 	}
 	
-	public void addWrapper(String uri, Wrapper wrapper) {
+	void addWrapper(String uri, Wrapper wrapper) {
 		mapper.put(uri, new MappedWrapper(uri, wrapper));
 	}
+	
 }
 
 class MappedWrapper extends MapElement<Wrapper> {

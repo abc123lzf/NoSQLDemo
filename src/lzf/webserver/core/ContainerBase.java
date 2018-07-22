@@ -21,14 +21,19 @@ public abstract class ContainerBase extends LifecycleBase implements Container {
 	
 	//容器名称
 	protected String name;
+	
 	//父容器，Engine容器没有父容器
 	protected Container parentContainer = null;
+	
 	//当前容器的类加载器
 	protected ClassLoader classLoader = null;
+	
 	//当前容器所属的管道
 	protected Pipeline pipeline = new StandardPipeline(this);
+	
 	//子容器，Wrapper没有子容器
 	protected List<Container> childContainers = new CopyOnWriteArrayList<>();
+	
 	//容器监听器
 	protected List<ContainerListener> containerListeners = new CopyOnWriteArrayList<>();
 	
@@ -100,7 +105,6 @@ public abstract class ContainerBase extends LifecycleBase implements Container {
 	 */
 	@Override
 	public final void addContainerListener(ContainerListener listener) {
-		runContainerEvent(Container.ADD_CHILD_EVENT, null);
 		containerListeners.add(listener);
 	}
 	
@@ -113,6 +117,7 @@ public abstract class ContainerBase extends LifecycleBase implements Container {
 	public void addChildContainer(Container container) throws IllegalArgumentException {
 		addChildContainerCheck(container);
 		childContainers.add(container);
+		runContainerEvent(Container.ADD_CHILD_EVENT, container);
 	}
 	
 	/**
@@ -129,8 +134,8 @@ public abstract class ContainerBase extends LifecycleBase implements Container {
 	 */
 	@Override
 	public void removeChildContainer(Container container) {
-		runContainerEvent(Container.REMOVE_CHILD_EVENT, null);
 		childContainers.remove(container);
+		runContainerEvent(Container.REMOVE_CHILD_EVENT, container);
 	}
 	
 	/**

@@ -1,5 +1,7 @@
 package lzf.webserver;
 
+import java.io.File;
+
 import javax.servlet.ServletContext;
 
 import lzf.webserver.session.HttpSessionManager;
@@ -38,16 +40,14 @@ public interface Context extends Container {
 	public String getEncodedPath();
 	
 	/**
-	 * 获取该web应用主目录
-	 * @return
+	 * @return 该web应用主目录
 	 */
-	public String getPath();
+	public File getPath();
 	
 	/**
-	 * 设置该web应用的主目录
-	 * @param path 目录相对、绝对路径
+	 * @param path 设置该web应用的主目录
 	 */
-	public void setPath(String path);
+	public void setPath(File path);
 	
 	/**
 	 * @return 该web应用支持运行时重加载吗

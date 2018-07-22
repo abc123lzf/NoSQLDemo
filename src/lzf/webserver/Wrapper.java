@@ -1,5 +1,7 @@
 package lzf.webserver;
 
+import java.io.File;
+
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 
@@ -113,4 +115,23 @@ public interface Wrapper extends Container {
 	 */
 	public Servlet getServlet();
 	
+	/**
+	 * @return 在URI上映射的路径
+	 */
+	public String getURIPath();
+	
+	/**
+	 * @param uri 在URI上映射的路径
+	 */
+	public void setURIPath(String uri);
+	
+	/**
+	 * @return 这个Wrapper容器对应资源的存放路径
+	 */
+	public File getPath();
+	
+	/**
+	 * @param path 这个Wrapper容器对应资源的存放路径
+	 */
+	public void setPath(File path);
 }

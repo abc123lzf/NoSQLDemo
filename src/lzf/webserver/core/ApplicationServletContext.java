@@ -1,5 +1,6 @@
 package lzf.webserver.core;
 
+import java.io.File;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -48,7 +49,7 @@ public class ApplicationServletContext implements ServletContext {
 	
 	@Override
 	public String getContextPath() {
-		return context.getPath();
+		return context.getPath().getAbsolutePath();
 	}
 
 	@Override
@@ -150,7 +151,8 @@ public class ApplicationServletContext implements ServletContext {
 
 	@Override
 	public String getRealPath(String path) {
-		return context.getPath();
+		File file = new File(context.getPath(), path);
+		return file.getAbsolutePath();
 	}
 
 	@Override

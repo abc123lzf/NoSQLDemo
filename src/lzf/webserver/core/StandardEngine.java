@@ -3,7 +3,9 @@ package lzf.webserver.core;
 import lzf.webserver.Container;
 import lzf.webserver.Engine;
 import lzf.webserver.Host;
+import lzf.webserver.LifecycleException;
 import lzf.webserver.Service;
+import lzf.webserver.mapper.GlobelMappedListener;
 
 /**
 * @author Àî×Ó·«
@@ -15,17 +17,16 @@ public class StandardEngine extends ContainerBase implements Engine {
 	
 	private Service service = null;
 	
-	public StandardEngine() {
-		super();
-	}
-	
 	public StandardEngine(Service service) {
-		this();
+		super();
 		this.service = service;
+		super.addContainerListener(new GlobelMappedListener(service.getGlobelMapper()));
 	}
 
 	@Override
-	public void setService(Service service) {
+	public void setService(Service service) throws LifecycleException {
+		if(getLifecycleState().isAvailable())
+			throw new LifecycleException("Engine is running");
 		this.service = service;
 	}
 

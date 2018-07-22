@@ -44,12 +44,13 @@ public class StandardHost extends ContainerBase implements Host {
 
 	@Override
 	protected void initInternal() throws Exception {
+		findWebappAndLoad();
 		
 		for(Container context: childContainers) {
 			context.init();
 		}
+		
 		pipeline.addValve(new StandardHostValve());
-		findWebappAndLoad();
 	}
 
 	@Override
@@ -82,7 +83,7 @@ public class StandardHost extends ContainerBase implements Host {
 			File[] folders = appBaseFolder.listFiles();
 			for(File folder : folders) {
 				if(folder.isDirectory()) {
-					StandardContext context = (StandardContext) StandardContext.createContextByFolder(this, folder.getAbsolutePath());
+					StandardContext context = (StandardContext) StandardContext.createContextByFolder(this, folder);
 					if(context != null)
 						addChildContainer(context);
 				}

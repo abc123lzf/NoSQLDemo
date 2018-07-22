@@ -1,6 +1,5 @@
 package lzf.webserver.connector;
 
-import lzf.webserver.LifecycleException;
 import lzf.webserver.Service;
 import lzf.webserver.core.LifecycleBase;
 import lzf.webserver.log.Log;

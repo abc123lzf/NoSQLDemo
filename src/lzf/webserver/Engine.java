@@ -7,7 +7,7 @@ package lzf.webserver;
 */
 public interface Engine extends Container {
 
-	public void setService(Service service);
+	public void setService(Service service) throws LifecycleException;
 	
 	public Service getService();
 }
