@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import lzf.webserver.LifecycleException;
 import lzf.webserver.LifecycleState;
 import lzf.webserver.Session;
 import lzf.webserver.core.LifecycleBase;
@@ -84,8 +85,10 @@ public abstract class SessionManagerBase extends LifecycleBase {
 	/**
 	 * 创建一个新的Session对象
 	 * @return StrandardSession实例
+	 * @throws LifecycleException Session管理器未处于启动状态
 	 */
-	public final Session newSession() {
+	public final Session newSession() throws LifecycleException {
+		checkLifecycleState();
 		Session session = newSessionInternal();
 		sessions.put(session.getId(), session);
 		return session;
@@ -102,8 +105,10 @@ public abstract class SessionManagerBase extends LifecycleBase {
 	 * @param create true:如果没有找到该Session对象则创建一个新的Session对象并返回
 	 * false:如果没有找到则返回null
 	 * @return Session实例
+	 * @throws LifecycleException Session管理器未处于启动状态
 	 */
-	public final Session getSession(String sessionId, boolean create) {
+	public final Session getSession(String sessionId, boolean create) throws LifecycleException {
+		
 		if(sessionId == null)
 			return newSession();
 		
@@ -120,16 +125,19 @@ public abstract class SessionManagerBase extends LifecycleBase {
 	
 	/**
 	 * 等价于getSession(sessionId, true);
+	 * @throws LifecycleException Session管理器未处于启动状态
 	 */
-	public final Session getSession(String sessionId) {
+	public final Session getSession(String sessionId) throws LifecycleException {
 		return getSession(sessionId, true);
 	}
 	
 	/**
 	 * 移除Session
 	 * @param Session UUID
+	 * @throws LifecycleException Session管理器未处于启动状态
 	 */
-	public final void removeSession(String sessionId) {
+	public final void removeSession(String sessionId) throws LifecycleException {
+		checkLifecycleState();
 		synchronized(sessions) {
 			sessions.remove(sessionId);
 		}
@@ -139,8 +147,12 @@ public abstract class SessionManagerBase extends LifecycleBase {
 	 * 更改SessionID的UUID值
 	 * @param session 该Session实例
 	 * @return 新的UUID值
+	 * @throws LifecycleException Session管理器未处于启动状态
 	 */
-	public final String changeSessionId(Session session) {
+	public final String changeSessionId(Session session) throws LifecycleException {
+		
+		checkLifecycleState();
+		
 		if(session == null)
 			return null;
 		Session s = sessions.get(session.getId());
@@ -156,11 +168,22 @@ public abstract class SessionManagerBase extends LifecycleBase {
 	}
 	
 	/**
-	 * 更改SessionID的UUID值
 	 * @param sessionId 待修改的Session实例的UUID
-	 * @return 新的UUID值
+	 * @return 更改好的SessionID的UUID值
+	 * @throws LifecycleException Session管理器未处于启动状态
 	 */
-	public final String changeSessionId(String sessionId) {
+	public final String changeSessionId(String sessionId) throws LifecycleException  {
+		
 		return changeSessionId(getSession(sessionId, false));
+	}
+	
+	/**
+	 * 检查当前Session管理器是否处于启动状态
+	 * @throws LifecycleException Session管理器未处于启动状态
+	 */
+	protected final void checkLifecycleState() throws LifecycleException {
+		
+		if(!getLifecycleState().isAvailable())
+			throw new LifecycleException("This Session Manager is not available");
 	}
 }

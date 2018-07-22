@@ -1,5 +1,6 @@
 package lzf.webserver.mapper;
 
+import lzf.webserver.Container;
 import lzf.webserver.ContainerEvent;
 import lzf.webserver.ContainerListener;
 
@@ -10,10 +11,28 @@ import lzf.webserver.ContainerListener;
 * @Description ÈÝÆ÷ÊÂ¼þÓ³Éä¼àÌýÆ÷
 */
 public class MappedListener implements ContainerListener {
+	
+	public MappedListener() {
+		
+	}
 
 	@Override
 	public void containerEvent(ContainerEvent event) {
-
+		String type = event.getType();
+		Object data = event.getData();
+		
+		if(type.equals(Container.ADD_CHILD_EVENT)) {
+			addChildEvent();
+		} else if(type.equals(Container.REMOVE_CHILD_EVENT)) {
+			removeChildEvent();
+		}
+	}
+	
+	private void addChildEvent() {
+		
 	}
 
+	private void removeChildEvent() {
+		
+	}
 }

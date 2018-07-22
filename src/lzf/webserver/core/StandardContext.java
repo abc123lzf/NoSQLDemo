@@ -35,7 +35,7 @@ public final class StandardContext extends ContainerBase implements Context {
 	private final HttpSessionManager sessionManager = new HttpSessionManager(this);
 	
 	public StandardContext(Host host) {
-		super.parentContainer = host;
+		super(host);
 	}
 	
 	@Override
@@ -131,7 +131,7 @@ public final class StandardContext extends ContainerBase implements Context {
 			wrapper.init();
 		}
 		pipeline.addValve(new StandardContextValve());
-		//∆Ù∂ØSessionπ‹¿Ì∆˜
+		sessionManager.init();
 	}
 
 	@Override
@@ -139,6 +139,7 @@ public final class StandardContext extends ContainerBase implements Context {
 		for(Container wrapper: childContainers) {
 			wrapper.start();
 		}
+		sessionManager.start();
 	}
 
 	@Override
@@ -146,6 +147,7 @@ public final class StandardContext extends ContainerBase implements Context {
 		for(Container wrapper: childContainers) {
 			wrapper.stop();
 		}
+		sessionManager.stop();
 	}
 
 	@Override
@@ -153,5 +155,6 @@ public final class StandardContext extends ContainerBase implements Context {
 		for(Container wrapper: childContainers) {
 			wrapper.destory();
 		}
+		sessionManager.destory();
 	}
 }

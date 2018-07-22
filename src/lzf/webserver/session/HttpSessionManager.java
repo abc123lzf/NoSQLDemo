@@ -64,8 +64,9 @@ public final class HttpSessionManager extends SessionManagerBase {
 	 * @param create true:如果没有找到该Session对象则创建一个新的Session对象并返回
 	 * false:如果没有找到则返回null
 	 * @return HttpSession实例
+	 * @throws LifecycleException Session管理器未处于启动状态
 	 */
-	public HttpSession getHttpSession(String sessionId, boolean create) {
+	public HttpSession getHttpSession(String sessionId, boolean create) throws LifecycleException {
 		return (HttpSession)getSession(sessionId, true);
 	}
 	

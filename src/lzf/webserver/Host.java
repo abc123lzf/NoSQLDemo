@@ -10,7 +10,13 @@ import java.io.File;
 */
 public interface Host extends Container {
 
+	/**
+	 * @return 该主机对应的web应用主目录
+	 */
 	public File getWebappBaseFolder();
 	
+	/**
+	 * @param folder 该主机对应的web应用目录
+	 */
 	public void setWebappBaseFolder(File folder);
 }

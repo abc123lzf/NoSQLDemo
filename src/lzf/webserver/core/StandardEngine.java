@@ -16,9 +16,11 @@ public class StandardEngine extends ContainerBase implements Engine {
 	private Service service = null;
 	
 	public StandardEngine() {
+		super();
 	}
 	
 	public StandardEngine(Service service) {
+		this();
 		this.service = service;
 	}
 

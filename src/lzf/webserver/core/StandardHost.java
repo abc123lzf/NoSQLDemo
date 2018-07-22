@@ -22,8 +22,8 @@ public class StandardHost extends ContainerBase implements Host {
 	
 	private File appBaseFolder = DEFAULT_CONTEXT_FOLDER;
 	
-	public StandardHost(Engine engine) {
-		super.parentContainer = engine;
+	public StandardHost(Engine parentConatiner) {
+		super(parentConatiner);
 	}
 	
 	@Override

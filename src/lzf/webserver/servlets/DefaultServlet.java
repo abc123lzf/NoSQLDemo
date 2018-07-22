@@ -18,11 +18,13 @@ public class DefaultServlet extends HttpServlet {
 
 	private static final long serialVersionUID = -6022554049128780788L;
 
+	
+	
 	@Override
 	public void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		response.setContentType("text/html");
 		response.setContentLength("<html><head><title>HelloWorld</title></head><p>HelloWorld</p></html>".length());
-		response.getOutputStream().write("<html><head><title>HelloWorld</title></head><p>HelloWorld</p></html>".getBytes());
+		response.getWriter().write("<html><head><title>HelloWorld</title></head><p>HelloWorld</p></html>");
 		
 		HttpSession session = request.getSession();
 		

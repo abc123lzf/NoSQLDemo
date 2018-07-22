@@ -32,6 +32,15 @@ public abstract class ContainerBase extends LifecycleBase implements Container {
 	//ÈİÆ÷¼àÌıÆ÷
 	protected List<ContainerListener> containerListeners = new CopyOnWriteArrayList<>();
 	
+	protected ContainerBase() {
+		super();
+	}
+	
+	protected ContainerBase(Container parentConatiner) {
+		this();
+		this.parentContainer = parentConatiner;
+	}
+	
 	/**
 	 * ÉèÖÃµ±Ç°ÈİÆ÷µÄÃû³Æ
 	 * @param name ÈİÆ÷Ãû

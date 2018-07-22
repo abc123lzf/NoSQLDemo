@@ -25,7 +25,10 @@ import javax.servlet.http.Part;
 import lzf.webserver.util.IteratorEnumeration;
 import lzf.webserver.Context;
 import lzf.webserver.Host;
+import lzf.webserver.LifecycleException;
 import lzf.webserver.Wrapper;
+import lzf.webserver.log.Log;
+import lzf.webserver.log.LogFactory;
 
 /**
 * @author 李子帆
@@ -35,22 +38,30 @@ import lzf.webserver.Wrapper;
 */
 public abstract class Request extends RequestBase {
 	
+	private static final Log log = LogFactory.getLog(Request.class);
+	
 	//从Cookie或URL获取的sessionID(不是容器中的SessionID)
 	private String sessionId;
+	
 	//上面SessionID是从Cookie获取的吗
 	private boolean sessionFromCookie = false;
+	
 	//上面SessionID是从URL获取的吗
 	private boolean sessionFromURL = false;
 	
 	//属性Map
 	protected final Map<String, Object> attributeMap = new ConcurrentHashMap<>();
-
+	
+	//该Request被路由到的Host容器
 	protected Host host = null;
 	
+	//该Request被路由到的Context容器
 	protected Context context = null;
 	
+	//该Wrapper被路由到的Wrapper容器
 	protected Wrapper wrapper = null;
 
+	//Session管理器中的HttpSession实例
 	private HttpSession session = null;
 	
 	/**
@@ -242,6 +253,7 @@ public abstract class Request extends RequestBase {
 	 */
 	@Override
 	public String getRequestedSessionId() {
+		//先从Cookie中查找Session
 		Cookie[] cookies = getCookies();
 		for(Cookie cookie : cookies) {
 			if(cookie.getName().equals(context.getSessionIdName())) {
@@ -249,11 +261,13 @@ public abstract class Request extends RequestBase {
 				return cookie.getValue();
 			}
 		}
+		//再从URI参数中寻找
 		String sessionId = super.getParameter(context.getSessionIdName());
 		if(sessionId != null) {
 			this.sessionFromURL = true;
 			return sessionId;
 		}
+		//如果都没有找到则返回null
 		return null;
 	}
 
@@ -276,7 +290,11 @@ public abstract class Request extends RequestBase {
 		
 		//如果从URL和Cookie中找到SessionID则从Session管理器查找该Session对象，该返回值可能为null，
 		//如果用户是第一次访问页面或者会话已过期
-		session = context.getSessionManager().getHttpSession(sessionId, false);
+		try {
+			session = context.getSessionManager().getHttpSession(sessionId, false);
+		} catch (LifecycleException e) {
+			log.error("Session管理器不可用", e);
+		}
 		return session;
 	}
 
@@ -293,21 +311,31 @@ public abstract class Request extends RequestBase {
 		if(this.sessionId == null)
 			this.sessionId = getRequestedSessionId();
 		
-		if(sessionId == null) {
-			session = context.getSessionManager().getHttpSession(null, true);
-		} else {
-			session = context.getSessionManager().getHttpSession(sessionId, true);
+		try {
+			if(sessionId == null) {
+				session = context.getSessionManager().getHttpSession(null, true);
+			} else {
+				session = context.getSessionManager().getHttpSession(sessionId, true);
+			}
+			return this.session;
+			
+		} catch (LifecycleException e) {
+			log.error("Session管理器不可用", e);
+			return null;
 		}
-		return this.session;
 	}
 
 	@Override
 	public String changeSessionId() {
-		
-		if(session != null)
-			return context.getSessionManager().changeSessionId(session.getId());
-		
-		return context.getSessionManager().changeSessionId(getSession().getId());
+		try {
+			if(session != null)
+				return context.getSessionManager().changeSessionId(session.getId());
+			
+			return context.getSessionManager().changeSessionId(getSession().getId());
+		} catch(LifecycleException e) {
+			log.error("Session管理器不可用", e);
+			return null;
+		}
 	}
 
 	/**
@@ -319,9 +347,14 @@ public abstract class Request extends RequestBase {
 		
 		if(this.sessionId == null)
 			getRequestedSessionId();
-		if(context.getSessionManager().getSession(sessionId, false) == null)
+		try {
+			if(context.getSessionManager().getSession(sessionId, false) == null)
+				return true;
+			return false;
+		} catch(Exception e) {
+			log.error("Session管理器不可用", e);
 			return true;
-		return false;
+		}
 	}
 
 	/**
@@ -392,14 +425,23 @@ public abstract class Request extends RequestBase {
 		return null;
 	}
 	
+	/**
+	 * @return 该Request被路由到的Host容器
+	 */
 	public Host getHost() {
 		return this.host;
 	}
 	
+	/**
+	 * @return 该Request被路由到的Context容器
+	 */
 	public Context getContext() {
 		return this.context;
 	}
 	
+	/**
+	 * @return 该Request被路由到的Wrapper容器
+	 */
 	public Wrapper getWrapper() {
 		return this.wrapper;
 	}
