@@ -17,7 +17,6 @@ public abstract class Response extends ResponseBase {
 	
 	public Response() {
 		super();
-		super.headerMap.put("Server", "LZF-HTTPServer-1.0");
 	}
 	
 	/**

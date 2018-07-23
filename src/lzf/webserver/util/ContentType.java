@@ -30,6 +30,7 @@ public final class ContentType {
 		content.put("css", "text/css");
 		content.put("psd", "image/vnd.adobe.photoshop");
 		content.put("png", "image/png");
+		content.put("ttf", "application/font-sfnt");
 	}
 	
 	private ContentType() {

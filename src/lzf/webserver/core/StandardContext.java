@@ -17,7 +17,7 @@ import lzf.webserver.session.HttpSessionManager;
 * @author 李子帆
 * @version 1.0
 * @date 2018年7月20日 下午4:58:08
-* @Description 类说明
+* @Description 标准Context容器
 */
 public final class StandardContext extends ContainerBase implements Context {
 	

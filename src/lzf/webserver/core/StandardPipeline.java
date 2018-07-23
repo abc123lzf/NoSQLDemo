@@ -60,6 +60,7 @@ public final class StandardPipeline extends LifecycleBase implements Pipeline {
 		}
 		
 		Valve[] newValves = new Valve[valves.length + 1];
+		
 		synchronized(valves) {
 			for(int i = 0; i < valves.length; i++) {
 				newValves[i] = valves[i];

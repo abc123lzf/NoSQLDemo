@@ -180,11 +180,19 @@ public class NettyHandler extends LifecycleBase implements Handler {
 					return;
 				}
 				
-				request.context = gm.getContext(request.host.getName(), request.getRequestURI());
+				String reqUri = request.getRequestURI();
+				
+				request.context = gm.getContext(request.host.getName(), reqUri);
 				
 				if(request.context == null) {
 					System.out.println("Context Not Found");
 					response.sendError(HttpServletResponse.SC_NOT_FOUND);
+					return;
+				} else if(reqUri.equals("/" + request.context.getName())) {
+					response.status = 302;
+					response.addHeader("Location", "http://"+ request.getServerName() + ":" 
+								+ request.getServerPort() + "/" + request.context.getName() + "/");
+					response.sendResponse();
 					return;
 				}
 

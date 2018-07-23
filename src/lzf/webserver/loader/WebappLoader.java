@@ -5,6 +5,9 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
+import org.dom4j.DocumentException;
+import org.dom4j.Element;
+
 import lzf.webserver.Context;
 import lzf.webserver.LifecycleException;
 import lzf.webserver.Loader;
@@ -12,6 +15,7 @@ import lzf.webserver.core.LifecycleBase;
 import lzf.webserver.core.StandardWrapper;
 import lzf.webserver.log.Log;
 import lzf.webserver.log.LogFactory;
+import lzf.webserver.util.XMLUtil;
 
 /**
  * @author 李子帆
@@ -26,7 +30,7 @@ public class WebappLoader extends LifecycleBase implements Loader {
 	// 该Web加载器所属的Context容器
 	private Context context = null;
 
-	private ClassLoader classLoader = null;
+	private volatile ClassLoader classLoader = new WebappClassLoader(WebappClassLoader.class.getClassLoader(), context.getPath());
 
 	private boolean reloadable = false;
 
@@ -138,5 +142,63 @@ public class WebappLoader extends LifecycleBase implements Loader {
 			log.error("无法读入资源文件：" + file.getAbsolutePath() , e);
 		}
 		return null;
+	}
+	
+	/**
+	 * 加载web.xml文件
+	 * @param path web.xml文件路径
+	 * @throws DocumentException
+	 */
+	@SuppressWarnings("unused")
+	private boolean loadWebXml() {	
+		
+		File path = new File(context.getPath(), "WEB-INF" + File.separator + "web.xml");
+		if(!path.exists())
+			return false;
+		
+		Element root = null;
+		try {
+			root = XMLUtil.getXMLRoot(path);
+		} catch (DocumentException e) {
+			log.error("Context: " + context.getName() + " web.xml read error", e);
+			return false;
+		}
+		
+		String displayName = root.element("display-name").getStringValue();
+		
+		for(Element contextParam : root.elements("context-param")) {
+			String paramName = contextParam.element("param-name").getStringValue();
+			String paramValue = contextParam.element("param-value").getStringValue();
+		}
+		
+		for(Element filter : root.elements("filter")) {
+			String filterName = filter.element("filter-name").getStringValue();
+			String filterClass = filter.element("filter-class").getStringValue();
+		}
+		
+		for(Element filterMapping : root.elements("filter-mapping")) {
+			String filterName = filterMapping.element("filter-name").getStringValue();
+			String urlPattern = filterMapping.element("url-pattern").getStringValue();
+		}
+		
+		for(Element servlet : root.elements("servlet")) {
+			String servletName = servlet.element("servlet-name").getStringValue();
+			String servletClass = servlet.element("servlet-class").getStringValue();
+		}
+		
+		for(Element servletMapping : root.elements("servlet-mapping")) {
+			String servletName = servletMapping.element("servlet-name").getStringValue();
+			String servletClass = servletMapping.element("servlet-class").getStringValue();
+		}
+		
+		Element sessionConfig = root.element("session-config");
+		
+		//TODO mime-mapping
+		
+		for(Element welcomeFileList : root.elements("welcome-file-list")) {
+			
+		}
+		
+		return true;
 	}
 }

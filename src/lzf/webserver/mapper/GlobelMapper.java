@@ -105,7 +105,7 @@ public final class GlobelMapper {
 	 * @return Context对象 没有找到则返回null
 	 */
 	public Context getContext(String hostName, String uri) {
-		System.out.println(hostName + "......." + uri);
+
 		MappedHost host = getMappedHost(hostName);
 		
 		//通过主机名寻找Host，如果没有找到主机则直接返回null
@@ -149,6 +149,7 @@ public final class GlobelMapper {
 	 */
 	void addContext(Context context) {
 		
+		//先获取这个Context父容器Host容器对应的MappedHost对象
 		Host host = (Host)context.getParentContainer();
 		MappedHost mappedHost = getMappedHost(host.getName());
 		
@@ -157,14 +158,31 @@ public final class GlobelMapper {
 			return;
 		}
 		
-		Map<String, MappedContext> map = new LinkedHashMap<>();
-		
-		for(Container c : host.getChildContainers()) {
-			MappedContext mappedContext = new MappedContext(c.getName(), context);
-			map.put(c.getName(), mappedContext);
+		//如果host映射表中不存在存在这个MappedHost对象，则新建一个Map并将Host容器中的Context容器加入这个映射表
+		if(!hostMapper.containsKey(mappedHost)) {
+			
+			Map<String, MappedContext> map = new LinkedHashMap<>();
+			
+			for(Container c : host.getChildContainers()) {
+				System.out.println(c.getName());
+				MappedContext mappedContext = new MappedContext(c.getName(), context);
+				map.put(c.getName(), mappedContext);
+			}
+			
+			hostMapper.put(mappedHost, map);
+			
+		} else {
+			//如果存在则获取这个映射表
+			Map<String, MappedContext> map = hostMapper.get(mappedHost);
+			
+			//如果Context容器之前已经被加入过那么忽略，只加入没有映射好的Context对象
+			for(Container c : host.getChildContainers()) {
+				if(map.containsKey(c.getName()))
+					continue;
+				MappedContext mappedContext = new MappedContext(c.getName(), context);
+				map.put(c.getName(), mappedContext);
+			}
 		}
-		
-		hostMapper.put(mappedHost, map);
 	}
 	
 	/**
@@ -224,6 +242,9 @@ final class MappedContext extends MapElement<Context> {
 		return name.hashCode();
 	}
 	
+	/**
+	 * 通过Context的name属性来判断是否相对
+	 */
 	@Override
 	public boolean equals(Object obj) {
 		
