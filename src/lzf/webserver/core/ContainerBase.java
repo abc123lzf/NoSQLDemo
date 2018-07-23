@@ -29,13 +29,13 @@ public abstract class ContainerBase extends LifecycleBase implements Container {
 	protected ClassLoader classLoader = null;
 	
 	//当前容器所属的管道
-	protected Pipeline pipeline = new StandardPipeline(this);
+	protected final Pipeline pipeline = new StandardPipeline(this);
 	
 	//子容器，Wrapper没有子容器
-	protected List<Container> childContainers = new CopyOnWriteArrayList<>();
+	protected final List<Container> childContainers = new CopyOnWriteArrayList<>();
 	
 	//容器监听器
-	protected List<ContainerListener> containerListeners = new CopyOnWriteArrayList<>();
+	protected final List<ContainerListener> containerListeners = new CopyOnWriteArrayList<>();
 	
 	protected ContainerBase() {
 		super();

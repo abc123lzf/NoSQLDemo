@@ -25,7 +25,7 @@ public class StandardSession implements Session, HttpSession, Serializable {
 	private static final long serialVersionUID = 8941015350279589423L;
 	
 	//Session Id
-	private String id = UUID.randomUUID().toString();
+	private String id = UUID.randomUUID().toString().replaceAll("\\-", "");
 	
 	//创建时间戳
 	private final long createTime = System.currentTimeMillis();

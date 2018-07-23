@@ -30,7 +30,17 @@ public final class ContextMapper {
 	public Wrapper getWrapper(String uri) {
 		
 		if(context.getName().equals("ROOT")) {
-			return mapper.get(uri).object;
+			MappedWrapper mw = null;
+			
+			if(uri.equals("/")) {
+				mw = mapper.get("/index.html");
+			} else {
+				mw = mapper.get(uri);
+			}
+			
+			if(mw == null)
+				return null;
+			return mw.object;
 		}
 		
 		//截取第二个"/"之前的字符串
@@ -41,9 +51,9 @@ public final class ContextMapper {
 			if(mw == null)
 				return null;
 			return mw.object;
-		//如果找到了，则说明是较为复杂的URL，类似"/demo/index.jsp"这样，截取出demo即可
+		//如果找到了，则说明是较为复杂的URL，类似"/demo/index.jsp"这样，截取出/index.jsp即可
 		} else {
-			MappedWrapper mw = mapper.get(uri.substring(st, uri.length() - 1));
+			MappedWrapper mw = mapper.get(uri.substring(st, uri.length()));
 			if(mw == null)
 				return null;
 			return mw.object;
@@ -53,6 +63,7 @@ public final class ContextMapper {
 	void addWrapper(Wrapper wrapper) {
 		
 		String uri = wrapper.getURIPath();
+		System.out.println(uri);
 		
 		if(uri == null)
 			throw new UnsupportedOperationException("The wrapper's URI path is empty");

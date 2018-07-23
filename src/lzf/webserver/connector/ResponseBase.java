@@ -36,8 +36,7 @@ public abstract class ResponseBase implements HttpServletResponse {
 	protected PrintWriter pw;
 	
 	protected ResponseBase() {
-		headerMap.put("Content-Type", "text/plain; charset=UTF-8");
-		headerMap.put("Server", "LZF-HTTPServer-1.0");
+		headerMap.put("Server", "LZF-Server");
 	}
 	
 	@Override

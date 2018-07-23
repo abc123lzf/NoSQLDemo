@@ -5,7 +5,6 @@ import java.io.IOException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
 
-import lzf.webserver.Context;
 import lzf.webserver.Wrapper;
 import lzf.webserver.connector.Request;
 import lzf.webserver.connector.Response;
@@ -28,6 +27,7 @@ public class StandardContextValve extends ValveBase {
 		Wrapper wrapper = request.getWrapper();
 		if(wrapper == null) {
 			response.sendError(HttpServletResponse.SC_NOT_FOUND);
+			return;
 		}
 		
 		log.info("Recive request in ContextValve");

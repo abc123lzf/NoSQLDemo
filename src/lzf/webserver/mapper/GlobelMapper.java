@@ -38,6 +38,7 @@ public final class GlobelMapper {
 	 * @param host
 	 */
 	synchronized void addHost(Host host) {
+		
 		MappedHost mappedHost = new MappedHost(host.getName(), host);
 		mapper.put(host.getName(), mappedHost);
 		
@@ -104,6 +105,7 @@ public final class GlobelMapper {
 	 * @return Context对象 没有找到则返回null
 	 */
 	public Context getContext(String hostName, String uri) {
+		System.out.println(hostName + "......." + uri);
 		MappedHost host = getMappedHost(hostName);
 		
 		//通过主机名寻找Host，如果没有找到主机则直接返回null
@@ -112,7 +114,10 @@ public final class GlobelMapper {
 		
 		//如果URI等于"/"，说明是ROOT
 		if(uri.equals("/")) {
-			return (Context) host.object.getChildContainer("ROOT");
+			MappedContext mc = hostMapper.get(host).get("ROOT");
+			if(mc == null)
+				return null;
+			return mc.object;
 		}
 		
 		//截取第二个"/"之前的字符串
@@ -120,15 +125,21 @@ public final class GlobelMapper {
 		String contextName;
 		//若没有找到第二个"/"，则说明是类似"/demo"这样的URI，直接去除字符串开头"/"即可
 		if(st == -1) {
-			contextName = uri.substring(1, uri.length() - 1);
+			contextName = uri.substring(1, uri.length());
 		//如果找到了，则说明是较为复杂的URL，类似"/demo/index.jsp"这样，截取出demo即可
 		} else {
 			contextName = uri.substring(1, st);
 		}
-		//通过截取后的字符串寻找Context
+		
+		//通过截取后的字符串(demo)寻找Context
 		MappedContext context = getMappedContext(host, contextName);
-		if(context == null)
-			return null;
+		
+		//如果该webapp不存在(demo) 那么选定为ROOT
+		if(context == null) {
+			context = getMappedContext(host, "ROOT");
+			if(context == null)
+				return null;
+		}
 		return context.object;
 	}
 	

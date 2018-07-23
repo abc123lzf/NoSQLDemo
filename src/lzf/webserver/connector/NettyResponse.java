@@ -39,7 +39,7 @@ public final class NettyResponse extends Response {
 
 	@Override
 	public synchronized void sendResponse() {
-		response.setStatus(HttpResponseStatus.valueOf(200)); //应从Request中获取status
+		response.setStatus(HttpResponseStatus.valueOf(status)); //应从Request中获取status
 		
 		for(Map.Entry<String, String> entry : headerMap.entrySet())
 			response.headers().add(entry.getKey(), entry.getValue());

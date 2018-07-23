@@ -81,7 +81,7 @@ public class NettyHandler extends LifecycleBase implements Handler {
 			try {
 				serverChannel.closeFuture().sync();
 			} catch (InterruptedException e) {
-				
+				log.info("", e);
 			}
 		}
 	}
@@ -183,6 +183,7 @@ public class NettyHandler extends LifecycleBase implements Handler {
 				request.context = gm.getContext(request.host.getName(), request.getRequestURI());
 				
 				if(request.context == null) {
+					System.out.println("Context Not Found");
 					response.sendError(HttpServletResponse.SC_NOT_FOUND);
 					return;
 				}
@@ -190,6 +191,7 @@ public class NettyHandler extends LifecycleBase implements Handler {
 				request.wrapper = request.context.getMapper().getWrapper(request.getRequestURI());
 				
 				if(request.wrapper == null) {
+					System.out.println("Wrapper Not Found");
 					response.sendError(HttpServletResponse.SC_NOT_FOUND);
 					return;
 				}

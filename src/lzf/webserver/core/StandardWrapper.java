@@ -311,12 +311,12 @@ public class StandardWrapper extends ContainerBase implements Wrapper {
 		wrapper.setPath(path);
 		
 		//该wrapper存放的路径，格式:webapps/ROOT/index.html
-		String p = path.getPath().replaceAll("\\", "/");
+		String p = path.getPath().replaceAll("\\\\", "/");
 		
 		if(context.getName().equals("ROOT")) {
 			
 			//该web应用主目录，格式:webapps/ROOT
-			String contextPath = context.getPath().getPath().replaceAll("\\", "/");
+			String contextPath = context.getPath().getPath().replaceAll("\\\\", "/");
 			
 			//将该Wrapper的URI设置为/index.html
 			wrapper.setURIPath(p.replaceAll(contextPath, ""));

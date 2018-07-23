@@ -33,9 +33,21 @@ public final class StandardHostValve extends ValveBase {
 			return;
 		}
 		
-		HttpSession serverSession = request.getSession();
-		response.addCookie(new Cookie(context.getSessionIdName(), serverSession.getId()));
+		HttpSession serverSession = request.getSession(false);
 		
+		if(serverSession == null) {
+			
+			serverSession = request.getSession();
+			Cookie session = new Cookie(context.getSessionIdName(), serverSession.getId());
+			
+			if(context.getName().equals("ROOT"))
+				session.setPath("/");
+			else
+				session.setPath(context.getName());
+			
+			response.addCookie(session);
+		}
+
 		log.info("Recive request in HostValve");
 		context.getPipeline().getFirst().invoke(request, response);
 	}

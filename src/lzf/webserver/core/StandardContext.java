@@ -196,22 +196,26 @@ public final class StandardContext extends ContainerBase implements Context {
 	@Override
 	protected void initInternal() throws Exception {
 		
+		loader.init();
+		
 		for(Container wrapper: childContainers) {
 			wrapper.init();
 		}
+		
 		pipeline.addValve(new StandardContextValve());
 		sessionManager.init();
-		loader.init();
 	}
 
 	@Override
 	protected void startInternal() throws Exception {
 		
+		loader.start();
+		
 		for(Container wrapper: childContainers) {
 			wrapper.start();
 		}
+		
 		sessionManager.start();
-		loader.start();
 	}
 
 	@Override
@@ -231,6 +235,7 @@ public final class StandardContext extends ContainerBase implements Context {
 		for(Container wrapper: childContainers) {
 			wrapper.destory();
 		}
+		
 		sessionManager.destory();
 		loader.stop();
 	}

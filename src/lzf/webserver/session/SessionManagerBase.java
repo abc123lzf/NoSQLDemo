@@ -43,10 +43,12 @@ public abstract class SessionManagerBase extends LifecycleBase {
 			log.info("LifeCheckProcesser run");
 			
 			while(true) {
+				
 				if(getLifecycleState().after(LifecycleState.STOPPING_PREP))
 					break;
 				
 				long nowTime = System.currentTimeMillis();
+				
 				for(Map.Entry<String, Session> entry : sessions.entrySet()) {
 					Session session = entry.getValue();
 					if(nowTime - session.getLastAccessedTime() >= session.getMaxInactiveInterval()) {

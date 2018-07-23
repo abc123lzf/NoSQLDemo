@@ -231,8 +231,9 @@ public abstract class RequestBase implements HttpServletRequest {
 	@Override
 	public final String getRequestURI() {
 		int index = requestUrl.indexOf('?');
-		String uri = requestUrl.substring(0, index);
-		return uri;
+		if(index == -1)
+			return requestUrl;
+		return requestUrl.substring(0, index);
 	}
 
 	/**

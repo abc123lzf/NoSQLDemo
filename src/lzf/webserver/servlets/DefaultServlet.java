@@ -28,19 +28,20 @@ public class DefaultServlet extends HttpServlet {
 	@Override
 	public void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		response.setContentType(contentType);
-		response.getOutputStream().write(resource);
 		response.addIntHeader("Content-Length", resource.length);
+		response.getOutputStream().write(resource);
 	}
 	
 	public DefaultServlet(String fileName, byte[] resource) {
 		
 		this.resource = resource;
 		int index = fileName.lastIndexOf('.');
-		String suffix = fileName.substring(index + 1, fileName.length() - 1);
+		String suffix = fileName.substring(index + 1, fileName.length());
+
 		if(suffix != null) {
 			this.contentType = ContentType.getContentBySuffix(suffix);
 		} else {
-			this.contentType = ContentType.getContentBySuffix("");
+			this.contentType = ContentType.getContentBySuffix("application/octet-stream");
 		}
 	}
 
