@@ -4,6 +4,7 @@ import java.io.File;
 
 import javax.servlet.ServletContext;
 
+import lzf.webserver.mapper.ContextMapper;
 import lzf.webserver.session.HttpSessionManager;
 
 
@@ -22,10 +23,14 @@ public interface Context extends Container {
 	public ServletContext getServletContext();
 	
 	/**
-	 * 获取该Web应用对应的Session管理器
-	 * @return
+	 * @return 该Web应用对应的Session管理器
 	 */
 	public HttpSessionManager getSessionManager();
+	
+	/**
+	 * @return 该web应用的路由器
+	 */
+	public ContextMapper getMapper();
 	
 	/**
 	 * 获取默认的SessionID名称(例如JSESSIONID)

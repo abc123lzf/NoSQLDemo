@@ -50,28 +50,43 @@ public final class Bootstrap {
 		
 		StandardServer server = new StandardServer();
 		
+		//设置Server的关闭指令接收端口
 		String shutdownPortStr = serverRoot.attributeValue("port");
+		
 		if(shutdownPortStr != null)
 			server.setPort(Integer.valueOf(shutdownPortStr));
+		
+		//设置关闭指令
 		String shutdownCmd = serverRoot.attributeValue("shutdown");
+		
 		if(shutdownCmd != null)
 			server.setShutdownCommand(shutdownCmd);
 		
+		//遍历Server节点下的Service节点
 		for(Element serviceRoot: serverRoot.elements("Service")) {
 			
 			StandardService service = new StandardService();
 			
+			//设置Service的名称
 			String serviceName = serviceRoot.attributeValue("name");
-			System.out.println(serviceName);
+			
 			if(serviceName != null)
 				service.setName(serviceName);
 			
+			//遍历Service节点下的Connector节点
 			for(Element connectorRoot : serviceRoot.elements("Connector")) {
 				
 				Connector connector = new Connector(service);
+				
+				//设置连接器绑定端口
 				String connectorPort = connectorRoot.attributeValue("port");
+				
+				//设置连接器与客户端最大非活跃连接时长
 				String connectionTimeout = connectorRoot.attributeValue("connectionTimeout");
+				
+				//设置Socket接收器类型，目前仅支持Netty的NIO模式
 				String handlerType = connectorRoot.attributeValue("handler");
+				
 				if(connectorPort != null)
 					connector.setPort(Integer.valueOf(connectorPort));
 				if(connectionTimeout != null)
@@ -90,6 +105,7 @@ public final class Bootstrap {
 				service.addConnector(connector);
 			}
 			
+			//获取Service对象的Engine节点，Engine节点只能拥有一个
 			Element engineRoot = serviceRoot.element("Engine");
 			
 			if(engineRoot == null)
@@ -102,7 +118,8 @@ public final class Bootstrap {
 			String engineName = engineRoot.attributeValue("name");
 			if(engineName != null)
 				engine.setName(engineName);
-				
+			
+			//遍历Engine节点下的Host节点，Host节点在初始化时会自动加载目录下的web应用
 			for(Element hostRoot : engineRoot.elements("Host")) {
 				StandardHost host = new StandardHost(engine);
 				
@@ -113,12 +130,6 @@ public final class Bootstrap {
 				if(hostAppBase != null)
 					host.setWebappBaseFolder(new File(hostAppBase));
 				//-----------------------------------------------------------------------------
-				StandardContext context = new StandardContext(host);
-				host.addChildContainer(context);
-				StandardWrapper wrapper = new StandardWrapper(context);
-				context.addChildContainer(wrapper);
-				NettyHandler handler = ((NettyHandler)((Connector)(engine.getService().getConnectors().get(0))).getHandler());
-				handler.tH = host; handler.tC = context; handler.tW = wrapper;
 				//-----------------------------------------------------------------------------
 				engine.addChildContainer(host);
 			}
@@ -128,27 +139,7 @@ public final class Bootstrap {
 		
 		server.init();
 		server.start();
-		/*
-		Server server = new StandardServer();
-		try {
-			Service service = new StandardService();
-			service.setName("catalina");
-			service.setServer(server);
-			
-			Connector connector = new Connector();
-			NettyHandler handler = new NettyHandler(connector);
-			handler.setConnector(connector);
-			connector.setHandler(handler);
-			
-			service.addConnector(connector);
-			server.addService(service);
-			
-			server.init();
-			server.start();
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-		}*/
+
 	}
 	
 	private Bootstrap() {

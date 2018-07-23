@@ -18,8 +18,7 @@ import lzf.webserver.mapper.GlobelMappedListener;
 */
 public class StandardHost extends ContainerBase implements Host {
 
-	public static final File DEFAULT_CONTEXT_FOLDER = new File((String)System.getProperty("user.dir") 
-			+ File.separator + "webapps");
+	public static final File DEFAULT_CONTEXT_FOLDER = new File("webapps");
 	
 	private File appBaseFolder = DEFAULT_CONTEXT_FOLDER;
 	

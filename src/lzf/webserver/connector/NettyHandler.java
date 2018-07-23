@@ -6,6 +6,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletResponse;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
@@ -31,6 +32,9 @@ import lzf.webserver.LifecycleException;
 import lzf.webserver.LifecycleState;
 import lzf.webserver.Wrapper;
 import lzf.webserver.core.LifecycleBase;
+import lzf.webserver.log.Log;
+import lzf.webserver.log.LogFactory;
+import lzf.webserver.mapper.GlobelMapper;
 
 /**
  * @author 李子帆
@@ -39,18 +43,26 @@ import lzf.webserver.core.LifecycleBase;
  * @Description Netty NIO接收器
  */
 public class NettyHandler extends LifecycleBase implements Handler {
+	
+	private static final Log log = LogFactory.getLog(NettyHandler.class);
 
 	private int port = Connector.DEFAULT_PORT;
+	
 	//该接收器所属的连接器
 	private Connector connector;
+	
 	//业务逻辑线程池
 	private final Executor executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+	
 	//Netty连接处理线程
 	private final NettyHandlerProcesser processer = new NettyHandlerProcesser();
+	
 	//连接接收线程组
 	private final EventLoopGroup acceptGroup = new NioEventLoopGroup();
+	
 	//进站出站处理线程组
 	private final EventLoopGroup workerGroup = new NioEventLoopGroup();
+	
 	//服务器Socket通道
 	private volatile ServerSocketChannel serverChannel = null;
 	
@@ -137,15 +149,14 @@ public class NettyHandler extends LifecycleBase implements Handler {
 	protected void destoryInternal() throws LifecycleException {
 		//NOOP
 	}
-
-	//测试用
-	public Host tH; public Context tC; public Wrapper tW;
+	
 	/**
 	 * 负责处理业务逻辑的专用线程，必须通过调用runRequestProcesser实现
 	 */
 	protected class RequestProcesser implements Runnable {
 		
 		private final FullHttpRequest fullRequest;
+		
 		private final ChannelHandlerContext ctx;
 		
 		public RequestProcesser(FullHttpRequest request, ChannelHandlerContext ctx) {
@@ -155,16 +166,38 @@ public class NettyHandler extends LifecycleBase implements Handler {
 		
 		@Override
 		public void run() {
+			
 			Request request = NettyRequest.newRequest(fullRequest, ctx);
 			Response response = NettyResponse.newResponse(ctx);
 			//ctx.writeAndFlush(resp).addListener(ChannelFutureListener.CLOSE);
 			try {
-				request.host = tH;
-				request.context = tC;
-				request.wrapper = tW;
+				GlobelMapper gm = connector.getService().getGlobelMapper();
+				
+				request.host = gm.getHost(request.getServerName());
+				
+				if(request.host == null) {
+					response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+					return;
+				}
+				
+				request.context = gm.getContext(request.host.getName(), request.getRequestURI());
+				
+				if(request.context == null) {
+					response.sendError(HttpServletResponse.SC_NOT_FOUND);
+					return;
+				}
+
+				request.wrapper = request.context.getMapper().getWrapper(request.getRequestURI());
+				
+				if(request.wrapper == null) {
+					response.sendError(HttpServletResponse.SC_NOT_FOUND);
+					return;
+				}
+				
 				connector.getService().getEngine().getPipeline().getFirst().invoke(request, response);
+				
 			} catch (IOException | ServletException e) {
-				e.printStackTrace();
+				log.error("", e);
 			}
 		}
 	}

@@ -5,7 +5,7 @@ import lzf.webserver.ContainerEvent;
 import lzf.webserver.ContainerListener;
 import lzf.webserver.Wrapper;
 
-public class ContextMapperListener implements ContainerListener {
+public final class ContextMapperListener implements ContainerListener {
 	
 	private final ContextMapper mapper;
 	
@@ -35,10 +35,10 @@ public class ContextMapperListener implements ContainerListener {
 	}
 	
 	private void addChildEvent(Wrapper wrapper) {
-		mapper.addWrapper(wrapper.getURIPath(), wrapper);
+		mapper.addWrapper(wrapper);
 	}
 
 	private void removeChildEvent(Wrapper wrapper) {
-		
+		mapper.removeMapper(wrapper);
 	}
 }

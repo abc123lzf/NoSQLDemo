@@ -20,7 +20,7 @@ public class StandardEngine extends ContainerBase implements Engine {
 	public StandardEngine(Service service) {
 		super();
 		this.service = service;
-		super.addContainerListener(new GlobelMappedListener(service.getGlobelMapper()));
+		addContainerListener(new GlobelMappedListener(service.getGlobelMapper()));
 	}
 
 	@Override

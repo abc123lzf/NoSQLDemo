@@ -7,6 +7,7 @@ import javax.servlet.ServletException;
 
 import lzf.webserver.Container;
 import lzf.webserver.Context;
+import lzf.webserver.Host;
 import lzf.webserver.Wrapper;
 import lzf.webserver.log.Log;
 import lzf.webserver.log.LogFactory;
@@ -298,7 +299,7 @@ public class StandardWrapper extends ContainerBase implements Wrapper {
 	/**
 	 * 返回一个持有默认Servlet的Wrapper，使用时注意要手动添加至Context容器
 	 * @param context Context父容器
-	 * @param fileName 文件名
+	 * @param path 该资源文件路径
 	 * @param b 二进制数据
 	 * @return 已配置好的Wrapper实例
 	 */
@@ -309,16 +310,28 @@ public class StandardWrapper extends ContainerBase implements Wrapper {
 		wrapper.setServlet(new DefaultServlet(path.getName(), b));
 		wrapper.setPath(path);
 		
+		//该wrapper存放的路径，格式:webapps/ROOT/index.html
+		String p = path.getPath().replaceAll("\\", "/");
+		
 		if(context.getName().equals("ROOT")) {
-			String p = path.getPath();
-			//TODO;
+			
+			//该web应用主目录，格式:webapps/ROOT
+			String contextPath = context.getPath().getPath().replaceAll("\\", "/");
+			
+			//将该Wrapper的URI设置为/index.html
+			wrapper.setURIPath(p.replaceAll(contextPath, ""));
+
 		} else {
 			
+			//所有存放web应用的主目录，格式:webapps
+			String webappBaseFolder = ((Host)(context.getParentContainer())).getWebappBaseFolder().getPath();
+			
+			//将该Wrapper的URI设置为/index.html
+			wrapper.setURIPath(p.replaceAll(webappBaseFolder, ""));
 		}
 		
 		wrapper.servletConfig.servletName = "Default";
 		
 		return wrapper;
-		
 	}
 }
