@@ -333,8 +333,7 @@ public class ApplicationServletContext implements ServletContext {
 
 	@Override
 	public ClassLoader getClassLoader() {
-		// TODO Auto-generated method stub
-		return null;
+		return context.getClassLoader();
 	}
 
 	@Override

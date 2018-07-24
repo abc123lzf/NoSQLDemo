@@ -4,6 +4,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Enumeration;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
@@ -23,6 +26,7 @@ import lzf.webserver.util.XMLUtil;
  * @date 2018年7月21日 下午4:30:10
  * @Description web应用载入器，包括XML文件解析，静态资源文件的读取，类加载实现
  */
+@SuppressWarnings("unused")
 public class WebappLoader extends LifecycleBase implements Loader {
 
 	public static final Log log = LogFactory.getLog(WebappLoader.class);
@@ -30,12 +34,10 @@ public class WebappLoader extends LifecycleBase implements Loader {
 	// 该Web加载器所属的Context容器
 	private Context context = null;
 
-	private volatile ClassLoader classLoader = new WebappClassLoader(WebappClassLoader.class.getClassLoader(), context.getPath());
+	//当需要热替换时，需要重新新建一个WebappClassLoader对象并替换旧的ClassLoader
+	private volatile WebappClassLoader classLoader = new WebappClassLoader(WebappClassLoader.class.getClassLoader(), context.getPath());
 
 	private boolean reloadable = false;
-
-	public WebappLoader() {
-	}
 
 	public WebappLoader(Context context) {
 		this.context = context;
@@ -98,7 +100,7 @@ public class WebappLoader extends LifecycleBase implements Loader {
 	}
 
 	/**
-	 * @param path 单个Web应用主目录，该方法会载入里面的文件
+	 * @param path 单个Web应用主目录，该方法会尝试载入里面所有的文件
 	 */
 	private void resourceLoad(File file) {
 	
@@ -108,19 +110,28 @@ public class WebappLoader extends LifecycleBase implements Loader {
 			if (files.length == 0) {
 				return;
 			} else {
+				
 				for (File file2 : files) {
 					if (file2.isDirectory()) {
+						
+						if(file2.getPath().equals("\\WEB-INF\\classes") || file2.getPath().equals("\\WEB-INF\\lib"))
+							continue;
 						resourceLoad(file2);
+						
 					} else {
+						
 						byte[] b = loadFile(file2);
 						if(b == null)
 							return;
+						
 						String fileName = file2.getName();
 						if(!(fileName.endsWith("class") || fileName.endsWith("jsp"))) {
 							context.addChildContainer(StandardWrapper.getDefaultWrapper(context, file2, b));
 						}
+						
 					}
 				}
+				
 			}
 		}
 	}
@@ -147,9 +158,9 @@ public class WebappLoader extends LifecycleBase implements Loader {
 	/**
 	 * 加载web.xml文件
 	 * @param path web.xml文件路径
+	 * @return 是否加载成功
 	 * @throws DocumentException
 	 */
-	@SuppressWarnings("unused")
 	private boolean loadWebXml() {	
 		
 		File path = new File(context.getPath(), "WEB-INF" + File.separator + "web.xml");
@@ -195,10 +206,21 @@ public class WebappLoader extends LifecycleBase implements Loader {
 		
 		//TODO mime-mapping
 		
-		for(Element welcomeFileList : root.elements("welcome-file-list")) {
-			
+		for(Element welcomeFile : root.element("welcome-file-list").elements("welcome-file")) {
+			String weclomeFileName = welcomeFile.getStringValue();
+		}
+		
+		for(Element taglib : root.elements("taglib")) {
+			String taglibUri = taglib.element("taglib-uri").getStringValue();
+			String taglibLocation = taglib.element("taglib-location").getStringValue();
+		}
+		
+		for(Element listener : root.element("listener").elements("listener-class")) {
+			String listenerClass = listener.getStringValue();
 		}
 		
 		return true;
 	}
+	
+
 }
