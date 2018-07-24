@@ -39,22 +39,19 @@ public final class StandardContext extends ContainerBase implements Context {
 	//该Web应用SessionID名称
 	private volatile String sessionIdName = DEFAULT_SESSION_NAME;
 	
-	//该web应用在运行时可以热插拔吗
-	private boolean reloadable = true;
-	
 	//该web应用对应的ServletContext对象
-	private final ApplicationServletContext servletContext = new ApplicationServletContext(this); 
+	final ApplicationServletContext servletContext = new ApplicationServletContext(this); 
 	
 	//该Web应用的Session管理器
-	private final HttpSessionManager sessionManager = new HttpSessionManager(this);
+	final HttpSessionManager sessionManager = new HttpSessionManager(this);
 	
 	//该Web应用的资源管理器(载入器)
-	private final WebappLoader loader = new WebappLoader(this);
+	final WebappLoader loader = new WebappLoader(this);
 	
 	//该web应用的路由器
-	private final ContextMapper mapper = new ContextMapper(this);
+	final ContextMapper mapper = new ContextMapper(this);
 	
-	public StandardContext(Host host) {
+	StandardContext(Host host) {
 		super(host);
 		addContainerListener(new ContextMapperListener(mapper));
 	}
@@ -123,7 +120,7 @@ public final class StandardContext extends ContainerBase implements Context {
 	 */
 	@Override
 	public boolean getReloadable() {
-		return reloadable;
+		return loader.getReloadable();
 	}
 
 	/**
@@ -131,7 +128,7 @@ public final class StandardContext extends ContainerBase implements Context {
 	 */
 	@Override
 	public void setReloadable(boolean reloadable) {
-		this.reloadable = reloadable;
+		loader.setReloadable(reloadable);
 	}
 
 	/**
@@ -148,6 +145,11 @@ public final class StandardContext extends ContainerBase implements Context {
 	@Override
 	public void setSessionTimeout(int timeout) {
 		sessionManager.setSessionMaxInactiveTime(timeout);
+	}
+	
+	@Override
+	public WebappLoader getWebappLoader() {
+		return loader;
 	}
 
 	/**
@@ -195,7 +197,6 @@ public final class StandardContext extends ContainerBase implements Context {
 
 	@Override
 	protected void initInternal() throws Exception {
-		
 		loader.init();
 		
 		for(Container wrapper: childContainers) {

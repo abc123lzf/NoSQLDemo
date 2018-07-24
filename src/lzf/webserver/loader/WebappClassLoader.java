@@ -36,6 +36,9 @@ public class WebappClassLoader extends ClassLoader {
 	//存储键为jar包里面的class类名，值为class文件数据的Map
 	private final Map<String, byte[]> map = new HashMap<>(64);
 
+	//之前有没有调用过startRead()方法
+	private volatile boolean isLoad = false;
+	
 	/**
 	 * @param parent 父类加载器，一般为系统类加载器
 	 * @param webappFolder webapp主目录
@@ -44,12 +47,13 @@ public class WebappClassLoader extends ClassLoader {
 		super(parent);
 		this.classes = webappFolder.getAbsolutePath() + File.separator + "WEB-INF" + File.separator + "classes";
 		this.lib = webappFolder.getAbsolutePath() + File.separator + "WEB-INF" + File.separator + "lib";
+		System.out.println(classes + " " +lib); 
 	}
 	
 	/**
 	 * 读取文件，在WebappLoader初始化过程中调用
 	 */
-	public void startRead() {
+	private void startRead() {
 		List<File> list = scanLibDir();
 		
 		for (File f : list) {
@@ -58,7 +62,7 @@ public class WebappClassLoader extends ClassLoader {
 				jar = new JarFile(f);
 				readJar(jar);
 			} catch (IOException e) {
-				e.printStackTrace();
+				log.error("读取Jar包：" + f.getPath() + "发生异常", e);
 			}
 		}
 	}
@@ -69,7 +73,14 @@ public class WebappClassLoader extends ClassLoader {
 	 * @return Class对象，如果未找到则抛出FileNotFoundException
 	 */
 	@Override
-	protected Class<?> findClass(String name) {
+	public Class<?> findClass(String name) {
+		
+		if(!isLoad) {
+			startRead();
+			isLoad = true;
+		}
+		
+		System.out.println(name);
 		try {
 			byte[] result = getClassFromFileOrMap(name);
 			if (result == null) {
@@ -78,7 +89,7 @@ public class WebappClassLoader extends ClassLoader {
 				return defineClass(name, result, 0, result.length);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("", e);
 		}
 		return null;
 	}
@@ -90,7 +101,7 @@ public class WebappClassLoader extends ClassLoader {
 	private byte[] getClassFromFileOrMap(String name) {
 
 		//将类名转换为类的路径
-		String classPath = classes + name.replace('.', File.separatorChar) + ".class";
+		String classPath = classes + File.separator + name.replace('.', File.separatorChar) + ".class";
 		
 		File file = new File(classPath);
 
@@ -114,15 +125,15 @@ public class WebappClassLoader extends ClassLoader {
 
 				return baos.toByteArray();
 			} catch (FileNotFoundException e) {
-				e.printStackTrace();
+				log.error("", e);
 			} catch (IOException e) {
-				e.printStackTrace();
+				log.error("", e);
 			} finally {
 				if (input != null) {
 					try {
 						input.close();
 					} catch (IOException e) {
-						e.printStackTrace();
+						log.error("", e);
 					}
 				}
 			}
@@ -160,7 +171,7 @@ public class WebappClassLoader extends ClassLoader {
 	 * @param jar Jar包文件对象
 	 * @throws IOException
 	 */
-	public void readJar(JarFile jar) throws IOException {
+	private void readJar(JarFile jar) throws IOException {
 
 		Enumeration<JarEntry> en = jar.entries();
 
@@ -194,4 +205,5 @@ public class WebappClassLoader extends ClassLoader {
 			}
 		}
 	}
+	
 }

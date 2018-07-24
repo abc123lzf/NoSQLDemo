@@ -113,7 +113,7 @@ public interface Wrapper extends Container {
 	/**
 	 * @return 当前Servlet实例
 	 */
-	public Servlet getServlet();
+	public Servlet getServlet() throws ServletException;
 	
 	/**
 	 * @return 在URI上映射的路径

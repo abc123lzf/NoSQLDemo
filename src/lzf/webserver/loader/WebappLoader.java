@@ -5,6 +5,9 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -26,7 +29,6 @@ import lzf.webserver.util.XMLUtil;
  * @date 2018年7月21日 下午4:30:10
  * @Description web应用载入器，包括XML文件解析，静态资源文件的读取，类加载实现
  */
-@SuppressWarnings("unused")
 public class WebappLoader extends LifecycleBase implements Loader {
 
 	public static final Log log = LogFactory.getLog(WebappLoader.class);
@@ -35,8 +37,9 @@ public class WebappLoader extends LifecycleBase implements Loader {
 	private Context context = null;
 
 	//当需要热替换时，需要重新新建一个WebappClassLoader对象并替换旧的ClassLoader
-	private volatile WebappClassLoader classLoader = new WebappClassLoader(WebappClassLoader.class.getClassLoader(), context.getPath());
-
+	private volatile WebappClassLoader classLoader = null;
+	
+	//支持热替换吗
 	private boolean reloadable = false;
 
 	public WebappLoader(Context context) {
@@ -80,6 +83,7 @@ public class WebappLoader extends LifecycleBase implements Loader {
 
 	@Override
 	protected void initInternal() throws Exception {
+		classLoader = new WebappClassLoader(WebappClassLoader.class.getClassLoader(), context.getPath());
 		resourceLoad(context.getPath());
 	}
 
@@ -113,9 +117,10 @@ public class WebappLoader extends LifecycleBase implements Loader {
 				
 				for (File file2 : files) {
 					if (file2.isDirectory()) {
-						
-						if(file2.getPath().equals("\\WEB-INF\\classes") || file2.getPath().equals("\\WEB-INF\\lib"))
+						if(file2.getName().equals("WEB-INF")) {
+							loadWebXml();
 							continue;
+						}
 						resourceLoad(file2);
 						
 					} else {
@@ -175,8 +180,8 @@ public class WebappLoader extends LifecycleBase implements Loader {
 			return false;
 		}
 		
-		String displayName = root.element("display-name").getStringValue();
-		
+		//String displayName = root.element("display-name").getStringValue();
+		/*
 		for(Element contextParam : root.elements("context-param")) {
 			String paramName = contextParam.element("param-name").getStringValue();
 			String paramValue = contextParam.element("param-value").getStringValue();
@@ -190,18 +195,31 @@ public class WebappLoader extends LifecycleBase implements Loader {
 		for(Element filterMapping : root.elements("filter-mapping")) {
 			String filterName = filterMapping.element("filter-name").getStringValue();
 			String urlPattern = filterMapping.element("url-pattern").getStringValue();
-		}
+		}*/
+		
+		Map<String, String> servletMap = new LinkedHashMap<>();
 		
 		for(Element servlet : root.elements("servlet")) {
 			String servletName = servlet.element("servlet-name").getStringValue();
 			String servletClass = servlet.element("servlet-class").getStringValue();
+			
+			servletMap.put(servletName, servletClass);
 		}
 		
 		for(Element servletMapping : root.elements("servlet-mapping")) {
+			
 			String servletName = servletMapping.element("servlet-name").getStringValue();
-			String servletClass = servletMapping.element("servlet-class").getStringValue();
+			String uriPattern = servletMapping.element("url-pattern").getStringValue();
+			
+			if(servletMap.containsKey(servletName)) {
+				context.addChildContainer(StandardWrapper.getDynamicWrapper(context, servletName
+						, servletMap.get(servletName), uriPattern));
+			} else {
+				log.warn("Can not find servlet name:" + servletName + " in web.xml");
+			}
 		}
 		
+		/*
 		Element sessionConfig = root.element("session-config");
 		
 		//TODO mime-mapping
@@ -217,10 +235,8 @@ public class WebappLoader extends LifecycleBase implements Loader {
 		
 		for(Element listener : root.element("listener").elements("listener-class")) {
 			String listenerClass = listener.getStringValue();
-		}
+		}*/
 		
 		return true;
 	}
-	
-
 }

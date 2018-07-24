@@ -34,6 +34,8 @@ public final class StandardWrapperValve extends ValveBase {
 		
 		response.setStatus(200);
 		
+		response.addDateHeader("Date", System.currentTimeMillis());
+		
 		log.info("Recive request in WrapperValve");
 		response.sendResponse();
 	}

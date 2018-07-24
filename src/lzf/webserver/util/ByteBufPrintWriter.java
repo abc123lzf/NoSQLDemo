@@ -43,5 +43,6 @@ public class ByteBufPrintWriter extends PrintWriter {
 	@Override
 	public void write(String s) {
 		buf.writeBytes(s.getBytes());
+		int c = buf.capacity();
 	}
 }

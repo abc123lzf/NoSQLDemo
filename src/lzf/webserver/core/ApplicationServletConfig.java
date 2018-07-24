@@ -29,7 +29,7 @@ public final class ApplicationServletConfig implements ServletConfig {
 	//Servlet名称，由web.xml文件的servlet-name决定
 	String servletName = null;
 	
-	//
+	//Servlet Class类名
 	String servletClass = null;
 	
 	String servletType;

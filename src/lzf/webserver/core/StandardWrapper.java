@@ -22,7 +22,7 @@ import lzf.webserver.servlets.DefaultServlet;
 public class StandardWrapper extends ContainerBase implements Wrapper {
 	
 	private static final Log log = LogFactory.getLog(StandardWrapper.class);
-	
+
 	private long availableTime = 0L;
 	
 	private int loadOnStartup = 0;
@@ -31,11 +31,13 @@ public class StandardWrapper extends ContainerBase implements Wrapper {
 	
 	private volatile ApplicationServletConfig servletConfig = new ApplicationServletConfig(this);
 	
+	//与这个Wrapper容器关联的文件路径(可选)
 	private File path = null;
 	
+	//URI路径
 	private String uriPath = null;
 	
-	public StandardWrapper(Context context) {
+	StandardWrapper(Context context) {
 		super();
 		this.parentContainer = context;
 	}
@@ -182,14 +184,22 @@ public class StandardWrapper extends ContainerBase implements Wrapper {
 	 */
 	@Override
 	public void load() throws ServletException {
+		
 		if(servlet != null) {
+			
+			if(servletConfig == null)
+				servletConfig = new ApplicationServletConfig(this);
+			
 			servlet.init(servletConfig);
 			return;
-		}
-		if(getServletClass() != null) {
+		} else if(getServletClass() != null) {
+			
 			try {
-				servlet = (Servlet) Class.forName(servletConfig.getServletClass()).newInstance();
+				servlet = (Servlet) (((Context)getParentContainer()).getWebappLoader().getClassLoader()
+						.loadClass(servletConfig.getServletClass()).newInstance());
+				
 				servlet.init(servletConfig);
+				
 			} catch (InstantiationException e) {
 				log.error("", e);
 			} catch (IllegalAccessException e) {
@@ -197,8 +207,10 @@ public class StandardWrapper extends ContainerBase implements Wrapper {
 			} catch (ClassNotFoundException e) {
 				log.error("", e);
 			}
+			
 			return;
 		}
+		
 		throw new ServletException("Servlet class not set.");
 	}
 
@@ -209,6 +221,8 @@ public class StandardWrapper extends ContainerBase implements Wrapper {
 	@Override
 	public void unload() throws ServletException {
 		servlet.destroy();
+		servlet = null;
+		servletConfig = null;
 	}
 
 	/**
@@ -222,9 +236,12 @@ public class StandardWrapper extends ContainerBase implements Wrapper {
 
 	/**
 	 * @return 当前Servlet实例
+	 * @throws ServletException 
 	 */
 	@Override
-	public Servlet getServlet() {
+	public Servlet getServlet() throws ServletException {
+		if(servlet == null)
+			load();
 		return servlet;
 	}
 	
@@ -331,6 +348,42 @@ public class StandardWrapper extends ContainerBase implements Wrapper {
 		}
 		
 		wrapper.servletConfig.servletName = "Default";
+		wrapper.servletConfig.servletClass = "lzf.webserver.servlets.DefaultServlet";
+		wrapper.servletConfig.servletType = ApplicationServletConfig.STATIC;
+		
+		return wrapper;
+	}
+	
+	/**
+	 * 根据web.xml配置中的servlet生成对应的Wrapper容器
+	 * @param context Context容器
+	 * @param servletName Servlet名称，对应web.xml中的servlet-name
+	 * @param servletClass Servlet类名，对应web.xml中的servlet-class
+	 * @param uriPath URI映射，对应url-pattern
+	 * @return 配置好的Wrapper
+	 */
+	public static Wrapper getDynamicWrapper(Context context, String servletName, 
+			String servletClass, String uriPath) {
+		
+		StandardWrapper wrapper = new StandardWrapper(context);
+		
+		wrapper.servletConfig.servletName = servletName;
+		wrapper.servletConfig.servletClass = servletClass;
+		wrapper.servletConfig.servletType = ApplicationServletConfig.SERVLET;
+		
+		if(context.getName().equals("ROOT")) {
+			
+			wrapper.uriPath = uriPath;
+			
+		} else {
+			
+			if(uriPath.startsWith("/"))
+				wrapper.uriPath = "/" + context.getName() + uriPath;
+			else
+				wrapper.uriPath = "/" + context.getName() + "/" + uriPath;
+		}
+		
+		wrapper.uriPath = uriPath;
 		
 		return wrapper;
 	}

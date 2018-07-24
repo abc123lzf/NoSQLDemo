@@ -4,6 +4,7 @@ import java.io.File;
 
 import javax.servlet.ServletContext;
 
+import lzf.webserver.loader.WebappLoader;
 import lzf.webserver.mapper.ContextMapper;
 import lzf.webserver.session.HttpSessionManager;
 
@@ -83,6 +84,9 @@ public interface Context extends Container {
 	 * @return 获取该webapp版本号，由web.xml文件配置
 	 */
 	public String getWebappVersion();
+	
+	
+	public WebappLoader getWebappLoader();
 	
 	/**
 	 * @param encoding

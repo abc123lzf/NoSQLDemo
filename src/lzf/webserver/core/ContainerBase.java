@@ -26,7 +26,7 @@ public abstract class ContainerBase extends LifecycleBase implements Container {
 	protected Container parentContainer = null;
 	
 	//当前容器的类加载器
-	protected ClassLoader classLoader = null;
+	protected ClassLoader classLoader = ContainerBase.class.getClassLoader();
 	
 	//当前容器所属的管道
 	protected final Pipeline pipeline = new StandardPipeline(this);
