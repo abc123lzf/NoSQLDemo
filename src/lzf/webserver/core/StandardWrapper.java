@@ -23,19 +23,23 @@ public class StandardWrapper extends ContainerBase implements Wrapper {
 	
 	private static final Log log = LogFactory.getLog(StandardWrapper.class);
 
-	private long availableTime = 0L;
+	long availableTime = 0L;
 	
-	private int loadOnStartup = 0;
+	int loadOnStartup = 0;
 	
-	private volatile Servlet servlet;
+	volatile Servlet servlet;
 	
-	private volatile ApplicationServletConfig servletConfig = new ApplicationServletConfig(this);
+	//ServletConfig实现类，保存该Servlet对象名称、类名
+	volatile ApplicationServletConfig servletConfig = new ApplicationServletConfig(this);
+	
+	volatile ApplicationServletRegistration servletRegistration = new ApplicationServletRegistration(this);
 	
 	//与这个Wrapper容器关联的文件路径(可选)
 	private File path = null;
 	
 	//URI路径
 	private String uriPath = null;
+	
 	
 	StandardWrapper(Context context) {
 		super();

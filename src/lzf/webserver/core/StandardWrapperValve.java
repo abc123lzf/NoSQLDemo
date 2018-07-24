@@ -9,6 +9,8 @@ import lzf.webserver.connector.Request;
 import lzf.webserver.connector.RequestFacade;
 import lzf.webserver.connector.Response;
 import lzf.webserver.connector.ResponseFacade;
+import lzf.webserver.util.ByteBufOutputStream;
+import lzf.webserver.util.ByteBufPrintWriter;
 
 /**
 * @author Àî×Ó·«
@@ -33,10 +35,25 @@ public final class StandardWrapperValve extends ValveBase {
 		wrapper.getServlet().service(requestFacade, responseFacade);
 		
 		response.setStatus(200);
-		
 		response.addDateHeader("Date", System.currentTimeMillis());
 		
+		if(response.getHeader("Content-Length") == null) {
+		
+			int charSize = 0, byteSize = 0;
+			
+			if(response.getWriter() instanceof ByteBufPrintWriter) {
+				charSize = ((ByteBufPrintWriter)response.getWriter()).getSize();
+			}
+			
+			if(response.getOutputStream() instanceof ByteBufOutputStream) {
+				byteSize = ((ByteBufOutputStream)response.getOutputStream()).getSize();
+			}
+			
+			response.addIntHeader("Content-Length", charSize + byteSize);
+		}
+		
 		log.info("Recive request in WrapperValve");
+		
 		response.sendResponse();
 	}
 

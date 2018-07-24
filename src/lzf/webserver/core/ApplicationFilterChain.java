@@ -39,12 +39,14 @@ public class ApplicationFilterChain implements FilterChain {
 	 */
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response) throws IOException, ServletException {
+		
 		if(pos.get() < n) {
 			ApplicationFilterConfig filterConfig = filters[pos.get()];
 			Filter filter = filterConfig.getFilter();
 			filter.doFilter(request, response, this);
 			pos.set(pos.get() + 1);
-		} 
+		}
+		
 		return;
 	}
 
@@ -53,22 +55,29 @@ public class ApplicationFilterChain implements FilterChain {
 	 * @param filterConfig ApplicationFilterConfig对象
 	 */
 	synchronized void addFilter(ApplicationFilterConfig filterConfig) {
+		
 		//检查是否重复添加
 		for(ApplicationFilterConfig filter : filters)
 			if(filter == filterConfig)
 				return;
 			
 		if(filters.length == n) {
+			
 			ApplicationFilterConfig[] newFilters = new ApplicationFilterConfig[filters.length + INCR];
+			
 			int i = 0;
 			for(ApplicationFilterConfig config : filters) {
 				newFilters[i++] = config;
 			}
+			
 			newFilters[i] = filterConfig;
+			
 			this.filters = newFilters;
+			
 		} else {
 			filters[n + 1] = filterConfig;
 		}
+		
 		n++;
 	}
 	
@@ -76,9 +85,11 @@ public class ApplicationFilterChain implements FilterChain {
 	 * 释放所有的FilterConfig
 	 */
 	synchronized void release() {
+		
 		for(int i = 0; i < n; i++) {
 			filters[i] = null;
 		}
+		
 		n = 0;
 	}
 }

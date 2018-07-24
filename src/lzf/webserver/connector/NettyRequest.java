@@ -41,15 +41,18 @@ public final class NettyRequest extends Request {
 	 * 根据FullHttpRequest的内容解码
 	 */
 	private void decode() {
+		
 		//获取客户端IP、端口信息
 		InetSocketAddress address = (InetSocketAddress) ctx.channel().remoteAddress();
 		super.remoteAddr = address.getAddress().getHostAddress();
 		super.remoteHost = address.getHostName();
 		super.remotePort = address.getPort();
+		
 		//获取请求行
 		super.method = req.getMethod().name();
 		super.requestUrl = req.getUri();
 		super.protocol = req.getProtocolVersion().text();
+		
 		//获取请求头
 		List<Map.Entry<String, String>> list = header.entries();
 		

@@ -98,11 +98,13 @@ public abstract class ResponseBase implements HttpServletResponse {
 	 */
 	@Override
 	public final void addCookie(Cookie cookie) {
+		
 		if(cookie == null)
 			throw new IllegalArgumentException("Cookie is null");
 		
 		String allCookieStr = headerMap.get("Set-Cookie");
 		String cookieStr = cookieToString(cookie);
+		
 		if(allCookieStr == null) {
 			headerMap.put("Set-Cookie", cookieStr);
 		} else {
@@ -116,28 +118,36 @@ public abstract class ResponseBase implements HttpServletResponse {
 	 * @return 标准Set-Cookie字符串
 	 */
 	private String cookieToString(Cookie cookie) {
+		
 		String name = cookie.getName();
 		String val = cookie.getValue();
 		StringBuilder sb = new StringBuilder(name + "=" + val);
+		
 		//转化为标准的HTTP格式的GMT时间
 		int maxAge = cookie.getMaxAge();
 		if(maxAge > 0)
 			sb.append("; Expires=" + HTTP_DATE_FORMAT.format(System.currentTimeMillis() + cookie.getMaxAge() * 1000));
+		
 		String domain = cookie.getDomain();
 		if(domain != null)
 			sb.append("; Domain=" + domain);
+		
 		String path = cookie.getPath();
 		if(path != null)
 			sb.append("; Path=" + path);
+		
 		String comment = cookie.getComment();
 		if(comment != null)
 			sb.append("; Comment=" + comment);
+		
 		Boolean secure = cookie.getSecure();
 		if(secure == true) 
 			sb.append("; Secure");
+		
 		Boolean httpOnly = cookie.isHttpOnly();
 		if(httpOnly == true) 
 			sb.append("; HttpOnly");
+		
 		return sb.toString();
 	}
 
@@ -282,12 +292,16 @@ public abstract class ResponseBase implements HttpServletResponse {
 	 */
 	@Override
 	public final Collection<String> getHeaders(String name) {
+		
 		if(headerMap.get(name) == null)
 			return null;
+		
 		String[] headers = headerMap.get(name).split(";");
 		List<String> list = new ArrayList<>(headers.length);
+		
 		for(String head : headers)
 			list.add(head);
+		
 		return list;
 	}
 

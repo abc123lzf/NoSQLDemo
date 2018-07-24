@@ -3,6 +3,8 @@ package lzf.webserver;
 import java.io.File;
 
 import javax.servlet.ServletContext;
+import javax.servlet.SessionCookieConfig;
+import javax.servlet.http.Cookie;
 
 import lzf.webserver.loader.WebappLoader;
 import lzf.webserver.mapper.ContextMapper;
@@ -16,6 +18,9 @@ import lzf.webserver.session.HttpSessionManager;
 * @Description Web应用容器，对应一个Web应用
 */
 public interface Context extends Container {
+	
+	//默认Session ID名称
+	public static final String DEFAULT_SESSION_NAME = "JSESSIONID";
 
 	/**
 	 * 获取该Web应用对应的ServletContext对象
@@ -38,6 +43,11 @@ public interface Context extends Container {
 	 * @return 返回默认SessionID名
 	 */
 	public String getSessionIdName();
+	
+	/**
+	 * @param name 该web应用的默认SessionId名
+	 */
+	public void setSessionIdName(String name);
 	
 	/**
 	 * 获取URL解码的编码格式
@@ -84,13 +94,24 @@ public interface Context extends Container {
 	 * @return 获取该webapp版本号，由web.xml文件配置
 	 */
 	public String getWebappVersion();
+		
+	/**
+	 * 根据SessionID生成该Context对应的Cookie
+	 * @param sessionId SessionID
+	 * @return 根据Context容器中的SessionCookieConfig包装的Cookie对象
+	 */
+	public Cookie createSessionCookie(String sessionId);
 	
-	
+	/**
+	 * @return 该Context容器的web应用载入器
+	 */
 	public WebappLoader getWebappLoader();
 	
 	/**
-	 * @param encoding
+	 * @return 保存服务器发送给客户端保存SessionID的Cookie信息对象
 	 */
+	public SessionCookieConfig getSessionCookieConfig();
+	
 	public void setRequestCharacterEncoding(String encoding);
 	
 	public String getRequestCharacterEncoding();

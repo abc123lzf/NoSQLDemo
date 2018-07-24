@@ -7,6 +7,8 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
+import lzf.webserver.Context;
+
 /**
 * @author 李子帆
 * @version 1.0
@@ -14,6 +16,12 @@ import javax.servlet.ServletResponse;
 * @Description 类说明
 */
 public class ApplicationRequestDispatcher implements RequestDispatcher {
+	
+	
+	
+	public ApplicationRequestDispatcher(Context context) {
+		
+	}
 
 	@Override
 	public void forward(ServletRequest request, ServletResponse response) throws ServletException, IOException {

@@ -3,6 +3,8 @@ package lzf.webserver.core;
 import java.io.File;
 
 import javax.servlet.ServletContext;
+import javax.servlet.SessionCookieConfig;
+import javax.servlet.http.Cookie;
 
 import lzf.webserver.Container;
 import lzf.webserver.Context;
@@ -21,9 +23,6 @@ import lzf.webserver.session.HttpSessionManager;
 */
 public final class StandardContext extends ContainerBase implements Context {
 	
-	//默认Session ID名称
-	public static final String DEFAULT_SESSION_NAME = "JSESSIONID";
-	
 	//web应用版本，由web.xml文件设置
 	private String webappVersion = null;
 	
@@ -36,9 +35,6 @@ public final class StandardContext extends ContainerBase implements Context {
 	//该web应用发给浏览器的响应的编码格式
 	private String responseCharacterEncoding = "UTF-8";
 	
-	//该Web应用SessionID名称
-	private volatile String sessionIdName = DEFAULT_SESSION_NAME;
-	
 	//该web应用对应的ServletContext对象
 	final ApplicationServletContext servletContext = new ApplicationServletContext(this); 
 	
@@ -50,6 +46,9 @@ public final class StandardContext extends ContainerBase implements Context {
 	
 	//该web应用的路由器
 	final ContextMapper mapper = new ContextMapper(this);
+	
+	//SessionCookie的属性类，实现SessionCookieConfig的J2EE规范
+	final ApplicationSessionCookieConfig sessionCookieConfig = new ApplicationSessionCookieConfig(this);
 	
 	StandardContext(Host host) {
 		super(host);
@@ -87,7 +86,15 @@ public final class StandardContext extends ContainerBase implements Context {
 	 */
 	@Override
 	public String getSessionIdName() {
-		return sessionIdName;
+		return sessionCookieConfig.getName();
+	}
+	
+	/**
+	 * @param name 该web应用的默认SessionId名
+	 */
+	@Override
+	public void setSessionIdName(String name) {
+		sessionCookieConfig.setName(name);
 	}
 
 	/**
@@ -240,6 +247,39 @@ public final class StandardContext extends ContainerBase implements Context {
 		sessionManager.destory();
 		loader.stop();
 	}
+	
+	/**
+	 * 根据SessionID生成该Context对应的Cookie
+	 * @param sessionId SessionID
+	 * @return 根据Context容器中的SessionCookieConfig包装的Cookie对象
+	 */
+	@Override
+	public Cookie createSessionCookie(String sessionId) {
+		
+		Cookie session = new Cookie(sessionCookieConfig.getName(), sessionId);
+		
+		if(sessionCookieConfig.getComment() != null)
+			session.setComment(sessionCookieConfig.getComment());
+		
+		if(sessionCookieConfig.getDomain() != null)
+			session.setDomain(sessionCookieConfig.getDomain());
+		
+		if(sessionCookieConfig.getMaxAge() > 0)
+			session.setMaxAge(sessionCookieConfig.getMaxAge());
+		
+		session.setPath(sessionCookieConfig.getPath());
+		
+		return session;
+	}
+	
+	/**
+	 * @return 保存服务器发送给客户端保存SessionID的Cookie信息对象
+	 */
+	@Override
+	public SessionCookieConfig getSessionCookieConfig() {
+		return this.sessionCookieConfig;
+	}
+	
 	
 	/**
 	 * 根据webapp目录下的文件夹生成Context对象

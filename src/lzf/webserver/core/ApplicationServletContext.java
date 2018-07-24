@@ -1,11 +1,15 @@
 package lzf.webserver.core;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.EventListener;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -22,7 +26,10 @@ import javax.servlet.SessionCookieConfig;
 import javax.servlet.SessionTrackingMode;
 import javax.servlet.descriptor.JspConfigDescriptor;
 
+import lzf.webserver.Container;
 import lzf.webserver.Context;
+import lzf.webserver.Host;
+import lzf.webserver.Wrapper;
 import lzf.webserver.log.Log;
 import lzf.webserver.log.LogFactory;
 import lzf.webserver.util.IteratorEnumeration;
@@ -38,12 +45,14 @@ public class ApplicationServletContext implements ServletContext {
 	private final Log log = LogFactory.getLog(ApplicationServletContext.class);
 
 	//该ServletContext所属的web容器
-	private final Context context;
+	private final StandardContext context;
 	
 	//Application作用域的属性Map
 	private final Map<String, Object> attributeMap = new ConcurrentHashMap<>();
 	
-	public ApplicationServletContext(Context context) {
+	private final Map<String, String> parameterMap = new ConcurrentHashMap<>();
+	
+	public ApplicationServletContext(StandardContext context) {
 		this.context = context;
 	}
 	
@@ -59,19 +68,16 @@ public class ApplicationServletContext implements ServletContext {
 
 	@Override
 	public int getMajorVersion() {
-		// TODO Auto-generated method stub
-		return 0;
+		return 3;
 	}
 
 	@Override
 	public int getMinorVersion() {
-		// TODO Auto-generated method stub
-		return 0;
+		return 1;
 	}
 
 	@Override
 	public int getEffectiveMajorVersion() {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
@@ -101,8 +107,16 @@ public class ApplicationServletContext implements ServletContext {
 
 	@Override
 	public InputStream getResourceAsStream(String path) {
-		// TODO Auto-generated method stub
-		return null;
+		
+		File file = new File(context.getPath(), path);
+		FileInputStream fis;
+		
+		try {
+			fis = new FileInputStream(file);
+			return fis;
+		} catch (FileNotFoundException e) {
+			return null;
+		}
 	}
 
 	@Override
@@ -119,19 +133,50 @@ public class ApplicationServletContext implements ServletContext {
 
 	@Override
 	public Servlet getServlet(String name) throws ServletException {
-		// TODO Auto-generated method stub
+		
+		List<Container> list = context.getChildContainers();
+		
+		for(Container wrapper : list) {
+			if(((StandardWrapper)wrapper).servletConfig.servletName.equals(name))
+				return ((StandardWrapper)wrapper).getServlet();
+		}
+		
 		return null;
 	}
 
-	@Override
+	/**
+	 * @return 该Context容器包含的所有Servlet的迭代器
+	 */
+	@Override 
 	public Enumeration<Servlet> getServlets() {
-		return null;
+		
+		List<Container> containerList = context.getChildContainers();
+		List<Servlet> list = new LinkedList<>();
+		
+		try {
+			for(Container wrapper : containerList) 
+				list.add(((Wrapper)wrapper).getServlet());
+			
+			return new IteratorEnumeration<Servlet>(list.iterator());
+			
+		} catch (ServletException e) {
+			
+			log.error("", e);
+			return null;
+		}
 	}
 
 	@Override
 	public Enumeration<String> getServletNames() {
-		// TODO Auto-generated method stub
-		return null;
+		
+		List<Container> containerList = context.getChildContainers();
+		List<String> list = new LinkedList<>();
+		
+		for(Container wrapper : containerList) {
+			list.add(((StandardWrapper)wrapper).servletConfig.servletName);
+		}
+		
+		return new IteratorEnumeration<String>(list.iterator());
 	}
 
 	@Override
@@ -157,26 +202,27 @@ public class ApplicationServletContext implements ServletContext {
 
 	@Override
 	public String getServerInfo() {
-		// TODO Auto-generated method stub
-		return null;
+		return "APlus-Server/1.0";
 	}
 
 	@Override
 	public String getInitParameter(String name) {
-		// TODO Auto-generated method stub
-		return null;
+		return parameterMap.get(name);
 	}
 
 	@Override
 	public Enumeration<String> getInitParameterNames() {
-		// TODO Auto-generated method stub
-		return null;
+		return new IteratorEnumeration<String>(parameterMap.keySet().iterator());
 	}
 
 	@Override
 	public boolean setInitParameter(String name, String value) {
-		// TODO Auto-generated method stub
-		return false;
+		
+		if(parameterMap.containsKey(name))
+			return false;
+		
+		parameterMap.put(name, value);
+		return true;
 	}
 
 	@Override
@@ -201,8 +247,7 @@ public class ApplicationServletContext implements ServletContext {
 
 	@Override
 	public String getServletContextName() {
-		// TODO Auto-generated method stub
-		return null;
+		return context.getName();
 	}
 
 	@Override
@@ -225,8 +270,17 @@ public class ApplicationServletContext implements ServletContext {
 
 	@Override
 	public <T extends Servlet> T createServlet(Class<T> c) throws ServletException {
-		// TODO Auto-generated method stub
-		return null;
+		
+		try {
+			return c.newInstance();
+		} catch (InstantiationException e) {
+			log.error("", e);
+			return null;
+		} catch (IllegalAccessException e) {
+			log.error("", e);
+			return null;
+		}
+		
 	}
 
 	@Override
@@ -261,8 +315,16 @@ public class ApplicationServletContext implements ServletContext {
 
 	@Override
 	public <T extends Filter> T createFilter(Class<T> c) throws ServletException {
-		// TODO Auto-generated method stub
-		return null;
+		
+		try {
+			return c.newInstance();
+		} catch (InstantiationException e) {
+			log.error("", e);
+			return null;
+		} catch (IllegalAccessException e) {
+			log.error("", e);
+			return null;
+		}
 	}
 
 	@Override
@@ -279,8 +341,7 @@ public class ApplicationServletContext implements ServletContext {
 
 	@Override
 	public SessionCookieConfig getSessionCookieConfig() {
-		// TODO Auto-generated method stub
-		return null;
+		return context.getSessionCookieConfig();
 	}
 
 	@Override
@@ -333,7 +394,7 @@ public class ApplicationServletContext implements ServletContext {
 
 	@Override
 	public ClassLoader getClassLoader() {
-		return context.getClassLoader();
+		return context.getWebappLoader().getClassLoader();
 	}
 
 	@Override
@@ -344,8 +405,7 @@ public class ApplicationServletContext implements ServletContext {
 
 	@Override
 	public String getVirtualServerName() {
-		// TODO Auto-generated method stub
-		return null;
+		return ((Host)context.getParentContainer()).getName();
 	}
 
 }

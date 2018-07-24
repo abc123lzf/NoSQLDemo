@@ -25,7 +25,7 @@ public class ApplicationFilterConfig implements FilterConfig {
 	private final Context context;
 	
 	//对应的Filter对象
-	private final Filter filter;
+	private Filter filter;
 	
 	//Filter名称
 	private String filterName;
@@ -33,8 +33,10 @@ public class ApplicationFilterConfig implements FilterConfig {
 	//上述Filter的全限定类名
 	private final String filterClass;
 	
+	
 	//保存初始化参数的Map
 	private final Map<String, String> parameters = new LinkedHashMap<>();
+	
 	
 	ApplicationFilterConfig(Context context, Filter filter) {
 		this.context = context;
@@ -89,6 +91,19 @@ public class ApplicationFilterConfig implements FilterConfig {
 	 * @return 该FilterConfig所属的Filter
 	 */
 	public Filter getFilter() {
+		if(filter == null)
+			try {
+				filter = (Filter) context.getWebappLoader().getClassLoader().loadClass(filterClass).newInstance();
+			} catch (InstantiationException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (ClassNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		return filter;
 	}
 	

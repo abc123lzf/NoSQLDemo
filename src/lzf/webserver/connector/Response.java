@@ -10,10 +10,14 @@ import java.util.Locale;
 * @Description HTTP响应类
 */
 public abstract class Response extends ResponseBase {
+	
 	//状态码对应的附加消息
 	protected String statusMsg;
+	
 	//这个响应已经发送给客户端了吗？
 	protected volatile boolean committed = false;
+	
+	protected Locale locale;
 	
 	public Response() {
 		super();
@@ -79,8 +83,10 @@ public abstract class Response extends ResponseBase {
 	 */
 	@Override
 	public void reset() {
+		
 		if(isCommitted())
 			throw new IllegalStateException();
+		
 		headerMap.clear();
 		status = 0;
 	}
@@ -95,13 +101,11 @@ public abstract class Response extends ResponseBase {
 	
 	@Override
 	public void setLocale(Locale loc) {
-		// TODO Auto-generated method stub
-
+		this.locale = loc;
 	}
 
 	@Override
 	public Locale getLocale() {
-		// TODO Auto-generated method stub
-		return null;
+		return locale;
 	}
 }

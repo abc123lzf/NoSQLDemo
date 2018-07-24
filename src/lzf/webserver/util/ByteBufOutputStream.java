@@ -17,6 +17,8 @@ public class ByteBufOutputStream extends ServletOutputStream {
 
 	private final ByteBuf buf;
 	
+	private int size = 0;
+	
 	public ByteBufOutputStream(ByteBuf buf) {
 		this.buf = buf;
 		int x = buf.capacity();
@@ -34,5 +36,10 @@ public class ByteBufOutputStream extends ServletOutputStream {
 	@Override
 	public void write(int b) throws IOException {
 		buf.writeByte(b);
+		size++;
+	}
+	
+	public int getSize() {
+		return size;
 	}
 }

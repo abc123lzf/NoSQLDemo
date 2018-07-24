@@ -3,8 +3,12 @@ package lzf.webserver.connector;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.Principal;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Enumeration;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -37,7 +41,15 @@ import lzf.webserver.log.LogFactory;
 */
 public abstract class Request extends RequestBase {
 	
+	public static final SimpleDateFormat HTTP_DATE_FORMAT = new SimpleDateFormat("EEE MMM ddHH:mm:ss 'GMT' yyyy",Locale.US);
+	
 	private static final Log log = LogFactory.getLog(Request.class);
+	
+	private int localPort = 80;
+	
+	private String localName = null;
+	
+	private String localAddr = null;
 	
 	//从Cookie或URL获取的sessionID(不是容器中的SessionID)
 	private String sessionId;
@@ -129,8 +141,7 @@ public abstract class Request extends RequestBase {
 	 */
 	@Override
 	public String getLocalName() {
-		// TODO Auto-generated method stub
-		return null;
+		return localName;
 	}
 
 	/**
@@ -139,7 +150,7 @@ public abstract class Request extends RequestBase {
 	 */
 	@Override
 	public String getLocalAddr() {
-		return null;
+		return localAddr;
 	}
 
 	/**
@@ -147,8 +158,7 @@ public abstract class Request extends RequestBase {
 	 */
 	@Override
 	public int getLocalPort() {
-		// TODO Auto-generated method stub
-		return 0;
+		return localPort;
 	}
 
 	@Override
@@ -196,8 +206,20 @@ public abstract class Request extends RequestBase {
 
 	@Override
 	public long getDateHeader(String name) {
-		// TODO Auto-generated method stub
-		return 0;
+		
+		String date = getHeader(name);
+		
+		if(date == null) {
+			return -1;
+		}
+		
+		try {
+			Date d = HTTP_DATE_FORMAT.parse(date);
+			return d.getTime();
+		} catch (ParseException e) {
+			log.error("时间转换异常", e);
+			return -1;
+		}
 	}
 
 	@Override
@@ -214,8 +236,7 @@ public abstract class Request extends RequestBase {
 
 	@Override
 	public String getContextPath() {
-		// TODO Auto-generated method stub
-		return null;
+		return context.getPath().getPath();
 	}
 
 	@Override

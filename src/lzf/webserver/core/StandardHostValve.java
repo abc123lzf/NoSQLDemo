@@ -38,12 +38,7 @@ public final class StandardHostValve extends ValveBase {
 		if(serverSession == null) {
 			
 			serverSession = request.getSession();
-			Cookie session = new Cookie(context.getSessionIdName(), serverSession.getId());
-			
-			if(context.getName().equals("ROOT"))
-				session.setPath("/");
-			else
-				session.setPath(context.getName());
+			Cookie session = context.createSessionCookie(serverSession.getId());
 			
 			response.addCookie(session);
 		}
