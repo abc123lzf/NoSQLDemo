@@ -2,7 +2,8 @@
 <classpath>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="lib" path="C:/Program Files/Java/netty-all-4.0.56.Final.jar"/>
-	<classpathentry kind="lib" path="C:/Users/DELL/eclipse-workspace-JAVAEE/servlet-api.jar"/>
+	<classpathentry kind="lib" path="E:/Netty/netty-all-4.0.56.Final.jar" sourcepath="E:/Netty/netty-all-4.0.56.Final-sources.jar"/>
+	<classpathentry kind="lib" path="E:/j2ee-api/j2ee-api.jar" sourcepath="E:/j2ee-api/src"/>
+	<classpathentry kind="lib" path="E:/DOM4J/dom4j-2.1.1.jar" sourcepath="E:/DOM4J/dom4j-2.1.1-sources.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
