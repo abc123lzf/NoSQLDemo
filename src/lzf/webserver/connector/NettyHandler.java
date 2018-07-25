@@ -166,6 +166,7 @@ public final class NettyHandler extends LifecycleBase implements Handler {
 			
 			Request request = NettyRequest.newRequest(fullRequest, ctx);
 			Response response = NettyResponse.newResponse(ctx);
+			request.response = response;
 			
 			//ctx.writeAndFlush(resp).addListener(ChannelFutureListener.CLOSE);
 			try {

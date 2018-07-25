@@ -44,6 +44,8 @@ public abstract class Request extends RequestBase {
 	
 	public static final SimpleDateFormat HTTP_DATE_FORMAT = new SimpleDateFormat("EEE MMM ddHH:mm:ss 'GMT' yyyy",Locale.US);
 	
+	Response response;
+	
 	private static final Log log = LogFactory.getLog(Request.class);
 	
 	private int localPort = 80;
@@ -126,7 +128,7 @@ public abstract class Request extends RequestBase {
 	public RequestDispatcher getRequestDispatcher(String path) {
 		if(context == null || path == null)
 			return null;
-		return new ApplicationRequestDispatcher(context, path);
+		return new ApplicationRequestDispatcher(context, path, this);
 	}
 
 	/**
@@ -478,6 +480,10 @@ public abstract class Request extends RequestBase {
 		return this.wrapper;
 	}
 	
+	public void setWrapper(Wrapper wrapper) {
+		this.wrapper = wrapper;
+	}
+	
 	/**
 	 * 重新设置URI参数，供服务端forward跳转使用
 	 * @param uri URI路径，包括参数
@@ -492,4 +498,12 @@ public abstract class Request extends RequestBase {
 	public void cleanParameterMap() {
 		parameterMap.clear();
 	}
+
+	/**
+	 * @return 与之伴随的Response对象
+	 */
+	public Response getResponse() {
+		return response;
+	}
+
 }

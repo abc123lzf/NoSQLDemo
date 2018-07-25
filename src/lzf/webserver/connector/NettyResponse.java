@@ -29,6 +29,7 @@ public final class NettyResponse extends Response {
 	private NettyResponse(ChannelHandlerContext ctx) {
 		super();
 		ByteBufOutputStream bbos = new ByteBufOutputStream(content);
+		
 		super.sos = bbos;
 		super.pw = new ByteBufPrintWriter(bbos, content);
 		this.ctx = ctx;
@@ -40,6 +41,10 @@ public final class NettyResponse extends Response {
 
 	@Override
 	public synchronized void sendResponse() {
+		
+		if(committed)
+			return;
+		
 		response.setStatus(HttpResponseStatus.valueOf(status)); //应从Request中获取status
 		
 		for(Map.Entry<String, String> entry : headerMap.entrySet())

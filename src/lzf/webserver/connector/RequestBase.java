@@ -2,7 +2,10 @@ package lzf.webserver.connector;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -14,6 +17,8 @@ import javax.servlet.ServletInputStream;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
+import lzf.webserver.log.Log;
+import lzf.webserver.log.LogFactory;
 import lzf.webserver.util.IteratorEnumeration;
 
 /**
@@ -23,10 +28,14 @@ import lzf.webserver.util.IteratorEnumeration;
  * @Description HTTP请求抽象类，保存最基本的Request请求信息
  */
 public abstract class RequestBase implements HttpServletRequest {
+	
+	private static final Log log = LogFactory.getLog(RequestBase.class);
 
 	// 请求行
 	protected String method;
+	
 	protected String requestUrl;
+	
 	protected String protocol;
 	// 请求头Map
 	protected final Map<String, String> headerMap = new ConcurrentHashMap<>();
@@ -39,14 +48,17 @@ public abstract class RequestBase implements HttpServletRequest {
 	
 	//客户端信息
 	protected String remoteAddr = null;
+	
 	protected String remoteHost = null;
+	
 	protected int remotePort = 0;
 	
 	//请求体Reader
 	protected BufferedReader contentReader = null;
+	
 	protected ServletInputStream sis = null;
 	
-	protected String characterEncoding = null;
+	protected String characterEncoding = "UTF-8";
 
 	protected void putHeader(String name, String value) {
 		headerMap.put(name.toLowerCase(), value);
@@ -143,10 +155,13 @@ public abstract class RequestBase implements HttpServletRequest {
 	 */
 	@Override
 	public final String getServerName() {
+		
 		String host = getHeader("Host");
+		
 		int index = host.lastIndexOf(':');
 		if (index == -1)
 			return host;
+		
 		return host.substring(0, index);
 	}
 
@@ -156,10 +171,13 @@ public abstract class RequestBase implements HttpServletRequest {
 	 */
 	@Override
 	public final int getServerPort() {
+		
 		String host = getHeader("Host");
 		int index = host.lastIndexOf(':');
+		
 		if (index == -1)
 			return 80;
+		
 		return Integer.valueOf(host.substring(index + 1, host.length()));
 	}
 
@@ -169,6 +187,7 @@ public abstract class RequestBase implements HttpServletRequest {
 	 */
 	@Override
 	public Locale getLocale() {
+		
 		if (localeList.size() == 0) {
 			getLocalesByString();
 		}
@@ -181,6 +200,7 @@ public abstract class RequestBase implements HttpServletRequest {
 	 */
 	@Override
 	public Enumeration<Locale> getLocales() {
+		
 		if (localeList.size() == 0) {
 			getLocalesByString();
 		}
@@ -192,13 +212,18 @@ public abstract class RequestBase implements HttpServletRequest {
 	 * 若请求头Accept-Language字段为空，则创建默认Locale对象并加入集合中
 	 */
 	private void getLocalesByString() {
+		
 		String accpetLanguage = getHeader("Accept-Language");
+		
 		if (accpetLanguage == null)
 			localeList.add(Locale.getDefault());
 
 		String[] localesStr = accpetLanguage.substring(0, accpetLanguage.indexOf(';')).split(",");
+		
 		for (String localStr : localesStr) {
+			
 			String[] detail = localStr.split("-");
+			
 			switch (detail.length) {
 			case 1:
 				localeList.add(new Locale(detail[0]));
@@ -280,8 +305,13 @@ public abstract class RequestBase implements HttpServletRequest {
 	 */
 	@Override
 	public final String getParameter(String name) {
+		
 		if(parameterMap.size() == 0)
-			docodeParameter();
+			try {
+				docodeParameter();
+			} catch (UnsupportedEncodingException e) {
+				log.error("URL参数编码错误", e);
+			}
 		if(parameterMap.get(name) == null)
 			return null;
 		return parameterMap.get(name)[0];
@@ -292,8 +322,13 @@ public abstract class RequestBase implements HttpServletRequest {
 	 */
 	@Override
 	public final Enumeration<String> getParameterNames() {
+		
 		if(parameterMap.size() == 0)
-			docodeParameter();
+			try {
+				docodeParameter();
+			} catch (UnsupportedEncodingException e) {
+				log.error("URL参数编码错误", e);
+			}
 		return new IteratorEnumeration<String>(parameterMap.keySet().iterator());
 	}
 
@@ -302,8 +337,13 @@ public abstract class RequestBase implements HttpServletRequest {
 	 */
 	@Override
 	public final String[] getParameterValues(String name) {
+		
 		if(parameterMap.size() == 0)
-			docodeParameter();
+			try {
+				docodeParameter();
+			} catch (UnsupportedEncodingException e) {
+				log.error("URL参数编码错误", e);
+			}
 		return parameterMap.get(name);
 	}
 
@@ -312,8 +352,13 @@ public abstract class RequestBase implements HttpServletRequest {
 	 */
 	@Override
 	public final Map<String, String[]> getParameterMap() {
+		
 		if(parameterMap.size() == 0)
-			docodeParameter();
+			try {
+				docodeParameter();
+			} catch (UnsupportedEncodingException e) {
+				log.error("URL参数编码错误", e);
+			}
 		return parameterMap;
 	}
 	
@@ -323,9 +368,12 @@ public abstract class RequestBase implements HttpServletRequest {
 	 */
 	@Override
 	public final String getQueryString() {
+		
 		int index = requestUrl.indexOf('?');
+		
 		if(index == -1)
 			return null;
+		
 		if(index + 1 == requestUrl.length())
 			return null;
 		
@@ -334,42 +382,96 @@ public abstract class RequestBase implements HttpServletRequest {
 
 	/**
 	 * 根据URL提取GET参数并存入parameterMap中
+	 * @throws UnsupportedEncodingException 
 	 */
-	private void docodeParameter() {
+	private void docodeParameter() throws UnsupportedEncodingException {
+		
 		String parametersStr = getQueryString();
-		if(parametersStr == null)
-			return;
 		
-		String[] parameters = parametersStr.split("&");
+		if(parametersStr != null) {
 		
-		if(requestUrl.indexOf('?') + 1 == requestUrl.length())
-			return;
-
-		for (String parameter : parameters) {
-			String[] entry = parameter.split("=");
-			String key = null;
-			String value = null;
-			if (entry.length == 0) {
-				continue;
-			} else if (entry.length == 1) {
-				key = entry[0];
-			} else if (entry.length == 2) {
-				key = entry[0];
-				value = entry[1];
-			} else {
-				continue;
+			String[] parameters = parametersStr.split("&");
+			
+			if(requestUrl.indexOf('?') + 1 != requestUrl.length()) {
+	
+				for (String parameter : parameters) {
+					
+					String[] entry = parameter.split("=");
+					String key = null;
+					String value = null;
+					
+					if (entry.length == 0) {
+						continue;
+					} else if (entry.length == 1) {
+						key = entry[0];
+					} else if (entry.length == 2) {
+						key = entry[0];
+						value = URLDecoder.decode(entry[1], characterEncoding);
+					} else {
+						continue;
+					}
+		
+					String[] val = parameterMap.get(key);
+					
+					if (val == null) {
+						
+						val = new String[] { value };
+						parameterMap.put(key, val);
+						
+					} else {
+						
+						String[] newVal = new String[val.length + 1];
+						
+						for(int i = 0; i < val.length; i++)
+							newVal[i] = val[i];
+						
+						newVal[val.length] = value;
+						parameterMap.put(key, newVal);
+					}
+				}
 			}
-
-			String[] val = parameterMap.get(key);
-			if (val == null) {
-				val = new String[] { value };
-				parameterMap.put(key, val);
-			} else {
-				String[] newVal = new String[val.length + 1];
-				for(int i = 0; i < val.length; i++)
-					newVal[i] = val[i];
-				newVal[val.length] = value;
-				parameterMap.put(key, newVal);
+		}
+		
+		//POST方法提交的表单
+		if(method.equals("POST")) {
+			String contentType = getHeader("Content-Type");
+			
+			if(contentType.equals("application/x-www-form-urlencoded")) {
+				try {
+					BufferedReader br = getReader();
+					String line = br.readLine();
+					
+					if(line == null)
+						return;
+					
+					String[] content = line.split("&");
+					
+					for(String entry : content) {
+						String[] kv = entry.split("=");
+						
+						if(kv[0] == null)
+							continue;
+						
+						if(kv[0] != null) {
+							
+							String[] s = parameterMap.get(kv[0]);
+							String val = kv.length == 2 ? URLDecoder.decode(kv[1], characterEncoding) : null;
+							
+							if(s == null) {
+								parameterMap.put(kv[0], new String[]{val});
+							} else {
+								String[] ns = Arrays.copyOf(s, s.length + 1);
+								ns[s.length] = val;
+								parameterMap.put(kv[0], ns);
+							}
+						}
+					}
+					
+				} catch (IOException e) {
+					log.error(e);
+				}
+			} else if(contentType.equals("application/json")) {
+				//TODO JSON读取
 			}
 		}
 	}
@@ -389,10 +491,13 @@ public abstract class RequestBase implements HttpServletRequest {
 	 * 根据HTTP报文解析Cookie
 	 */
 	private void cookieDecode() {
+		
 		String cookie = getHeader("Cookie");
+		
 		if(cookie == null) {
 			return;
 		}
+		
 		String[] entry = cookie.split("; ");
 		Cookie[] cookies = new Cookie[entry.length];
 		
@@ -400,6 +505,7 @@ public abstract class RequestBase implements HttpServletRequest {
 			String[] kv = cookie.split("=");
 			cookies[i] = new Cookie(kv[0], kv[1]);
 		}
+		
 		this.cookies = cookies;
 	}
 	

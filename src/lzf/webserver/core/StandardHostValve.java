@@ -33,6 +33,21 @@ public final class StandardHostValve extends ValveBase {
 			return;
 		}
 		
+		String uri = request.getRequestURI();
+		
+		//拦截尝试访问/WEB-INF文件夹的请求
+		if(context.getName().equals("ROOT")) {
+			if(uri.toLowerCase().startsWith("/web-inf")) {
+				response.sendError(HttpServletResponse.SC_NOT_FOUND);
+				return;
+			}
+		} else {
+			if(uri.toLowerCase().startsWith("/" + context.getName().toLowerCase() + "/web-inf")) {
+				response.sendError(HttpServletResponse.SC_NOT_FOUND);
+				return;
+			}
+		}
+		
 		HttpSession serverSession = request.getSession(false);
 		
 		if(serverSession == null) {

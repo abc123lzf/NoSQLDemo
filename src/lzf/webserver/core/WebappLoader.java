@@ -4,12 +4,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
 
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
@@ -144,12 +140,15 @@ public class WebappLoader extends LifecycleBase implements Loader {
 	 * @return 资源文件二进制数据
 	 */
 	private byte[] loadFile(File file) {
+		
 		try {
 			@SuppressWarnings("resource")
 			FileInputStream fis = new FileInputStream(file);
+			
 			byte[] b = new byte[(int) file.length()];
 			fis.read(b);
 			return b;
+			
 		} catch (FileNotFoundException e) {
 			log.error("找不到资源文件：" + file.getAbsolutePath(), e);
 		} catch (IOException e) {

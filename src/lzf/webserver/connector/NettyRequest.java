@@ -65,7 +65,9 @@ public final class NettyRequest extends Request {
 			System.out.println(entry.getKey() + ": " + entry.getValue());
 		}
 		
-		byte[] content = contentBuf.array();
+		byte[] content = new byte[contentBuf.capacity()];
+		
+		contentBuf.readBytes(content);
 		
 		InputStream is = new ByteArrayInputStream(content);
 		super.sis = new DefaultServletInputStream(is);
