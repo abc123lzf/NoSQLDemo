@@ -32,7 +32,6 @@ public final class StandardEngineValve extends ValveBase {
 			return;
 		}
 		
-		log.info("Recive request in EngineValve");
 		//传送给Host容器的管道
 		host.getPipeline().getFirst().invoke(request, response);
 	}

@@ -6,7 +6,8 @@ import javax.servlet.ServletContext;
 import javax.servlet.SessionCookieConfig;
 import javax.servlet.http.Cookie;
 
-import lzf.webserver.loader.WebappLoader;
+import lzf.webserver.core.ApplicationFilterChain;
+import lzf.webserver.core.WebappLoader;
 import lzf.webserver.mapper.ContextMapper;
 import lzf.webserver.session.HttpSessionManager;
 
@@ -111,6 +112,11 @@ public interface Context extends Container<Host, Wrapper> {
 	 * @return 保存服务器发送给客户端保存SessionID的Cookie信息对象
 	 */
 	public SessionCookieConfig getSessionCookieConfig();
+	
+	/**
+	 * @return 该web应用对应FilterChain过滤器链
+	 */
+	public ApplicationFilterChain getFilterChain();
 	
 	public void setRequestCharacterEncoding(String encoding);
 	

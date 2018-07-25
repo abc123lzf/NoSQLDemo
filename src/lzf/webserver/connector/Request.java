@@ -30,6 +30,7 @@ import lzf.webserver.Context;
 import lzf.webserver.Host;
 import lzf.webserver.LifecycleException;
 import lzf.webserver.Wrapper;
+import lzf.webserver.core.ApplicationRequestDispatcher;
 import lzf.webserver.log.Log;
 import lzf.webserver.log.LogFactory;
 
@@ -74,6 +75,8 @@ public abstract class Request extends RequestBase {
 
 	//Session管理器中的HttpSession实例
 	private HttpSession session = null;
+	
+	private DispatcherType dispatcherType = DispatcherType.REQUEST;
 	
 	/**
 	 * 获取属性值
@@ -121,8 +124,9 @@ public abstract class Request extends RequestBase {
 
 	@Override
 	public RequestDispatcher getRequestDispatcher(String path) {
-		// TODO Auto-generated method stub
-		return null;
+		if(context == null || path == null)
+			return null;
+		return new ApplicationRequestDispatcher(context, path);
 	}
 
 	/**
@@ -192,10 +196,18 @@ public abstract class Request extends RequestBase {
 		throw new UnsupportedOperationException();
 	}
 
+	/**
+	 * 获取服务端跳转类型，默认为Request，当调用getRequestDispatcher的forward方法或include方法时，会修改该
+	 * 对象的值
+	 * @return 服务端跳转类型对象
+	 */
 	@Override
 	public DispatcherType getDispatcherType() {
-		// TODO Auto-generated method stub
-		return null;
+		return dispatcherType;
+	}
+	
+	public void setDispatcherType(DispatcherType type) {
+		this.dispatcherType = type;
 	}
 
 	@Override
@@ -464,5 +476,20 @@ public abstract class Request extends RequestBase {
 	 */
 	public Wrapper getWrapper() {
 		return this.wrapper;
+	}
+	
+	/**
+	 * 重新设置URI参数，供服务端forward跳转使用
+	 * @param uri URI路径，包括参数
+	 */
+	public void setRequestURI(String uri) {
+		this.requestUrl = uri;
+	}
+	
+	/**
+	 * 清空URI附带的参数，以便forward跳转
+	 */
+	public void cleanParameterMap() {
+		parameterMap.clear();
 	}
 }

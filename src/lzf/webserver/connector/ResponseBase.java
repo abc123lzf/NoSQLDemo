@@ -23,7 +23,7 @@ import javax.servlet.http.HttpServletResponse;
 */
 public abstract class ResponseBase implements HttpServletResponse {
 	
-	public static final SimpleDateFormat HTTP_DATE_FORMAT = new SimpleDateFormat("EEE MMM ddHH:mm:ss 'GMT' yyyy",Locale.US);
+	public static final SimpleDateFormat HTTP_DATE_FORMAT = new SimpleDateFormat("EEE MMM dd HH:mm:ss 'GMT' yyyy",Locale.US);
 	
 	protected int status;
 	

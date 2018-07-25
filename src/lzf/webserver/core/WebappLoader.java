@@ -1,4 +1,4 @@
-package lzf.webserver.loader;
+package lzf.webserver.core;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -17,8 +17,6 @@ import org.dom4j.Element;
 import lzf.webserver.Context;
 import lzf.webserver.LifecycleException;
 import lzf.webserver.Loader;
-import lzf.webserver.core.LifecycleBase;
-import lzf.webserver.core.StandardWrapper;
 import lzf.webserver.log.Log;
 import lzf.webserver.log.LogFactory;
 import lzf.webserver.util.XMLUtil;
@@ -34,7 +32,7 @@ public class WebappLoader extends LifecycleBase implements Loader {
 	public static final Log log = LogFactory.getLog(WebappLoader.class);
 
 	// 该Web加载器所属的Context容器
-	private Context context = null;
+	private Context context;
 
 	//当需要热替换时，需要重新新建一个WebappClassLoader对象并替换旧的ClassLoader
 	private volatile WebappClassLoader classLoader = null;
@@ -180,22 +178,51 @@ public class WebappLoader extends LifecycleBase implements Loader {
 			return false;
 		}
 		
-		//String displayName = root.element("display-name").getStringValue();
-		/*
-		for(Element contextParam : root.elements("context-param")) {
-			String paramName = contextParam.element("param-name").getStringValue();
-			String paramValue = contextParam.element("param-value").getStringValue();
+		Element displayRoot = root.element("display-name");
+		if(displayRoot != null){
+			String displayName = displayRoot.getStringValue();
 		}
 		
+		for(Element contextParam : root.elements("context-param")) {
+			
+			String paramName = contextParam.element("param-name").getStringValue();
+			String paramValue = contextParam.element("param-value").getStringValue();
+			
+			context.getServletContext().setInitParameter(paramName, paramValue);
+		}
+		
+		
 		for(Element filter : root.elements("filter")) {
+			
 			String filterName = filter.element("filter-name").getStringValue();
 			String filterClass = filter.element("filter-class").getStringValue();
+			
+			ApplicationFilterConfig filterConfig = new ApplicationFilterConfig(context, filterName, filterClass);
+			
+			for(Element initParam : filter.elements("init-param")) {
+				
+				String name = initParam.element("param-name").getStringValue();
+				String value = initParam.element("param-value").getStringValue();
+				
+				filterConfig.setInitParameter(name, value);
+			}
+			
+			context.getFilterChain().addFilter(filterConfig);
 		}
 		
 		for(Element filterMapping : root.elements("filter-mapping")) {
+			
 			String filterName = filterMapping.element("filter-name").getStringValue();
 			String urlPattern = filterMapping.element("url-pattern").getStringValue();
-		}*/
+			
+			ApplicationFilterConfig filterConfig = context.getFilterChain().getFilterConfig(filterName);
+			
+			if(filterConfig != null) {
+				filterConfig.addUrlPattern(urlPattern);
+			} else {
+				log.warn("filter-mapping配置项中，filter-name：" + filterName + " 的filer配置项未配置");
+			}
+		}
 		
 		Map<String, String> servletMap = new LinkedHashMap<>();
 		

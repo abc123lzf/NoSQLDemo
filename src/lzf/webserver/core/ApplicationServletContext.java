@@ -61,6 +61,7 @@ public class ApplicationServletContext implements ServletContext {
 
 	@Override
 	public ServletContext getContext(String uripath) {
+		//不要修改，只能返回null
 		return null;
 	}
 
@@ -76,13 +77,12 @@ public class ApplicationServletContext implements ServletContext {
 
 	@Override
 	public int getEffectiveMajorVersion() {
-		return 0;
+		return 3;
 	}
 
 	@Override
 	public int getEffectiveMinorVersion() {
-		// TODO Auto-generated method stub
-		return 0;
+		return 1;
 	}
 
 	@Override
@@ -318,11 +318,11 @@ public class ApplicationServletContext implements ServletContext {
 			return c.newInstance();
 		} catch (InstantiationException e) {
 			log.error("", e);
-			return null;
 		} catch (IllegalAccessException e) {
 			log.error("", e);
-			return null;
 		}
+		
+		return null;
 	}
 
 	@Override

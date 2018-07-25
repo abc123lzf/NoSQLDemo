@@ -79,6 +79,9 @@ public final class NettyResponse extends Response {
 		ctx.writeAndFlush(response);
 	}
 	
+	/**
+	 * @param size 设置缓冲区的大小
+	 */
 	@Override
 	public void setBufferSize(int size) {
 		synchronized(content) {
@@ -86,11 +89,17 @@ public final class NettyResponse extends Response {
 		}
 	}
 
+	/**
+	 * @return 缓冲区的大小
+	 */
 	@Override
 	public int getBufferSize() {
 		return content.capacity();
 	}
 	
+	/**
+	 * 重置请求体的内容
+	 */
 	@Override
 	public void resetBuffer() {
 		synchronized(content) {

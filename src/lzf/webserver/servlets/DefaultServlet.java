@@ -1,5 +1,6 @@
 package lzf.webserver.servlets;
 
+import java.io.File;
 import java.io.IOException;
 
 import javax.servlet.ServletException;
@@ -20,20 +21,35 @@ public class DefaultServlet extends HttpServlet {
 
 	private static final long serialVersionUID = -6022554049128780788L;
 	
-	private byte[] resource;
+	@SuppressWarnings("unused")
+	private final File path;
 	
-	private String contentType;
+	// 该静态资源的二进制数据
+	private final byte[] resource;
+	
+	// 该静态资源类型
+	private final String contentType;
+	
+	// 该静态资源最后修改时间
+	private final long lastModified;
 	
 	@Override
 	public void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		
 		response.setContentType(contentType);
 		response.addIntHeader("Content-Length", resource.length);
+		response.setDateHeader("Last-Modified", lastModified);
+		
 		response.getOutputStream().write(resource);
 	}
 	
-	public DefaultServlet(String fileName, byte[] resource) {
+	
+	public DefaultServlet(File path, byte[] resource) {
 		
+		this.path = path;
 		this.resource = resource;
+		
+		String fileName = path.getPath();
 		int index = fileName.lastIndexOf('.');
 		String suffix = fileName.substring(index + 1, fileName.length());
 
@@ -42,6 +58,8 @@ public class DefaultServlet extends HttpServlet {
 		} else {
 			this.contentType = ContentType.getContentBySuffix("application/octet-stream");
 		}
+		
+		this.lastModified = path.lastModified();
 	}
 
 }

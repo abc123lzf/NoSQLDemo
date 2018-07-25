@@ -323,7 +323,7 @@ public class StandardWrapper extends ContainerBase<Context, Void> implements Wra
 		
 		StandardWrapper wrapper = new StandardWrapper(context);
 		
-		wrapper.setServlet(new DefaultServlet(path.getName(), b));
+		wrapper.setServlet(new DefaultServlet(path, b));
 		wrapper.setPath(path);
 		
 		//该wrapper存放的路径，格式:webapps/ROOT/index.html

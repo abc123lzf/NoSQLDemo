@@ -50,6 +50,7 @@ public abstract class Response extends ResponseBase {
 	@Override
 	public synchronized final void sendError(int sc) throws IOException {
 		committed = true;
+		setIntHeader("Content-Length", 0);
 		sendError0(sc);
 	}
 	

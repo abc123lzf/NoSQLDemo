@@ -9,7 +9,6 @@ import javax.servlet.http.Cookie;
 import lzf.webserver.Context;
 import lzf.webserver.Host;
 import lzf.webserver.Wrapper;
-import lzf.webserver.loader.WebappLoader;
 import lzf.webserver.mapper.ContextMapper;
 import lzf.webserver.mapper.ContextMapperListener;
 import lzf.webserver.session.HttpSessionManager;
@@ -46,6 +45,9 @@ public final class StandardContext extends ContainerBase<Host, Wrapper> implemen
 	//该web应用的路由器
 	final ContextMapper mapper = new ContextMapper(this);
 	
+	//该web应用对应的过滤器链
+	final ApplicationFilterChain filterChain = new ApplicationFilterChain();
+	
 	//SessionCookie的属性类，实现SessionCookieConfig的J2EE规范
 	ApplicationSessionCookieConfig sessionCookieConfig = null;
 	
@@ -77,6 +79,14 @@ public final class StandardContext extends ContainerBase<Host, Wrapper> implemen
 	@Override
 	public ContextMapper getMapper() {
 		return mapper;
+	}
+	
+	/**
+	 * @return 该web应用对应FilterChain过滤器链
+	 */
+	@Override
+	public ApplicationFilterChain getFilterChain() {
+		return filterChain;
 	}
 	
 	/**

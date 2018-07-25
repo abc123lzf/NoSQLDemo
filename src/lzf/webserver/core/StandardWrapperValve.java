@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import javax.servlet.ServletException;
 
+import lzf.webserver.Context;
 import lzf.webserver.Wrapper;
 import lzf.webserver.connector.Request;
 import lzf.webserver.connector.RequestFacade;
@@ -16,7 +17,7 @@ import lzf.webserver.util.ByteBufPrintWriter;
 * @author 李子帆
 * @version 1.0
 * @date 2018年7月21日 下午3:08:57
-* @Description 类说明
+* @Description 标准Wrapper阀门
 */
 public final class StandardWrapperValve extends ValveBase {
 	
@@ -31,6 +32,9 @@ public final class StandardWrapperValve extends ValveBase {
 		ResponseFacade responseFacade = new ResponseFacade(response);
 		
 		Wrapper wrapper = request.getWrapper();
+		Context context = request.getContext();
+		
+		context.getFilterChain().doFilter(requestFacade, responseFacade);
 		
 		wrapper.getServlet().service(requestFacade, responseFacade);
 		
@@ -52,7 +56,7 @@ public final class StandardWrapperValve extends ValveBase {
 			response.addIntHeader("Content-Length", charSize + byteSize);
 		}
 		
-		log.info("Recive request in WrapperValve");
+		//context.getFilterChain().doFilter(requestFacade, responseFacade);
 		
 		response.sendResponse();
 	}

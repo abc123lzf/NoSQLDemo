@@ -7,43 +7,48 @@ import java.util.Map;
 import javax.servlet.Filter;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
 
 import lzf.webserver.Context;
+import lzf.webserver.log.Log;
+import lzf.webserver.log.LogFactory;
 import lzf.webserver.util.IteratorEnumeration;
 
 /**
-* @author 李子帆
-* @version 1.0
-* @date 2018年7月20日 下午1:45:14
-* @Description ApplicationFilterConfig保存了Filter对象、所属的Context(Web应用)、filter的名称、filter的类名
-* web.xml文件中，由<filter></filter>配置，其中<filter-name>对应Filter的名称，<filter-class>为该Filter全限定类名
-* <init-param>对应着初始化参数
-*/
+ * @author 李子帆
+ * @version 1.0
+ * @date 2018年7月20日 下午1:45:14
+ * @Description ApplicationFilterConfig保存了Filter对象、所属的Context(Web应用)、filter的名称、filter的类名
+ *              web.xml文件中，由<filter></filter>配置，其中<filter-name>对应Filter的名称，<filter-class>为该Filter全限定类名
+ *              <init-param>对应着初始化参数
+ */
 public class ApplicationFilterConfig implements FilterConfig {
-	
-	//所属的Context容器
+
+	private static final Log log = LogFactory.getLog(ApplicationFilterConfig.class);
+
+	// 所属的Context容器
 	private final Context context;
-	
-	//对应的Filter对象
-	private Filter filter;
-	
-	//Filter名称
+
+	// 对应的Filter对象
+	private Filter filter = null;
+
+	// Filter名称
 	private String filterName;
+
+	// 上述Filter的全限定类名
+	private String filterClass;
 	
-	//上述Filter的全限定类名
-	private final String filterClass;
-	
-	
-	//保存初始化参数的Map
+	private String[] urlPatterns = new String[0];
+
+	// 保存初始化参数的Map
 	private final Map<String, String> parameters = new LinkedHashMap<>();
-	
-	
-	ApplicationFilterConfig(Context context, Filter filter) {
+
+	ApplicationFilterConfig(Context context, String filterName, String filterClass) {
 		this.context = context;
-		this.filter = filter;
-		this.filterClass = filter.getClass().getName();
+		this.filterName = filterName;
+		this.filterClass = filterClass;
 	}
-	
+
 	/**
 	 * @return Filter名称，即web.xml中<filter-name>对应的参数
 	 */
@@ -76,13 +81,24 @@ public class ApplicationFilterConfig implements FilterConfig {
 	public Enumeration<String> getInitParameterNames() {
 		return new IteratorEnumeration<>(parameters.keySet().iterator());
 	}
-	
+
+	/**
+	 * 返回URL匹配规则，由web.xml文件的url-pattern决定
+	 * @return URL匹配规则数组
+	 */
+	public String[] getUrlPatterns() {
+		return urlPatterns;
+	}
+
 	/**
 	 * 设置参数键值对，在web.xml中对应<init-param>
-	 * @param name 参数名，在web.xml中对应<init-param>中的<param-name>的参数
-	 * @param value 参数值，在web.xml中对应<init-param>中的<param-value>的参数
+	 * 
+	 * @param name
+	 *            参数名，在web.xml中对应<init-param>中的<param-name>的参数
+	 * @param value
+	 *            参数值，在web.xml中对应<init-param>中的<param-value>的参数
 	 */
-	public void setInitParameter(String name, String value) {
+	void setInitParameter(String name, String value) {
 		parameters.put(name, value);
 	}
 
@@ -90,36 +106,61 @@ public class ApplicationFilterConfig implements FilterConfig {
 	 * 该方法应由容器调用
 	 * @return 该FilterConfig所属的Filter
 	 */
-	public Filter getFilter() {
-		if(filter == null)
-			try {
-				filter = (Filter) context.getWebappLoader().getClassLoader().loadClass(filterClass).newInstance();
-			} catch (InstantiationException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IllegalAccessException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+	Filter getFilter() {
+		try {
+			if (filter == null)
+				try {
+					filter = (Filter) context.getWebappLoader().getClassLoader().loadClass(filterClass).newInstance();
+					filter.init(this);
+					return filter;
+				} catch (ServletException e) {
+					log.error("Filter:" + filterClass + " 初始化异常", e);
+					return null;
+				}
+			else {
+				return filter;
 			}
-		return filter;
+		} catch (InstantiationException e) {
+			log.error("Filter:" + filterClass + " 无法实例化", e);
+		} catch (IllegalAccessException e) {
+			log.error("Filter:" + filterClass + " 的构造方法不是public", e);
+		} catch (ClassNotFoundException e) {
+			log.error("Filter:" + filterClass + "未找到", e);
+		}
+		return null;
 	}
-	
+
 	/**
 	 * 设置Filter的名称，在web.xml文件中由<filter-name>设置
-	 * @param filterName Filter名称
+	 * 
+	 * @param filterName
+	 *            Filter名称
 	 */
-	public void setFilterName(String filterName) {
+	void setFilterName(String filterName) {
 		this.filterName = filterName;
 	}
 
 	/**
-	 * 获取该Filter所属的全限定类名，在web.xml文件中对应<filter-class>
-	 * @return
+	 * @return 该Filter所属的全限定类名，在web.xml文件中对应<filter-class>
 	 */
-	public String getFilterClass() {
+	String getFilterClass() {
 		return filterClass;
 	}
+	
+	/**
+	 * 添加URL匹配规则，由web.xml文件的url-pattern决定
+	 * @param urlPattern URL匹配规则
+	 */
+	void addUrlPattern(String urlPattern) {
+		
+		String[] array = new String[urlPatterns.length + 1];
+		
+		int i = 0;
+		for(String pattern : urlPatterns) {
+			array[i++] = pattern;
+		}
+		
+		array[i] = urlPattern;
+	}
+	
 }

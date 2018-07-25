@@ -29,11 +29,11 @@ public abstract class RequestBase implements HttpServletRequest {
 	protected String requestUrl;
 	protected String protocol;
 	// 请求头Map
-	private final Map<String, String> headerMap = new ConcurrentHashMap<>();
+	protected final Map<String, String> headerMap = new ConcurrentHashMap<>();
 	// GET请求参数Map
-	private final Map<String, String[]> parameterMap = new LinkedHashMap<>();
+	protected final Map<String, String[]> parameterMap = new LinkedHashMap<>();
 
-	private final List<Locale> localeList = new ArrayList<>(0);
+	protected final List<Locale> localeList = new ArrayList<>(0);
 	
 	protected Cookie[] cookies = new Cookie[0];
 	

@@ -6,7 +6,7 @@ import java.util.List;
  * @author 李子帆
  * @version 1.0
  * @date 2018年7月12日 下午4:56:16
- * @Description 容器类主接口
+ * @Description 容器类主接口，泛型参数F表示父容器类型，S表示子容器类型 
  */
 public interface Container<F, S> extends Lifecycle {
 	/**

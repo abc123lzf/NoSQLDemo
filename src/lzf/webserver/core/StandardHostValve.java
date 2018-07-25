@@ -43,7 +43,6 @@ public final class StandardHostValve extends ValveBase {
 			response.addCookie(session);
 		}
 
-		log.info("Recive request in HostValve");
 		context.getPipeline().getFirst().invoke(request, response);
 	}
 }

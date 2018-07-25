@@ -24,7 +24,7 @@ public class ApplicationFilterChain implements FilterChain {
 	private int n = 0;
 	
 	/**
-	 * 线程私有对象，表示当前线程所访问的Filters数组下标
+	 * 线程私有变量，表示当前线程所访问的Filters数组下标
 	 */
 	private ThreadLocal<Integer> pos = new ThreadLocal<Integer>() {
 		//初始化数组下标为0
@@ -41,12 +41,15 @@ public class ApplicationFilterChain implements FilterChain {
 	public void doFilter(ServletRequest request, ServletResponse response) throws IOException, ServletException {
 		
 		if(pos.get() < n) {
+			
 			ApplicationFilterConfig filterConfig = filters[pos.get()];
 			Filter filter = filterConfig.getFilter();
-			filter.doFilter(request, response, this);
+			
 			pos.set(pos.get() + 1);
+			filter.doFilter(request, response, this);
 		}
 		
+		pos.set(0);
 		return;
 	}
 
@@ -71,7 +74,7 @@ public class ApplicationFilterChain implements FilterChain {
 			}
 			
 			newFilters[i] = filterConfig;
-			
+			//System.out.println("i====="+i);
 			this.filters = newFilters;
 			
 		} else {
@@ -82,11 +85,28 @@ public class ApplicationFilterChain implements FilterChain {
 	}
 	
 	/**
-	 * 释放所有的FilterConfig
+	 * 根据Filter名称获取FilterConfig对象
+	 * @param filterName Filter名称
+	 * @return FilterConfig对象
+	 */
+	ApplicationFilterConfig getFilterConfig(String filterName) {
+		
+		for(ApplicationFilterConfig filterConfig : filters) {
+			if(filterConfig.getFilterName().equals(filterName)) {
+				return filterConfig;
+			}
+		}
+		
+		return null;
+	}
+	
+	/**
+	 * 释放所有的FilterConfig并销毁Filter
 	 */
 	synchronized void release() {
 		
 		for(int i = 0; i < n; i++) {
+			filters[i].getFilter().destroy();
 			filters[i] = null;
 		}
 		

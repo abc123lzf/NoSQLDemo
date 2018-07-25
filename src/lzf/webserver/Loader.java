@@ -4,7 +4,7 @@ package lzf.webserver;
 * @version 1.0
 * @date 2018年7月21日 下午4:40:23
 * @Description 加载器接口，即web应用载入器，包括XML文件解析，静态资源文件的读取，类加载实现
-* @see lzf.webserver.loader.WebappLoader
+* @see lzf.webserver.core.WebappLoader
 */
 public interface Loader {
 
