@@ -5,7 +5,6 @@ import java.io.File;
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 
-import lzf.webserver.Container;
 import lzf.webserver.Context;
 import lzf.webserver.Host;
 import lzf.webserver.Wrapper;
@@ -19,7 +18,7 @@ import lzf.webserver.servlets.DefaultServlet;
 * @date 2018年7月20日 下午5:39:04
 * @Description 最小的容器，用于保存单个Servlet
 */
-public class StandardWrapper extends ContainerBase implements Wrapper {
+public class StandardWrapper extends ContainerBase<Context, Void> implements Wrapper {
 	
 	private static final Log log = LogFactory.getLog(StandardWrapper.class);
 
@@ -282,10 +281,6 @@ public class StandardWrapper extends ContainerBase implements Wrapper {
 		this.servlet = servlet;
 	}
 
-	@Override
-	protected void addChildContainerCheck(Container container) throws IllegalArgumentException {
-		throw new IllegalArgumentException("Wrapper not support to add child container");
-	}
 
 	@Override
 	protected void initInternal() throws Exception {

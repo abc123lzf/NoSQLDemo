@@ -1,6 +1,5 @@
 package lzf.webserver.core;
 
-import lzf.webserver.Container;
 import lzf.webserver.Engine;
 import lzf.webserver.Host;
 import lzf.webserver.LifecycleException;
@@ -13,7 +12,7 @@ import lzf.webserver.mapper.GlobelMappedListener;
 * @date 2018年7月18日 下午4:12:01
 * @Description 类说明
 */
-public class StandardEngine extends ContainerBase implements Engine {
+public class StandardEngine extends ContainerBase<Void, Host> implements Engine {
 	
 	private Service service = null;
 	
@@ -37,7 +36,7 @@ public class StandardEngine extends ContainerBase implements Engine {
 
 	@Override
 	protected void initInternal() throws Exception {
-		for(Container c : childContainers) {
+		for(Host c : childContainers) {
 			c.init();
 		}
 		pipeline.addValve(new StandardEngineValve());
@@ -45,31 +44,23 @@ public class StandardEngine extends ContainerBase implements Engine {
 
 	@Override
 	protected void startInternal() throws Exception {
-		for(Container c : childContainers) {
+		for(Host c : childContainers) {
 			c.start();
 		}
 	}
 
 	@Override
 	protected void stopInternal() throws Exception {
-		for(Container c : childContainers) {
+		for(Host c : childContainers) {
 			c.stop();
 		}
 	}
 
 	@Override
 	protected void destoryInternal() throws Exception {
-		for(Container c : childContainers) {
+		for(Host c : childContainers) {
 			c.destory();
 		}
 	}
 
-	/**
-	 * 如果添加的容器不是Host则抛出异常
-	 */
-	@Override
-	protected void addChildContainerCheck(Container container) throws IllegalArgumentException{
-		if(!(container instanceof Host))
-			throw new IllegalArgumentException(container.getClass().getName());
-	}
 }

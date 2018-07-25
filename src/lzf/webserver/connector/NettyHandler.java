@@ -26,11 +26,8 @@ import io.netty.handler.codec.http.HttpResponseEncoder;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.handler.timeout.IdleStateHandler;
-import lzf.webserver.Context;
-import lzf.webserver.Host;
 import lzf.webserver.LifecycleException;
 import lzf.webserver.LifecycleState;
-import lzf.webserver.Wrapper;
 import lzf.webserver.core.LifecycleBase;
 import lzf.webserver.log.Log;
 import lzf.webserver.log.LogFactory;
@@ -42,7 +39,7 @@ import lzf.webserver.mapper.GlobelMapper;
  * @date 2018年7月14日 下午7:43:49
  * @Description Netty NIO接收器
  */
-public class NettyHandler extends LifecycleBase implements Handler {
+public final class NettyHandler extends LifecycleBase implements Handler {
 	
 	private static final Log log = LogFactory.getLog(NettyHandler.class);
 
@@ -151,7 +148,7 @@ public class NettyHandler extends LifecycleBase implements Handler {
 	}
 	
 	/**
-	 * 负责处理业务逻辑的专用线程，必须通过调用runRequestProcesser实现
+	 * 负责处理客户端请求的专用线程，必须通过调用runRequestProcesser实现
 	 */
 	protected class RequestProcesser implements Runnable {
 		
@@ -169,6 +166,7 @@ public class NettyHandler extends LifecycleBase implements Handler {
 			
 			Request request = NettyRequest.newRequest(fullRequest, ctx);
 			Response response = NettyResponse.newResponse(ctx);
+			
 			//ctx.writeAndFlush(resp).addListener(ChannelFutureListener.CLOSE);
 			try {
 				GlobelMapper gm = connector.getService().getGlobelMapper();
@@ -176,6 +174,7 @@ public class NettyHandler extends LifecycleBase implements Handler {
 				request.host = gm.getHost(request.getServerName());
 				
 				if(request.host == null) {
+					
 					response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 					return;
 				}
@@ -185,23 +184,27 @@ public class NettyHandler extends LifecycleBase implements Handler {
 				request.context = gm.getContext(request.host.getName(), reqUri);
 				
 				if(request.context == null) {
+					
 					System.out.println("Context Not Found");
 					response.sendError(HttpServletResponse.SC_NOT_FOUND);
 					return;
+					
 				} else if(reqUri.equals("/" + request.context.getName())) {
-					response.status = 302;
-					response.addHeader("Location", "http://"+ request.getServerName() + ":" 
+					
+					response.sendRedirect("http://"+ request.getServerName() + ":" 
 								+ request.getServerPort() + "/" + request.context.getName() + "/");
-					response.sendResponse();
 					return;
+					
 				}
 
 				request.wrapper = request.context.getMapper().getWrapper(request.getRequestURI());
 				
 				if(request.wrapper == null) {
+					
 					System.out.println("Wrapper Not Found");
 					response.sendError(HttpServletResponse.SC_NOT_FOUND);
 					return;
+					
 				}
 				
 				connector.getService().getEngine().getPipeline().getFirst().invoke(request, response);

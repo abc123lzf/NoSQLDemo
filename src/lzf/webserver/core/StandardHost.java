@@ -1,10 +1,7 @@
 package lzf.webserver.core;
 
 import java.io.File;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
-import lzf.webserver.Container;
 import lzf.webserver.Context;
 import lzf.webserver.Engine;
 import lzf.webserver.Host;
@@ -16,7 +13,7 @@ import lzf.webserver.mapper.GlobelMappedListener;
 * @date 2018年7月18日 下午6:02:08
 * @Description 类说明
 */
-public class StandardHost extends ContainerBase implements Host {
+public class StandardHost extends ContainerBase<Engine, Context> implements Host {
 
 	public static final File DEFAULT_CONTEXT_FOLDER = new File("webapps");
 	
@@ -38,17 +35,13 @@ public class StandardHost extends ContainerBase implements Host {
 		this.appBaseFolder = folder;
 	}
 
-	@Override
-	protected void addChildContainerCheck(Container container) throws IllegalArgumentException {
-		if(!(container instanceof Context))
-			throw new IllegalArgumentException();
-	}
+
 
 	@Override
 	protected void initInternal() throws Exception {
 		findWebappAndLoad();
 		
-		for(Container context: childContainers) {
+		for(Context context: childContainers) {
 			context.init();
 		}
 		
@@ -58,7 +51,7 @@ public class StandardHost extends ContainerBase implements Host {
 	@Override
 	protected void startInternal() throws Exception {
 		
-		for(Container context: childContainers) {
+		for(Context context: childContainers) {
 			context.start();
 		}
 	}
@@ -66,7 +59,7 @@ public class StandardHost extends ContainerBase implements Host {
 	@Override
 	protected void stopInternal() throws Exception {
 		
-		for(Container context: childContainers) {
+		for(Context context: childContainers) {
 			context.stop();
 		}
 	}
@@ -74,7 +67,7 @@ public class StandardHost extends ContainerBase implements Host {
 	@Override
 	protected void destoryInternal() throws Exception {
 		
-		for(Container context: childContainers) {
+		for(Context context: childContainers) {
 			context.destory();
 		}
 	}

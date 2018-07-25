@@ -8,7 +8,7 @@ import java.util.List;
  * @date 2018年7月12日 下午4:56:16
  * @Description 容器类主接口
  */
-public interface Container extends Lifecycle {
+public interface Container<F, S> extends Lifecycle {
 	/**
 	 * 添加子容器事件
 	 */
@@ -61,30 +61,30 @@ public interface Container extends Lifecycle {
 	 * @param container 子容器类
 	 * @throws 添加的不是当前容器的子容器
 	 */
-	public void addChildContainer(Container container) throws IllegalArgumentException;
+	public void addChildContainer(S container) throws IllegalArgumentException;
 	
 	/**
 	 * 移除子容器，Wrapper容器无效
 	 * @param container 子容器类
 	 */
-	public void removeChildContainer(Container container);
+	public void removeChildContainer(S container);
 	
 	/**
 	 * 获取父容器，注意：Engine父容器为null
 	 */
-	public Container getParentContainer();
+	public F getParentContainer();
 	
 	/**
 	 * 根据子容器名称获取子容器
 	 * @param name 子容器名称
 	 */
-	public Container getChildContainer(String name);
+	public S getChildContainer(String name);
 	
 	/**
 	 * 获取所有的子容器
 	 * @return 包含所有子容器的List集合
 	 */
-	public List<Container> getChildContainers();
+	public List<S> getChildContainers();
 	
 	/**
 	 * 添加容器事件监听器

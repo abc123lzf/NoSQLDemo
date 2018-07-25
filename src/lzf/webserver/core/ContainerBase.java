@@ -7,9 +7,6 @@ import lzf.webserver.Container;
 import lzf.webserver.ContainerEvent;
 import lzf.webserver.ContainerListener;
 import lzf.webserver.Pipeline;
-import lzf.webserver.log.Log;
-import lzf.webserver.log.LogFactory;
-
 
 /**
 * @author 李子帆
@@ -17,13 +14,13 @@ import lzf.webserver.log.LogFactory;
 * @date 2018年7月17日 上午11:23:32
 * @Description 容器抽象类
 */
-public abstract class ContainerBase extends LifecycleBase implements Container {
+public abstract class ContainerBase<F, S> extends LifecycleBase implements Container<F, S> {
 	
 	//容器名称
 	protected String name;
 	
 	//父容器，Engine容器没有父容器
-	protected Container parentContainer = null;
+	protected F parentContainer = null;
 	
 	//当前容器的类加载器
 	protected ClassLoader classLoader = ContainerBase.class.getClassLoader();
@@ -32,7 +29,7 @@ public abstract class ContainerBase extends LifecycleBase implements Container {
 	protected final Pipeline pipeline = new StandardPipeline(this);
 	
 	//子容器，Wrapper没有子容器
-	protected final List<Container> childContainers = new CopyOnWriteArrayList<>();
+	protected final List<S> childContainers = new CopyOnWriteArrayList<>();
 	
 	//容器监听器
 	protected final List<ContainerListener> containerListeners = new CopyOnWriteArrayList<>();
@@ -41,7 +38,7 @@ public abstract class ContainerBase extends LifecycleBase implements Container {
 		super();
 	}
 	
-	protected ContainerBase(Container parentConatiner) {
+	protected ContainerBase(F parentConatiner) {
 		this();
 		this.parentContainer = parentConatiner;
 	}
@@ -86,7 +83,7 @@ public abstract class ContainerBase extends LifecycleBase implements Container {
 	 * 获取父容器，注意：Engine父容器为null
 	 */
 	@Override
-	public final Container getParentContainer() {
+	public final F getParentContainer() {
 		return parentContainer;
 	}
 	
@@ -114,26 +111,17 @@ public abstract class ContainerBase extends LifecycleBase implements Container {
 	 * @param container 子容器类
 	 */
 	@Override
-	public void addChildContainer(Container container) throws IllegalArgumentException {
-		addChildContainerCheck(container);
+	public void addChildContainer(S container) throws IllegalArgumentException {
 		childContainers.add(container);
 		runContainerEvent(Container.ADD_CHILD_EVENT, container);
 	}
-	
-	/**
-	 * 检查是否是合法的子容器
-	 * @param container
-	 * @throws IllegalArgumentException
-	 */
-	protected abstract void addChildContainerCheck(Container container) 
-			throws IllegalArgumentException;
 	
 	/**
 	 * 移除子容器，Wrapper容器无效
 	 * @param container 子容器类
 	 */
 	@Override
-	public void removeChildContainer(Container container) {
+	public void removeChildContainer(S container) {
 		childContainers.remove(container);
 		runContainerEvent(Container.REMOVE_CHILD_EVENT, container);
 	}
@@ -142,17 +130,18 @@ public abstract class ContainerBase extends LifecycleBase implements Container {
 	 * 获取所有的子容器
 	 * @return 包含所有子容器的List集合
 	 */
+	@SuppressWarnings("rawtypes")
 	@Override
-	public Container getChildContainer(String name) {
-		for(Container c : childContainers) {
-			if(c.getName().equals(name))
+	public S getChildContainer(String name) {
+		for(S c : childContainers) {
+			if(((Container) c).getName().equals(name))
 				return c;
 		}
 		return null;
 	}
 	
 	@Override
-	public List<Container> getChildContainers() {
+	public List<S> getChildContainers() {
 		return childContainers;
 	}
 	

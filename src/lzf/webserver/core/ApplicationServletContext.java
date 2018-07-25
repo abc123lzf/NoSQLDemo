@@ -26,8 +26,6 @@ import javax.servlet.SessionCookieConfig;
 import javax.servlet.SessionTrackingMode;
 import javax.servlet.descriptor.JspConfigDescriptor;
 
-import lzf.webserver.Container;
-import lzf.webserver.Context;
 import lzf.webserver.Host;
 import lzf.webserver.Wrapper;
 import lzf.webserver.log.Log;
@@ -134,9 +132,9 @@ public class ApplicationServletContext implements ServletContext {
 	@Override
 	public Servlet getServlet(String name) throws ServletException {
 		
-		List<Container> list = context.getChildContainers();
+		List<Wrapper> list = context.getChildContainers();
 		
-		for(Container wrapper : list) {
+		for(Wrapper wrapper : list) {
 			if(((StandardWrapper)wrapper).servletConfig.servletName.equals(name))
 				return ((StandardWrapper)wrapper).getServlet();
 		}
@@ -150,12 +148,12 @@ public class ApplicationServletContext implements ServletContext {
 	@Override 
 	public Enumeration<Servlet> getServlets() {
 		
-		List<Container> containerList = context.getChildContainers();
+		List<Wrapper> containerList = context.getChildContainers();
 		List<Servlet> list = new LinkedList<>();
 		
 		try {
-			for(Container wrapper : containerList) 
-				list.add(((Wrapper)wrapper).getServlet());
+			for(Wrapper wrapper : containerList) 
+				list.add(wrapper.getServlet());
 			
 			return new IteratorEnumeration<Servlet>(list.iterator());
 			
@@ -169,10 +167,10 @@ public class ApplicationServletContext implements ServletContext {
 	@Override
 	public Enumeration<String> getServletNames() {
 		
-		List<Container> containerList = context.getChildContainers();
+		List<Wrapper> containerList = context.getChildContainers();
 		List<String> list = new LinkedList<>();
 		
-		for(Container wrapper : containerList) {
+		for(Wrapper wrapper : containerList) {
 			list.add(((StandardWrapper)wrapper).servletConfig.servletName);
 		}
 		

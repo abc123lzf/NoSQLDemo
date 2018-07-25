@@ -21,7 +21,6 @@ public class ByteBufOutputStream extends ServletOutputStream {
 	
 	public ByteBufOutputStream(ByteBuf buf) {
 		this.buf = buf;
-		int x = buf.capacity();
 	}
 	
 	@Override

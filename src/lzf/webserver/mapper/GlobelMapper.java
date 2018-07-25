@@ -3,7 +3,6 @@ package lzf.webserver.mapper;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import lzf.webserver.Container;
 import lzf.webserver.Context;
 import lzf.webserver.Host;
 import lzf.webserver.Service;
@@ -44,8 +43,8 @@ public final class GlobelMapper {
 		
 		Map<String, MappedContext> map = new LinkedHashMap<>();
 		
-		for(Container c : host.getChildContainers()) {
-			MappedContext mc = new MappedContext(c.getName(), (Context)c);
+		for(Context c : host.getChildContainers()) {
+			MappedContext mc = new MappedContext(c.getName(), c);
 			map.put(c.getName(), mc);
 		}
 		
@@ -163,7 +162,7 @@ public final class GlobelMapper {
 			
 			Map<String, MappedContext> map = new LinkedHashMap<>();
 			
-			for(Container c : host.getChildContainers()) {
+			for(Context c : host.getChildContainers()) {
 				System.out.println(c.getName());
 				MappedContext mappedContext = new MappedContext(c.getName(), context);
 				map.put(c.getName(), mappedContext);
@@ -176,7 +175,7 @@ public final class GlobelMapper {
 			Map<String, MappedContext> map = hostMapper.get(mappedHost);
 			
 			//如果Context容器之前已经被加入过那么忽略，只加入没有映射好的Context对象
-			for(Container c : host.getChildContainers()) {
+			for(Context c : host.getChildContainers()) {
 				if(map.containsKey(c.getName()))
 					continue;
 				MappedContext mappedContext = new MappedContext(c.getName(), context);

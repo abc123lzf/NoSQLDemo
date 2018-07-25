@@ -1,5 +1,6 @@
 package lzf.webserver.connector;
 
+import java.io.IOException;
 import java.util.Map;
 
 import io.netty.buffer.ByteBuf;
@@ -46,6 +47,18 @@ public final class NettyResponse extends Response {
 		
 		ctx.writeAndFlush(response);
 		super.committed = true;
+	}
+	
+	
+	/**
+	 * 重定向页面
+	 * @param location 跳转URL，可以为绝对路径也可为相对路径
+	 */
+	@Override
+	public final void sendRedirect(String location) throws IOException {
+		setStatus(302);
+		headerMap.put("Location", location);
+		sendResponse();
 	}
 
 	@Override

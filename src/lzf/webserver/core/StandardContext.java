@@ -6,7 +6,6 @@ import javax.servlet.ServletContext;
 import javax.servlet.SessionCookieConfig;
 import javax.servlet.http.Cookie;
 
-import lzf.webserver.Container;
 import lzf.webserver.Context;
 import lzf.webserver.Host;
 import lzf.webserver.Wrapper;
@@ -21,7 +20,7 @@ import lzf.webserver.session.HttpSessionManager;
 * @date 2018年7月20日 下午4:58:08
 * @Description 标准Context容器
 */
-public final class StandardContext extends ContainerBase implements Context {
+public final class StandardContext extends ContainerBase<Host, Wrapper> implements Context {
 	
 	//web应用版本，由web.xml文件设置
 	private String webappVersion = null;
@@ -48,7 +47,7 @@ public final class StandardContext extends ContainerBase implements Context {
 	final ContextMapper mapper = new ContextMapper(this);
 	
 	//SessionCookie的属性类，实现SessionCookieConfig的J2EE规范
-	final ApplicationSessionCookieConfig sessionCookieConfig = new ApplicationSessionCookieConfig(this);
+	ApplicationSessionCookieConfig sessionCookieConfig = null;
 	
 	StandardContext(Host host) {
 		super(host);
@@ -196,22 +195,21 @@ public final class StandardContext extends ContainerBase implements Context {
 	}
 
 	@Override
-	protected void addChildContainerCheck(Container container) throws IllegalArgumentException {
-		if(!(container instanceof Wrapper)) {
-			throw new IllegalArgumentException("Not Wrapper");
-		}
-	}
-
-	@Override
 	protected void initInternal() throws Exception {
+		
+		//载入web应用，必须在初始化子容器前调用
 		loader.init();
 		
-		for(Container wrapper: childContainers) {
+		//初始化子容器
+		for(Wrapper wrapper: childContainers) {
 			wrapper.init();
 		}
 		
 		pipeline.addValve(new StandardContextValve());
+	
 		sessionManager.init();
+		
+		sessionCookieConfig = new ApplicationSessionCookieConfig(this);
 	}
 
 	@Override
@@ -219,7 +217,7 @@ public final class StandardContext extends ContainerBase implements Context {
 		
 		loader.start();
 		
-		for(Container wrapper: childContainers) {
+		for(Wrapper wrapper: childContainers) {
 			wrapper.start();
 		}
 		
@@ -229,7 +227,7 @@ public final class StandardContext extends ContainerBase implements Context {
 	@Override
 	protected void stopInternal() throws Exception {
 		
-		for(Container wrapper: childContainers) {
+		for(Wrapper wrapper: childContainers) {
 			wrapper.stop();
 		}
 		
@@ -240,7 +238,7 @@ public final class StandardContext extends ContainerBase implements Context {
 	@Override
 	protected void destoryInternal() throws Exception {
 		
-		for(Container wrapper: childContainers) {
+		for(Wrapper wrapper: childContainers) {
 			wrapper.destory();
 		}
 		

@@ -12,7 +12,7 @@ import javax.servlet.ServletException;
 * @date 2018年7月14日 上午9:39:00
 * @Description 最底层容器，保存单个JSP、Servlet实例
 */
-public interface Wrapper extends Container {
+public interface Wrapper extends Container<Context, Void> {
 
 	/**
 	 * 返回该Servlet可用的时间戳，如果Request请求到达的时间小于它，那么该Servlet不可用

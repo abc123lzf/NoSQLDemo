@@ -15,14 +15,14 @@ import lzf.webserver.Valve;
 */
 public final class StandardPipeline extends LifecycleBase implements Pipeline {
 	
-	private Container container;
+	private Container<?, ?> container;
 	
 	private volatile Valve[] valves = new Valve[0];
 
 	public StandardPipeline() {	
 	}
 	
-	public StandardPipeline(Container container) {
+	public StandardPipeline(Container<?, ?> container) {
 		this();
 		this.container = container;
 	}
@@ -135,7 +135,7 @@ public final class StandardPipeline extends LifecycleBase implements Pipeline {
 	 * @return 该管道所属的容器
 	 */
 	@Override
-	public Container getContainer() {
+	public Container<?, ?> getContainer() {
 		return container;
 	}
 
@@ -145,7 +145,7 @@ public final class StandardPipeline extends LifecycleBase implements Pipeline {
 	 * @throws LifecycleException 当组件已经启动后调用此方法
 	 */
 	@Override
-	public void setContainer(Container container) throws LifecycleException {
+	public void setContainer(Container<?, ?> container) throws LifecycleException {
 		
 		if(getLifecycleState().after(LifecycleState.STARTING_PREP))
 			throw new LifecycleException("无法设置这个管道所属的容器：容器已启用");

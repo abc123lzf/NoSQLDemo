@@ -53,12 +53,12 @@ public interface Pipeline {
 	 * 返回该管道所属的容器
 	 * @return 容器实例，可以为Engine、Host、Context、Wrapper
 	 */
-	public Container getContainer();
+	public Container<?, ?> getContainer();
 	
 	/**
 	 * 设置该管道所属的容器
 	 * @param container 容器实例，可以为Engine、Host、Context、Wrapper
 	 * @throws LifecycleException 当组件已经启动后调用此方法
 	 */
-	public void setContainer(Container container) throws LifecycleException;
+	public void setContainer(Container<?, ?> container) throws LifecycleException;
 }

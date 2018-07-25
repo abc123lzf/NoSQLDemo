@@ -57,16 +57,6 @@ public abstract class Response extends ResponseBase {
 	 * 应包含写入客户端Socket的方法
 	 */
 	protected abstract void sendError0(int sc);
-
-	/**
-	 * 重定向页面
-	 * @param location 跳转URL，可以为绝对路径也可为相对路径
-	 */
-	@Override
-	public final void sendRedirect(String location) throws IOException {
-		setStatus(302);
-		headerMap.put("Location", location);
-	}
 	
 	/**
 	 * 设置响应状态码

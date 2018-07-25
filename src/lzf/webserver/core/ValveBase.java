@@ -23,7 +23,7 @@ public abstract class ValveBase implements Valve {
 	
 	protected Valve next = null;
 	
-	protected Container container = null;
+	protected Container<?, ?> container = null;
 	
 	/**
 	 * 获取下一个管道
@@ -48,7 +48,7 @@ public abstract class ValveBase implements Valve {
 	 * @return Container容器实例
 	 */
 	@Override
-	public Container getContainer() {
+	public Container<?, ?> getContainer() {
 		return container;
 	}
 	
@@ -57,7 +57,7 @@ public abstract class ValveBase implements Valve {
 	 * @param container Container容器实例
 	 */
 	@Override
-	public void setContainer(Container container) {
+	public void setContainer(Container<?, ?> container) {
 		this.container = container;
 	}
 		

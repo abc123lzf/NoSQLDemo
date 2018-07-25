@@ -31,13 +31,13 @@ public interface Valve {
 	 * 获取该阀门所属的容器实例
 	 * @return Container容器实例
 	 */
-	public Container getContainer();
+	public Container<?, ?> getContainer();
 	
 	/**
 	 * 设置该阀门所属的容器实例
 	 * @param container Container容器实例
 	 */
-	public void setContainer(Container container);
+	public void setContainer(Container<?, ?> container);
 	
 	/**
 	 * 阀门执行方法，如果是基础阀门，则应当调用子容器管道对象的第一个阀门

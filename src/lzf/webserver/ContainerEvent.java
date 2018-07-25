@@ -18,7 +18,7 @@ public class ContainerEvent extends EventObject {
 	// 事件数据，可为空
 	private final Object data;
 
-	public ContainerEvent(Container source, String type, Object data) {
+	public ContainerEvent(Container<?, ?> source, String type, Object data) {
 		super(source);
 		this.type = type;
 		this.data = data;

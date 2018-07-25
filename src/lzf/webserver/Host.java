@@ -8,7 +8,7 @@ import java.io.File;
 * @date 2018年7月14日 上午9:38:31
 * @Description 虚拟主机容器，父容器为Engine
 */
-public interface Host extends Container {
+public interface Host extends Container<Engine, Context> {
 
 	/**
 	 * @return 该主机对应的web应用主目录
