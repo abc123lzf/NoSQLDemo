@@ -91,6 +91,13 @@ public class ApplicationFilterConfig implements FilterConfig {
 	public String[] getUrlPatterns() {
 		return urlPatterns;
 	}
+	
+	/**
+	 * @return 该FilterConfig所属的Context容器
+	 */
+	Context getContext() {
+		return context;
+	}
 
 	/**
 	 * 设置参数键值对，在web.xml中对应<init-param>

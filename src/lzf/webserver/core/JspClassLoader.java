@@ -24,7 +24,7 @@ public class JspClassLoader extends ClassLoader {
 	
 	private final String jspWorkPath;
 	
-	private final Map<String, byte[]> map = new ConcurrentHashMap<>(32);
+	private final Map<String, byte[]> map = new ConcurrentHashMap<>(24);
 	
 	private volatile boolean isLoad = false;
 	/**

@@ -19,11 +19,10 @@ import javax.naming.NamingException;
 */
 public class SelectorContext implements Context {
 	
-	private Hashtable<Object, Object> env;
+	private Hashtable<String, Object> env;
 	
-	@SuppressWarnings("unchecked")
-	public SelectorContext(Hashtable<?, ?> env) {
-		this.env = (Hashtable<Object, Object>) env;
+	public SelectorContext(Hashtable<String, Object> env) {
+		this.env = env;
 	}
 
 	@Override

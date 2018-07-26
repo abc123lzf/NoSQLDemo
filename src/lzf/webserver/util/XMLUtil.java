@@ -1,11 +1,14 @@
 package lzf.webserver.util;
 
 import java.io.File;
+import java.io.IOException;
 
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
+
+import lzf.webserver.startup.ServerConstant;
 
 /**
 * @author Àî×Ó·«
@@ -22,4 +25,12 @@ public class XMLUtil {
 		return root;
 	}
 	
+	public static void makeDefaultServerXmlFile() throws IOException {
+		
+		File xmlFile = ServerConstant.getConstant().getServerXml();
+		xmlFile.delete();
+		xmlFile.createNewFile();
+		
+		//TODO
+	}
 }

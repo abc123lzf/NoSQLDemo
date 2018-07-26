@@ -2,10 +2,12 @@
 
 <!--port:监听关闭服务器的端口 shutdown 关闭命令  -->
 <Server port="9005" shutdown="SHUTDOWN">
+
 	<Service name="lzf">
 		<Connector port="9090" connectionTimeout="20000" handler="netty"/>
 		<Engine name="engine">
 			<Host name="localhost" appBase="webapps" />
 		</Engine>
 	</Service>
+	
 </Server>

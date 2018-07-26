@@ -141,7 +141,7 @@ public class ApplicationServletRegistration implements ServletRegistration.Dynam
 
 	@Override
 	public void setLoadOnStartup(int loadOnStartup) {
-		
+		wrapper.setLoadOnStartup(loadOnStartup);
 	}
 
 	@Override
