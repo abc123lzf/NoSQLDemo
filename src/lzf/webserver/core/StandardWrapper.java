@@ -31,6 +31,7 @@ public class StandardWrapper extends ContainerBase<Context, Void> implements Wra
 	//ServletConfig实现类，保存该Servlet对象名称、类名
 	volatile ApplicationServletConfig servletConfig = new ApplicationServletConfig(this);
 	
+	//ServletRegistration实现类，可以动态更改Servlet初始化参数和URL映射规则
 	volatile ApplicationServletRegistration servletRegistration = new ApplicationServletRegistration(this);
 	
 	//与这个Wrapper容器关联的文件路径(可选)
@@ -38,7 +39,6 @@ public class StandardWrapper extends ContainerBase<Context, Void> implements Wra
 	
 	//URI路径
 	private String uriPath = null;
-	
 	
 	StandardWrapper(Context context) {
 		super();
@@ -290,7 +290,6 @@ public class StandardWrapper extends ContainerBase<Context, Void> implements Wra
 
 	@Override
 	protected void startInternal() throws Exception {
-		// TODO Auto-generated method stub
 
 	}
 
@@ -301,7 +300,6 @@ public class StandardWrapper extends ContainerBase<Context, Void> implements Wra
 
 	@Override
 	protected void destoryInternal() throws Exception {
-		// TODO Auto-generated method stub
 
 	}
 
