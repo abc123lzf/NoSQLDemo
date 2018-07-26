@@ -70,29 +70,25 @@ public class WebappClassLoader extends ClassLoader {
 	/**
 	 * 从web应用的lib和classes文件夹加载类
 	 * @param name 类名
-	 * @return Class对象，如果未找到则抛出FileNotFoundException
+	 * @return Class对象
+	 * @throws ClassNotFoundException 没有在lib和classes目录下找到类文件
 	 */
 	@Override
-	public Class<?> findClass(String name) {
+	public Class<?> findClass(String name) throws ClassNotFoundException {
 		
 		if(!isLoad) {
 			startRead();
 			isLoad = true;
 		}
+
+		byte[] result = getClassFromFileOrMap(name);
 		
-		//System.out.println(name);
-		try {
-			byte[] result = getClassFromFileOrMap(name);
-			if (result == null) {
-				throw new FileNotFoundException();
-			} else {
-				return defineClass(name, result, 0, result.length);
-			}
-		} catch (Exception e) {
-			log.error("", e);
+		if (result == null) {
+			throw new ClassNotFoundException();
+		} else {
+			return defineClass(name, result, 0, result.length);
 		}
 		
-		return null;
 	}
 
 	/**

@@ -105,8 +105,6 @@ public final class ContextMapper {
 		
 		List<String> uriPatterns = wrapper.getURIPatterns();
 		
-		System.out.println(uriPatterns);
-		
 		if(uriPatterns == null || uriPatterns.isEmpty())
 			throw new UnsupportedOperationException("The wrapper's URI path is empty");
 		
@@ -126,12 +124,10 @@ public final class ContextMapper {
 			
 			for(String uriPattern : uriPatterns) {
 				
-				String uri = "/" + context.getName() + uriPattern;
-				
 				if(uriPattern.indexOf('*') == -1)
-					mapper.put(uri, new MappedWrapper(uri, wrapper));
+					mapper.put(uriPattern, new MappedWrapper(uriPattern, wrapper));
 				else
-					patternMapper.put(uri , new MappedWrapper(uri, wrapper));
+					patternMapper.put(uriPattern , new MappedWrapper(uriPattern, wrapper));
 			}
 		}
 	}

@@ -22,8 +22,6 @@ public class JspClassLoader extends ClassLoader {
 	
 	public static final Log log = LogFactory.getLog(JspClassLoader.class);
 	
-	public static final String JSP_PATH_PREFIX = "/org/apache/jsp/";
-	
 	private final String jspWorkPath;
 	
 	private final Map<String, byte[]> map = new ConcurrentHashMap<>(32);
@@ -45,28 +43,22 @@ public class JspClassLoader extends ClassLoader {
 	}
 
 	@Override
-	public Class<?> findClass(String name) {
+	public Class<?> findClass(String name) throws ClassNotFoundException {
 		
 		if(!isLoad) {
 			startRead(new File(jspWorkPath));
 			isLoad = true;
 		}
 		
-		try {
+		byte[] classBytes = map.get(name);
 			
-			byte[] classBytes = map.get(name);
-			
-			if(classBytes == null) {
-				throw new FileNotFoundException();
-			} else {
-				return defineClass(name, classBytes, 0, classBytes.length);
-			}
-			
-		} catch(Exception e) {
-			log.error("该类不存在：" + name, e);
+		if(classBytes == null) {
+			throw new ClassNotFoundException();
+		} else {
+			map.remove(name);
+			return defineClass(name, classBytes, 0, classBytes.length);
 		}
 		
-		return null;
 	}
 	
 	/**

@@ -102,6 +102,8 @@ public abstract class ContainerBase<F, S> extends LifecycleBase implements Conta
 	 */
 	@Override
 	public final void addContainerListener(ContainerListener listener) {
+		if(listener == null)
+			return;
 		containerListeners.add(listener);
 	}
 	
@@ -112,6 +114,10 @@ public abstract class ContainerBase<F, S> extends LifecycleBase implements Conta
 	 */
 	@Override
 	public void addChildContainer(S container) throws IllegalArgumentException {
+		
+		if(container == null)
+			return;
+		
 		childContainers.add(container);
 		runContainerEvent(Container.ADD_CHILD_EVENT, container);
 	}
@@ -122,6 +128,10 @@ public abstract class ContainerBase<F, S> extends LifecycleBase implements Conta
 	 */
 	@Override
 	public void removeChildContainer(S container) {
+		
+		if(container == null)
+			return;
+		
 		childContainers.remove(container);
 		runContainerEvent(Container.REMOVE_CHILD_EVENT, container);
 	}
@@ -169,7 +179,9 @@ public abstract class ContainerBase<F, S> extends LifecycleBase implements Conta
 	 * @param data 事件数据(参数，可为null)
 	 */
 	protected void runContainerEvent(String type, Object data) {
+		
 		ContainerEvent event = new ContainerEvent(this, type, data);
+		
 		for(ContainerListener c : containerListeners) {
 			c.containerEvent(event);
 		}

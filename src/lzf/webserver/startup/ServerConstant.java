@@ -70,6 +70,7 @@ public final class ServerConstant {
 	
 	public File getJspWorkPath(Context context) {
 		
+		//Â·¾¶Îª /work/${hostname}/${contextname}
 		File file = new File(work, context.getParentContainer().getName() + File.separator 
 				+ context.getName());
 		

@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import javax.servlet.jsp.JspFactory;
+
 import org.apache.jasper.JspC;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
@@ -28,6 +30,8 @@ import lzf.webserver.util.XMLUtil;
 public final class WebappLoader extends LifecycleBase implements Loader {
 
 	public static final Log log = LogFactory.getLog(WebappLoader.class);
+	
+	public static final String DEFAULT_JSP_PACKAGE = "lzf.jasper";
 
 	// 该Web加载器所属的Context容器
 	private Context context;
@@ -151,20 +155,25 @@ public final class WebappLoader extends LifecycleBase implements Loader {
 						if(!(fileName.endsWith(".class") || fileName.endsWith(".jsp"))) {
 							context.addChildContainer(StandardWrapper.getDefaultWrapper(context, file2, b));
 						} else if(fileName.endsWith(".jsp")) {
-							context.addChildContainer(StandardWrapper.getJspWrapper(context, fileName, file2));
+							context.addChildContainer(StandardWrapper.getJspWrapper(context, file2));
 						}
 					}
 				}
 			}
 		}
 		
-		//编译该web应用下所有的jsp文件
+		
+		//编译该web应用下所有的jsp文件 
 		File jspWork = ServerConstant.getConstant().getJspWorkPath(context);
 		
 		JspC jspc = new JspC();
+		
 		jspc.setUriroot(context.getPath().getAbsolutePath());
 		jspc.setOutputDir(jspWork.getAbsolutePath());
+		
+		jspc.setPackage(DEFAULT_JSP_PACKAGE);
 		jspc.setCompile(true);
+		
 		jspc.execute();
 	}
 	

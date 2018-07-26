@@ -7,7 +7,6 @@ import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 
 import lzf.webserver.Context;
-import lzf.webserver.Host;
 import lzf.webserver.Wrapper;
 import lzf.webserver.log.Log;
 import lzf.webserver.log.LogFactory;
@@ -207,10 +206,20 @@ public class StandardWrapper extends ContainerBase<Context, Void> implements Wra
 		} else if(getServletClass() != null) {
 			
 			try {
-				servlet = (Servlet) (((Context)getParentContainer()).getWebappLoader().getClassLoader()
-						.loadClass(servletConfig.getServletClass()).newInstance());
 				
-				servlet.init(servletConfig);
+				if(servletConfig.servletType.equals(ApplicationServletConfig.JSP)) {
+					
+					servlet = (Servlet)(getParentContainer().getWebappLoader().getJspClassLoader()
+							.loadClass(servletConfig.servletClass).newInstance());
+					servlet.init(servletConfig);
+					
+				} else {
+				
+					servlet = (Servlet) (getParentContainer().getWebappLoader().getClassLoader()
+							.loadClass(servletConfig.getServletClass()).newInstance());
+					
+					servlet.init(servletConfig);
+				}
 				
 			} catch (InstantiationException e) {
 				log.error("", e);
@@ -413,9 +422,7 @@ public class StandardWrapper extends ContainerBase<Context, Void> implements Wra
 		StandardWrapper wrapper = new StandardWrapper(context);
 		
 		wrapper.servletConfig.servletName = path.getName();
-		
 		wrapper.servletConfig.servletType = ApplicationServletConfig.JSP;
-		
 		wrapper.setName(path.getName());
 		
 		//该wrapper存放的路径，格式:webapps/ROOT/index.html
@@ -425,19 +432,45 @@ public class StandardWrapper extends ContainerBase<Context, Void> implements Wra
 					
 			//该web应用主目录，格式:webapps/ROOT
 			String contextPath = context.getPath().getPath().replaceAll("\\\\", "/");
-					
-			//将该Wrapper的URI设置为/index.html
-			wrapper.addURIPattern(p.replaceAll(contextPath, ""));
 
+			//将该Wrapper的URI设置为/index.html
+			String uri = p.replaceAll(contextPath, "");
+			wrapper.addURIPattern(uri);
+			
+			String klass = uri;
+			
+			if(uri.startsWith("/WEB-INF")) {	
+				klass = uri.replace("/WEB-INF", "/WEB_002dINF");
+			} 
+			
+			klass = WebappLoader.DEFAULT_JSP_PACKAGE + klass.replace(".jsp", "")
+					.replace("/", ".") + "_jsp";
+			
+			System.out.println("JSPCLASSNAME:" + klass);
+			wrapper.servletConfig.servletClass = klass;
+			
+			
 		} else {
 					
 			//所有存放web应用的主目录，格式:webapps
 			String webappBaseFolder = context.getParentContainer().getWebappBaseFolder().getPath();
 					
 			//将该Wrapper的URI设置为/index.html
-			wrapper.addURIPattern(p.replaceAll(webappBaseFolder, ""));
+			String uri = p.replaceAll(webappBaseFolder, "");
+			wrapper.addURIPattern(uri);
+			
+			String klass = uri;
+			
+			if(uri.startsWith("/" + context.getName() + "/WEB-INF")) {
+				klass = uri.replace("/" + context.getName() + "/WEB-INF", "/" + context.getName() + "/WEB_002dINF");
+			}
+			
+			klass = WebappLoader.DEFAULT_JSP_PACKAGE + klass.replace(".jsp", "")
+					.replace("/", ".") + "_jsp";
+			
+			wrapper.servletConfig.servletClass = klass;
 		}
 		
-		return null;
+		return wrapper;
 	}
 }
