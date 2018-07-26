@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.apache.jasper.JspC;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 
@@ -15,6 +16,7 @@ import lzf.webserver.LifecycleException;
 import lzf.webserver.Loader;
 import lzf.webserver.log.Log;
 import lzf.webserver.log.LogFactory;
+import lzf.webserver.startup.ServerConstant;
 import lzf.webserver.util.XMLUtil;
 
 /**
@@ -23,7 +25,7 @@ import lzf.webserver.util.XMLUtil;
  * @date 2018年7月21日 下午4:30:10
  * @Description web应用载入器，包括XML文件解析，静态资源文件的读取，类加载实现
  */
-public class WebappLoader extends LifecycleBase implements Loader {
+public final class WebappLoader extends LifecycleBase implements Loader {
 
 	public static final Log log = LogFactory.getLog(WebappLoader.class);
 
@@ -33,6 +35,9 @@ public class WebappLoader extends LifecycleBase implements Loader {
 	//当需要热替换时，需要重新新建一个WebappClassLoader对象并替换旧的ClassLoader
 	private volatile WebappClassLoader classLoader = null;
 	
+	//JSP类加载器，父类加载器应为本web加载器所属的WebappClassLoader
+	private volatile JspClassLoader jspClassLoader = null;
+	
 	//支持热替换吗
 	private boolean reloadable = false;
 
@@ -40,16 +45,31 @@ public class WebappLoader extends LifecycleBase implements Loader {
 		this.context = context;
 	}
 
+	/**
+	 * @return 该web应用的专用类加载器
+	 */
 	@Override
 	public ClassLoader getClassLoader() {
 		return classLoader;
 	}
+	
+	@Override
+	public ClassLoader getJspClassLoader() {
+		return jspClassLoader;
+	}
 
+	/**
+	 * @return 该web加载器所属的Context对象(一一对应关系)
+	 */
 	@Override
 	public Context getContext() {
 		return context;
 	}
 
+	/**
+	 * @param 该web加载器所属的Context容器
+	 * @throws LifecycleException 当该加载器已经启动后调用此方法
+	 */
 	@Override
 	public void setContext(Context context) throws LifecycleException {
 		if (context == null)
@@ -77,13 +97,16 @@ public class WebappLoader extends LifecycleBase implements Loader {
 
 	@Override
 	protected void initInternal() throws Exception {
+		
 		classLoader = new WebappClassLoader(WebappClassLoader.class.getClassLoader(), context.getPath());
+		jspClassLoader = new JspClassLoader(classLoader, ServerConstant.getConstant().getJspWorkPath(context));
+		
 		resourceLoad(context.getPath());
+		
 	}
 
 	@Override
 	protected void startInternal() throws Exception {
-		// TODO Auto-generated method stub
 
 	}
 
@@ -108,8 +131,8 @@ public class WebappLoader extends LifecycleBase implements Loader {
 			if (files.length == 0) {
 				return;
 			} else {
-				
 				for (File file2 : files) {
+					
 					if (file2.isDirectory()) {
 						if(file2.getName().equals("WEB-INF")) {
 							loadWebXml();
@@ -124,15 +147,25 @@ public class WebappLoader extends LifecycleBase implements Loader {
 							return;
 						
 						String fileName = file2.getName();
-						if(!(fileName.endsWith("class") || fileName.endsWith("jsp"))) {
-							context.addChildContainer(StandardWrapper.getDefaultWrapper(context, file2, b));
-						}
 						
+						if(!(fileName.endsWith(".class") || fileName.endsWith(".jsp"))) {
+							context.addChildContainer(StandardWrapper.getDefaultWrapper(context, file2, b));
+						} else if(fileName.endsWith(".jsp")) {
+							context.addChildContainer(StandardWrapper.getJspWrapper(context, fileName, file2));
+						}
 					}
 				}
-				
 			}
 		}
+		
+		//编译该web应用下所有的jsp文件
+		File jspWork = ServerConstant.getConstant().getJspWorkPath(context);
+		
+		JspC jspc = new JspC();
+		jspc.setUriroot(context.getPath().getAbsolutePath());
+		jspc.setOutputDir(jspWork.getAbsolutePath());
+		jspc.setCompile(true);
+		jspc.execute();
 	}
 	
 	/**
@@ -147,6 +180,7 @@ public class WebappLoader extends LifecycleBase implements Loader {
 			
 			byte[] b = new byte[(int) file.length()];
 			fis.read(b);
+			
 			return b;
 			
 		} catch (FileNotFoundException e) {
@@ -154,6 +188,7 @@ public class WebappLoader extends LifecycleBase implements Loader {
 		} catch (IOException e) {
 			log.error("无法读入资源文件：" + file.getAbsolutePath() , e);
 		}
+		
 		return null;
 	}
 	
@@ -177,10 +212,11 @@ public class WebappLoader extends LifecycleBase implements Loader {
 			return false;
 		}
 		
+		/*
 		Element displayRoot = root.element("display-name");
 		if(displayRoot != null){
 			String displayName = displayRoot.getStringValue();
-		}
+		}*/
 		
 		for(Element contextParam : root.elements("context-param")) {
 			

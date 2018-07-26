@@ -38,6 +38,11 @@ public class ApplicationRequestDispatcher implements RequestDispatcher {
 	@Override
 	public void forward(ServletRequest req, ServletResponse res) throws ServletException, IOException {
 		 
+		if(request == null) {
+			req.getRequestDispatcher(uri).forward(req, res);
+			return;
+		}
+			
 		HttpServletResponse response = (HttpServletResponse) res;
 		
 		

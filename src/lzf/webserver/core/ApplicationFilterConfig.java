@@ -39,9 +39,11 @@ public class ApplicationFilterConfig implements FilterConfig {
 	private String filterClass;
 	
 	private String[] urlPatterns = new String[0];
+	
+	ApplicationFilterRegistration filterRegistration = new ApplicationFilterRegistration(this);
 
 	// 保存初始化参数的Map
-	private final Map<String, String> parameters = new LinkedHashMap<>();
+	final Map<String, String> parameters = new LinkedHashMap<>();
 
 	ApplicationFilterConfig(Context context, String filterName, String filterClass) {
 		this.context = context;

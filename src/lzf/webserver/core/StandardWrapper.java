@@ -1,6 +1,7 @@
 package lzf.webserver.core;
 
 import java.io.File;
+import java.util.List;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
@@ -36,9 +37,6 @@ public class StandardWrapper extends ContainerBase<Context, Void> implements Wra
 	
 	//与这个Wrapper容器关联的文件路径(可选)
 	private File path = null;
-	
-	//URI路径
-	private String uriPath = null;
 	
 	StandardWrapper(Context context) {
 		super();
@@ -92,11 +90,13 @@ public class StandardWrapper extends ContainerBase<Context, Void> implements Wra
 	 */
 	@Override
 	public String getServletClass() {
+		
 		if(servletConfig.servletClass == null) {
 			if(servlet != null)
 				return servlet.getClass().getName();
 			return null;
 		}
+		
 		return servletConfig.servletClass;
 	}
 
@@ -115,11 +115,14 @@ public class StandardWrapper extends ContainerBase<Context, Void> implements Wra
 	 */
 	@Override
 	public boolean isUnavailable() {
+		
 		if(availableTime == 0)
 			return false;
+		
 		long time = System.currentTimeMillis();
 		if(time < availableTime)
 			return true;
+		
 		return false;
 	}
 
@@ -148,11 +151,14 @@ public class StandardWrapper extends ContainerBase<Context, Void> implements Wra
 	 */
 	@Override
 	public String[] getInitParameters() {
+		
 		String[] parameters = new String[servletConfig.parameterMap.size()];
+		
 		int i = 0;
 		for(String parameter : servletConfig.parameterMap.keySet()) {
 			parameters[i++] = parameter;
 		}
+		
 		return parameters;
 	}
 
@@ -172,14 +178,17 @@ public class StandardWrapper extends ContainerBase<Context, Void> implements Wra
 	 */
 	@Override
 	public Servlet allocate() throws ServletException {
+		
 		if(servlet == null)
 			return null;
+		
 		try {
 			return servlet.getClass().newInstance();
 		} catch (InstantiationException | IllegalAccessException e) {
 			e.printStackTrace();
 			return null;
 		}
+		
 	}
 
 	/*
@@ -262,16 +271,16 @@ public class StandardWrapper extends ContainerBase<Context, Void> implements Wra
 	 * @return 在URI上映射的路径
 	 */
 	@Override
-	public String getURIPath() {
-		return uriPath;
+	public List<String> getURIPatterns() {
+		return servletConfig.urlPatterns;
 	}
 	
 	/**
 	 * @param uri 在URI上映射的路径
 	 */
 	@Override
-	public void setURIPath(String uri) {
-		this.uriPath = uri;
+	public void addURIPattern(String... uri) {
+		servletConfig.addUrlPatern(uri);
 	}
 	
 	/**
@@ -324,6 +333,8 @@ public class StandardWrapper extends ContainerBase<Context, Void> implements Wra
 		wrapper.setServlet(new DefaultServlet(path, b));
 		wrapper.setPath(path);
 		
+		wrapper.setName(path.getName());
+		
 		//该wrapper存放的路径，格式:webapps/ROOT/index.html
 		String p = path.getPath().replaceAll("\\\\", "/");
 		
@@ -333,15 +344,15 @@ public class StandardWrapper extends ContainerBase<Context, Void> implements Wra
 			String contextPath = context.getPath().getPath().replaceAll("\\\\", "/");
 			
 			//将该Wrapper的URI设置为/index.html
-			wrapper.setURIPath(p.replaceAll(contextPath, ""));
+			wrapper.addURIPattern(p.replaceAll(contextPath, ""));
 
 		} else {
 			
 			//所有存放web应用的主目录，格式:webapps
-			String webappBaseFolder = ((Host)(context.getParentContainer())).getWebappBaseFolder().getPath();
+			String webappBaseFolder = context.getParentContainer().getWebappBaseFolder().getPath();
 			
 			//将该Wrapper的URI设置为/index.html
-			wrapper.setURIPath(p.replaceAll(webappBaseFolder, ""));
+			wrapper.addURIPattern(p.replaceAll(webappBaseFolder, ""));
 		}
 		
 		wrapper.servletConfig.servletName = "Default";
@@ -353,14 +364,14 @@ public class StandardWrapper extends ContainerBase<Context, Void> implements Wra
 	
 	/**
 	 * 根据web.xml配置中的servlet生成对应的Wrapper容器
-	 * @param context Context容器
+	 * @param context 所属的Context容器
 	 * @param servletName Servlet名称，对应web.xml中的servlet-name
 	 * @param servletClass Servlet类名，对应web.xml中的servlet-class
-	 * @param uriPath URI映射，对应url-pattern
+	 * @param uriPattern URI映射规则，对应url-pattern
 	 * @return 配置好的Wrapper
 	 */
 	public static Wrapper getDynamicWrapper(Context context, String servletName, 
-			String servletClass, String uriPath) {
+			String servletClass, String uriPattern) {
 		
 		StandardWrapper wrapper = new StandardWrapper(context);
 		
@@ -368,6 +379,11 @@ public class StandardWrapper extends ContainerBase<Context, Void> implements Wra
 		wrapper.servletConfig.servletClass = servletClass;
 		wrapper.servletConfig.servletType = ApplicationServletConfig.SERVLET;
 		
+		wrapper.setName(servletName);
+		
+		wrapper.addURIPattern(uriPattern);
+		
+		/*
 		if(context.getName().equals("ROOT")) {
 			
 			wrapper.uriPath = uriPath;
@@ -380,8 +396,48 @@ public class StandardWrapper extends ContainerBase<Context, Void> implements Wra
 				wrapper.uriPath = "/" + context.getName() + "/" + uriPath;
 		}
 		
-		wrapper.uriPath = uriPath;
+		wrapper.uriPath = uriPath;*/
 		
 		return wrapper;
+	}
+	
+	/**
+	 * 获取一个保存JSP资源的Wrapper
+	 * @param context 所属的Context容器
+	 * @param jspFileName JSP文件名
+	 * @param uri JSP文件URI
+	 * @return 配置好的Wrapper
+	 */
+	public static Wrapper getJspWrapper(Context context, File path) {
+		
+		StandardWrapper wrapper = new StandardWrapper(context);
+		
+		wrapper.servletConfig.servletName = path.getName();
+		
+		wrapper.servletConfig.servletType = ApplicationServletConfig.JSP;
+		
+		wrapper.setName(path.getName());
+		
+		//该wrapper存放的路径，格式:webapps/ROOT/index.html
+		String p = path.getPath().replaceAll("\\\\", "/");
+				
+		if(context.getName().equals("ROOT")) {
+					
+			//该web应用主目录，格式:webapps/ROOT
+			String contextPath = context.getPath().getPath().replaceAll("\\\\", "/");
+					
+			//将该Wrapper的URI设置为/index.html
+			wrapper.addURIPattern(p.replaceAll(contextPath, ""));
+
+		} else {
+					
+			//所有存放web应用的主目录，格式:webapps
+			String webappBaseFolder = context.getParentContainer().getWebappBaseFolder().getPath();
+					
+			//将该Wrapper的URI设置为/index.html
+			wrapper.addURIPattern(p.replaceAll(webappBaseFolder, ""));
+		}
+		
+		return null;
 	}
 }

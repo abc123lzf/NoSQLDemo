@@ -8,6 +8,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.EventListener;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -119,13 +120,11 @@ public class ApplicationServletContext implements ServletContext {
 
 	@Override
 	public RequestDispatcher getRequestDispatcher(String path) {
-		// TODO Auto-generated method stub
-		return null;
+		return new ApplicationRequestDispatcher(context, path, null);
 	}
 
 	@Override
 	public RequestDispatcher getNamedDispatcher(String name) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -281,16 +280,26 @@ public class ApplicationServletContext implements ServletContext {
 		
 	}
 
+	/**
+	 * @return ServletRegistration µœ÷¿‡
+	 */
 	@Override
 	public ServletRegistration getServletRegistration(String servletName) {
-		// TODO Auto-generated method stub
-		return null;
+		return ((StandardWrapper)context.getChildContainer(servletName)).servletRegistration;
 	}
 
 	@Override
 	public Map<String, ? extends ServletRegistration> getServletRegistrations() {
-		// TODO Auto-generated method stub
-		return null;
+		
+		Map<String, ServletRegistration> map = new HashMap<>();
+		
+		for(Wrapper wrapper : context.getChildContainers()) {
+			
+			ServletRegistration servletRegistration = ((StandardWrapper)wrapper).servletRegistration;
+			map.put(servletRegistration.getName(), servletRegistration);
+		}
+		
+		return map;
 	}
 
 	@Override

@@ -1,5 +1,6 @@
 package lzf.webserver.util;
 
+import java.text.MessageFormat;
 import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -28,12 +29,29 @@ public class StringManager {
 		return bundle.getString(key);
 	}
 	
-	public static StringManager getManager(Class<?> clazz) {
-		Package p = clazz.getPackage();
-		if(!map.containsKey(p)) {
-			StringManager sm = new StringManager(p);
-			return sm;
+	public String getString(final String key, final Object... args) {
+		
+		String value = getString(key);
+		
+		if(value == null) {
+			value = key;
 		}
-		return map.get(p);
+		
+		MessageFormat mf = new MessageFormat(value);
+		mf.setLocale(locale);
+		
+		return mf.format(args, new StringBuffer(), null).toString();
+	}
+	
+	public static StringManager getManager(Class<?> clazz) {
+		synchronized(map) {
+			Package p = clazz.getPackage();
+			if(!map.containsKey(p)) {
+				StringManager sm = new StringManager(p);
+				map.put(p, sm);
+				return sm;
+			}
+			return map.get(p);
+		}
 	}
 }

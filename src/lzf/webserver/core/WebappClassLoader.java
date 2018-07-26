@@ -8,9 +8,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -34,7 +34,7 @@ public class WebappClassLoader extends ClassLoader {
 	private final String classes;
 
 	//存储键为jar包里面的class类名，值为class文件数据的Map
-	private final Map<String, byte[]> map = new HashMap<>(64);
+	private final Map<String, byte[]> map = new ConcurrentHashMap<>(64);
 
 	//之前有没有调用过startRead()方法
 	private volatile boolean isLoad = false;
@@ -43,7 +43,7 @@ public class WebappClassLoader extends ClassLoader {
 	 * @param parent 父类加载器，一般为系统类加载器
 	 * @param webappFolder webapp主目录
 	 */
-	public WebappClassLoader(ClassLoader parent, File webappFolder) {
+	WebappClassLoader(ClassLoader parent, File webappFolder) {
 		super(parent);
 		this.classes = webappFolder.getAbsolutePath() + File.separator + "WEB-INF" + File.separator + "classes";
 		this.lib = webappFolder.getAbsolutePath() + File.separator + "WEB-INF" + File.separator + "lib";
@@ -80,7 +80,7 @@ public class WebappClassLoader extends ClassLoader {
 			isLoad = true;
 		}
 		
-		System.out.println(name);
+		//System.out.println(name);
 		try {
 			byte[] result = getClassFromFileOrMap(name);
 			if (result == null) {
@@ -91,6 +91,7 @@ public class WebappClassLoader extends ClassLoader {
 		} catch (Exception e) {
 			log.error("", e);
 		}
+		
 		return null;
 	}
 
@@ -183,7 +184,7 @@ public class WebappClassLoader extends ClassLoader {
 
 			if (name.endsWith(".class")) {
 
-				String klass = name.replace(".class", "").replaceAll("/", ".");
+				String klass = name.replace(".class", "").replace("/", ".");
 
 				if (this.findLoadedClass(klass) != null)
 					continue;

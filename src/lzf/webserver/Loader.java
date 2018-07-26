@@ -14,6 +14,11 @@ public interface Loader {
 	public ClassLoader getClassLoader();
 	
 	/**
+	 * @return 该web应用的JSP类加载器
+	 */
+	public ClassLoader getJspClassLoader();
+	
+	/**
 	 * @return 加载器对应的Context容器
 	 */
 	public Context getContext();

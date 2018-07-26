@@ -1,6 +1,7 @@
 package lzf.webserver;
 
 import java.io.File;
+import java.util.List;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
@@ -118,12 +119,12 @@ public interface Wrapper extends Container<Context, Void> {
 	/**
 	 * @return 在URI上映射的路径
 	 */
-	public String getURIPath();
+	public List<String> getURIPatterns();
 	
 	/**
 	 * @param uri 在URI上映射的路径
 	 */
-	public void setURIPath(String uri);
+	public void addURIPattern(String... uri);
 	
 	/**
 	 * @return 这个Wrapper容器对应资源的存放路径

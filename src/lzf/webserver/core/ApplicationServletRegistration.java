@@ -6,7 +6,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.servlet.MultipartConfigElement;
 import javax.servlet.ServletRegistration;
+import javax.servlet.ServletSecurityElement;
 
 /**
 * @author 李子帆
@@ -14,7 +16,7 @@ import javax.servlet.ServletRegistration;
 * @date 2018年7月24日 下午10:42:35
 * @Description 类说明
 */
-public class ApplicationServletRegistration implements ServletRegistration {
+public class ApplicationServletRegistration implements ServletRegistration.Dynamic {
 	
 	private final StandardWrapper wrapper;
 	
@@ -118,6 +120,7 @@ public class ApplicationServletRegistration implements ServletRegistration {
 		
 		if(set.isEmpty())
 			return null;
+		
 		return set;
 	}
 
@@ -128,6 +131,34 @@ public class ApplicationServletRegistration implements ServletRegistration {
 
 	@Override
 	public String getRunAsRole() {
+		return null;
+	}
+
+	@Override
+	public void setAsyncSupported(boolean isAsyncSupported) {
+		
+	}
+
+	@Override
+	public void setLoadOnStartup(int loadOnStartup) {
+		
+	}
+
+	@Override
+	public void setMultipartConfig(MultipartConfigElement multipartConfig) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setRunAsRole(String roleName) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public Set<String> setServletSecurity(ServletSecurityElement constraint) {
+		// TODO Auto-generated method stub
 		return null;
 	}
 

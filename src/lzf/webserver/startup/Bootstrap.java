@@ -26,12 +26,6 @@ import lzf.webserver.util.XMLUtil;
 public final class Bootstrap {
 
 	private static final Log log = LogFactory.getLog(Bootstrap.class);
-	// 主运行目录
-	public static final File MAIN_PATH = new File(System.getProperty("user.dir"));
-	// 配置文件目录
-	public static final File CONF_PATH = new File(MAIN_PATH.getPath() + File.separator + "conf");
-	// 日志文件目录
-	public static final File LOG_PATH = new File(MAIN_PATH.getPath() + File.separator + "log");
 
 	@SuppressWarnings("unused")
 	private static Bootstrap bootstrap;
@@ -49,7 +43,7 @@ public final class Bootstrap {
 		Element serverRoot;
 
 		try {
-			serverRoot = XMLUtil.getXMLRoot(new File(CONF_PATH.getPath() + File.separator + "server.xml"));
+			serverRoot = XMLUtil.getXMLRoot(ServerConstant.getConstant().getServerXml());
 		} catch (DocumentException e) {
 			log.error("server.xml error", e);
 			return null;
@@ -149,6 +143,7 @@ public final class Bootstrap {
 
 			server.addService(service);
 		}
+		
 		return server;
 	}
 

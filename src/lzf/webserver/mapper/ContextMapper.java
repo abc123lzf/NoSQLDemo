@@ -1,5 +1,7 @@
 package lzf.webserver.mapper;
 
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -16,8 +18,13 @@ public final class ContextMapper {
 
 	private final Context context;
 	
-	//键存储URI路径信息，比如"blog/my.html"
+	//键存储URI路径信息，比如"blog/my.html"，该map用于匹配精准URL路径
 	private final Map<String, MappedWrapper> mapper = new ConcurrentHashMap<>();
+	
+	//键存储URI匹配规则，用于模糊匹配查询，比如url-pattern中参数为/demo/*.jsp
+	private final Map<String, MappedWrapper> patternMapper = new LinkedHashMap<>();
+	
+	private Boolean rootApp = null;
 	
 	public ContextMapper(Context context) {
 		this.context = context;
@@ -32,8 +39,10 @@ public final class ContextMapper {
 	 * @return 对应的Wrapper容器，如果没有找到则返回null
 	 */
 	public Wrapper getWrapper(String uri) {
+		
+		checkRootApp();
 
-		if(context.getName().equals("ROOT")) {
+		if(rootApp) {
 			MappedWrapper mw = null;
 			
 			if(uri.equals("/")) {
@@ -42,8 +51,15 @@ public final class ContextMapper {
 				mw = mapper.get(uri);
 			}
 			
-			if(mw == null)
+			if(mw == null) {
+				
+				for(Map.Entry<String, MappedWrapper> pattern : patternMapper.entrySet()) {
+					if(uri.matches(pattern.getKey()))
+						return pattern.getValue().object;
+				}
 				return null;
+			}
+			
 			return mw.object;
 		}
 		
@@ -85,13 +101,39 @@ public final class ContextMapper {
 	 */
 	void addWrapper(Wrapper wrapper) {
 		
-		String uri = wrapper.getURIPath();
-		System.out.println(uri);
+		checkRootApp();
 		
-		if(uri == null)
+		List<String> uriPatterns = wrapper.getURIPatterns();
+		
+		System.out.println(uriPatterns);
+		
+		if(uriPatterns == null || uriPatterns.isEmpty())
 			throw new UnsupportedOperationException("The wrapper's URI path is empty");
 		
-		mapper.put(uri, new MappedWrapper(uri, wrapper));
+		if(rootApp) {
+		
+			for(String uriPattern : uriPatterns) {
+				
+				//检查URL是否包含通配符
+				if(uriPattern.indexOf('*') == -1)
+					mapper.put(uriPattern, new MappedWrapper(uriPattern, wrapper));
+				else
+					patternMapper.put(uriPattern, new MappedWrapper(uriPattern, wrapper));
+				
+			}
+			
+		} else {
+			
+			for(String uriPattern : uriPatterns) {
+				
+				String uri = "/" + context.getName() + uriPattern;
+				
+				if(uriPattern.indexOf('*') == -1)
+					mapper.put(uri, new MappedWrapper(uri, wrapper));
+				else
+					patternMapper.put(uri , new MappedWrapper(uri, wrapper));
+			}
+		}
 	}
 	
 	/**
@@ -99,10 +141,33 @@ public final class ContextMapper {
 	 * @param wrapper Wrapper对象
 	 */
 	void removeMapper(Wrapper wrapper) {
-		String uri = wrapper.getURIPath();
-		if(uri == null)
+		
+		List<String> uriPatterns = wrapper.getURIPatterns();
+		
+		if(uriPatterns == null || uriPatterns.isEmpty())
 			return;
-		mapper.remove(uri);
+		
+		String prefix = "";
+		
+		if(!rootApp) {
+			prefix = "/" + context.getName();
+		}
+		
+		for(String uriPattern : uriPatterns) {
+			mapper.remove(prefix + uriPattern);
+			patternMapper.remove(prefix + uriPattern);
+		}
+		
+	}
+	
+	private void checkRootApp() {
+		
+		if(rootApp == null) {
+			if(context.getName().equals("ROOT"))
+				rootApp = true;
+			else
+				rootApp = false;
+		}
 	}
 }
 
