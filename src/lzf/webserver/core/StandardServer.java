@@ -42,8 +42,10 @@ public class StandardServer extends LifecycleBase implements Server {
 	
 	//服务器程序用户路径
 	private final File mainPath = new File((String) System.getProperties().get("user.dir"));
+	
 	//保存Service组件容器
 	private final List<Service> services = new CopyOnWriteArrayList<>();
+	
 	//关闭服务器指令监听线程
 	private ShutdownListener shutdownListener;
 	

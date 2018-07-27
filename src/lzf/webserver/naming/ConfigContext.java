@@ -17,16 +17,21 @@ import javax.naming.NamingException;
 * @Description JNDI上下文选择器，用于选择不同线程、不同类加载器绑定的对应上下文，
 * 	以区分不同应用程序的上下文，提供隔离机制
 */
-public class SelectorContext implements Context {
+public class ConfigContext implements Context {
+	
+	protected static final String prefix = "java:";
 	
 	private Hashtable<String, Object> env;
 	
-	public SelectorContext(Hashtable<String, Object> env) {
+	public ConfigContext(Hashtable<String, Object> env) {
 		this.env = env;
 	}
 
 	@Override
 	public Object lookup(Name name) throws NamingException {
+		
+		
+		
 		return null;
 	}
 
@@ -43,8 +48,7 @@ public class SelectorContext implements Context {
 
 	@Override
 	public void bind(String name, Object obj) throws NamingException {
-		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override

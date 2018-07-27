@@ -7,6 +7,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import lzf.webserver.Context;
 import lzf.webserver.Wrapper;
+import lzf.webserver.util.StringManager;
 
 /**
 * @author 李子帆
@@ -16,6 +17,8 @@ import lzf.webserver.Wrapper;
 */
 public final class ContextMapper {
 
+	private static final StringManager sm = StringManager.getManager(ContextMapper.class);
+	
 	private final Context context;
 	
 	//键存储URI路径信息，比如"blog/my.html"，该map用于匹配精准URL路径
@@ -167,12 +170,12 @@ public final class ContextMapper {
 		List<String> uriPatterns = wrapper.getURIPatterns();
 		
 		if(uriPatterns == null || uriPatterns.isEmpty())
-			throw new UnsupportedOperationException("The wrapper's URI path is empty");
+			throw new UnsupportedOperationException(sm.getString("ContextMapper.addWrapper.e0", wrapper.getName()));
 		
 		if(rootApp) {
 		
 			for(String uriPattern : uriPatterns) {
-				System.out.println(uriPattern);
+				//System.out.println(uriPattern);
 				//检查URL是否包含通配符
 				if(uriPattern.indexOf('*') == -1)
 					mapper.put(uriPattern, new MappedWrapper(uriPattern, wrapper));

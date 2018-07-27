@@ -7,6 +7,7 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author 李子帆
@@ -22,6 +23,7 @@ public class ApplicationFilterChain implements FilterChain {
 	
 	//当前FilterConfig的数量
 	private int n = 0;
+	
 	
 	/**
 	 * 线程私有变量，表示当前线程所访问的Filters数组下标
@@ -43,10 +45,28 @@ public class ApplicationFilterChain implements FilterChain {
 		if(pos.get() < n) {
 			
 			ApplicationFilterConfig filterConfig = filters[pos.get()];
-			Filter filter = filterConfig.getFilter();
-			
 			pos.set(pos.get() + 1);
-			filter.doFilter(request, response, this);
+			
+			Filter filter = filterConfig.getFilter();
+			String uri = ((HttpServletRequest)request).getRequestURI();
+			
+			//System.out.println(uri + " LLLLLLLLLLL" + filterConfig.getUrlPatterns()[0]);
+			
+			for(String pattern : filterConfig.getUrlPatterns()) {
+				
+				if(pattern.indexOf('*') == -1) {
+					if(uri.equals(pattern)) {
+						filter.doFilter(request, response, this);
+						break;
+					}
+						
+				} else {
+					if(uri.matches(pattern.replace("*", ".*?"))) {
+						filter.doFilter(request, response, this);
+						break;
+					}
+				}
+			}
 		}
 		
 		pos.set(0);

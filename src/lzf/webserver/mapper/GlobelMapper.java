@@ -8,6 +8,7 @@ import lzf.webserver.Host;
 import lzf.webserver.Service;
 import lzf.webserver.log.Log;
 import lzf.webserver.log.LogFactory;
+import lzf.webserver.util.StringManager;
 
 /**
 * @author 李子帆
@@ -17,6 +18,8 @@ import lzf.webserver.log.LogFactory;
 * 以下添加容器的方法中必须通过Mapped监听器完成
 */
 public final class GlobelMapper {
+	
+	private static final StringManager sm = StringManager.getManager(GlobelMapper.class);
 	
 	private static final Log log = LogFactory.getLog(GlobelMapper.class);
 
@@ -153,7 +156,7 @@ public final class GlobelMapper {
 		MappedHost mappedHost = getMappedHost(host.getName());
 		
 		if(mappedHost == null) {
-			log.error("MappedHost 映射丢失?");
+			log.error(sm.getString("GlobelMapper.addContext.e0", host.getName()));
 			return;
 		}
 		

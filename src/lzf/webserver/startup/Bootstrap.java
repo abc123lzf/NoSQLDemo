@@ -15,6 +15,7 @@ import lzf.webserver.core.StandardServer;
 import lzf.webserver.core.StandardService;
 import lzf.webserver.log.Log;
 import lzf.webserver.log.LogFactory;
+import lzf.webserver.util.StringManager;
 import lzf.webserver.util.XMLUtil;
 
 /**
@@ -25,17 +26,26 @@ import lzf.webserver.util.XMLUtil;
  */
 public final class Bootstrap {
 
+	private static final StringManager sm = StringManager.getManager(Bootstrap.class);
+	
 	private static final Log log = LogFactory.getLog(Bootstrap.class);
 
 	@SuppressWarnings("unused")
 	private static Bootstrap bootstrap;
 
 	public void boot() throws Exception {
-		log.info("服务器启动开始...");
+		
+		log.info(sm.getString("Bootstrap.boot.i0"));
+		
+		long st = System.currentTimeMillis();
 
 		Server server = loadServerXml();
 		server.init();
 		server.start();
+		
+		long ed = System.currentTimeMillis();
+		
+		log.info(sm.getString("Bootstrap.boot.i1", ed - st));
 	}
 
 	private Server loadServerXml() throws NumberFormatException, LifecycleException {
@@ -45,7 +55,7 @@ public final class Bootstrap {
 		try {
 			serverRoot = XMLUtil.getXMLRoot(ServerConstant.getConstant().getServerXml());
 		} catch (DocumentException e) {
-			log.error("server.xml error", e);
+			log.error(sm.getString("Bootstrap.loadServerXml.e0"), e);
 			return null;
 		}
 

@@ -13,6 +13,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpHeaders;
 import lzf.webserver.util.DefaultServletInputStream;
+import lzf.webserver.util.StringManager;
 
 /**
 * @author 李子帆
@@ -21,6 +22,8 @@ import lzf.webserver.util.DefaultServletInputStream;
 * @Description 
 */
 public final class NettyRequest extends Request {
+	
+	private static final StringManager sm = StringManager.getManager(NettyRequest.class);
 
 	private final ChannelHandlerContext ctx;
 	
@@ -56,13 +59,13 @@ public final class NettyRequest extends Request {
 		//获取请求头
 		List<Map.Entry<String, String>> list = header.entries();
 		
-		System.out.println(method);
+		//System.out.println(method);
 		System.out.println(requestUrl);
-		System.out.println(protocol);
+		//System.out.println(protocol);
 		
 		for(Map.Entry<String, String> entry : list) {
 			super.putHeader(entry.getKey(), entry.getValue());
-			System.out.println(entry.getKey() + ": " + entry.getValue());
+			//System.out.println(entry.getKey() + ": " + entry.getValue());
 		}
 		
 		byte[] content = new byte[contentBuf.capacity()];
@@ -95,7 +98,7 @@ public final class NettyRequest extends Request {
 	 */
 	static Request newRequest(FullHttpRequest request, ChannelHandlerContext ctx) {
 		if(request == null || ctx == null)
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException(sm.getString("NettyRequest.newRequest.e0"));
 		
 		NettyRequest req = new NettyRequest(request, ctx);
 		req.decode();

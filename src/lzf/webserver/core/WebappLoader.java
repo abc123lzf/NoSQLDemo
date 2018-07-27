@@ -86,7 +86,7 @@ public final class WebappLoader extends LifecycleBase implements Loader {
 			return;
 
 		if (getLifecycleState().isAvailable()) {
-			throw new LifecycleException("The webAppLoader is running");
+			throw new LifecycleException(sm.getString("WebappLoader.setContext.e0", context.getName()));
 		}
 
 		synchronized (this) {

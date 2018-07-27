@@ -1,5 +1,6 @@
 package lzf.webserver.core;
 
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -13,6 +14,7 @@ import lzf.webserver.Context;
 import lzf.webserver.log.Log;
 import lzf.webserver.log.LogFactory;
 import lzf.webserver.util.IteratorEnumeration;
+import lzf.webserver.util.StringManager;
 
 /**
  * @author 李子帆
@@ -24,6 +26,8 @@ import lzf.webserver.util.IteratorEnumeration;
  */
 public class ApplicationFilterConfig implements FilterConfig {
 
+	private static final StringManager sm = StringManager.getManager(ApplicationFilterConfig.class);
+	
 	private static final Log log = LogFactory.getLog(ApplicationFilterConfig.class);
 
 	// 所属的Context容器
@@ -130,12 +134,13 @@ public class ApplicationFilterConfig implements FilterConfig {
 				return filter;
 			}
 		} catch (InstantiationException e) {
-			log.error("Filter:" + filterClass + " 无法实例化", e);
+			log.error(sm.getString("ApplicationFilterConfig.getFilter.e0", filterClass), e);
 		} catch (IllegalAccessException e) {
-			log.error("Filter:" + filterClass + " 的构造方法不是public", e);
+			log.error(sm.getString("ApplicationFilterConfig.getFilter.e1", filterClass), e);
 		} catch (ClassNotFoundException e) {
-			log.error("Filter:" + filterClass + "未找到", e);
+			log.error(sm.getString("ApplicationFilterConfig.getFilter.e2", filterClass), e);
 		}
+		
 		return null;
 	}
 
@@ -162,14 +167,11 @@ public class ApplicationFilterConfig implements FilterConfig {
 	 */
 	void addUrlPattern(String urlPattern) {
 		
-		String[] array = new String[urlPatterns.length + 1];
+		String[] array = Arrays.copyOf(urlPatterns, urlPatterns.length + 1);
 		
-		int i = 0;
-		for(String pattern : urlPatterns) {
-			array[i++] = pattern;
-		}
+		array[array.length - 1] = urlPattern;
 		
-		array[i] = urlPattern;
+		urlPatterns = array;
 	}
 	
 }

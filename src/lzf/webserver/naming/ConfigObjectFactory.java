@@ -12,7 +12,9 @@ import javax.naming.spi.ObjectFactory;
  * @date 2018年7月12日 上午10:40:10
  * @Description JNDI上下文工厂类
  */
-public class URLContextFactory implements ObjectFactory {
+public class ConfigObjectFactory implements ObjectFactory {
+	
+	
 
 	@Override
 	public Object getObjectInstance(Object obj, Name name, Context nameCtx, Hashtable<?, ?> environment)
