@@ -6,6 +6,8 @@ import javax.servlet.ServletContext;
 import javax.servlet.SessionCookieConfig;
 import javax.servlet.http.Cookie;
 
+import org.apache.tomcat.util.res.StringManager;
+
 import lzf.webserver.Context;
 import lzf.webserver.Host;
 import lzf.webserver.Wrapper;
@@ -20,6 +22,8 @@ import lzf.webserver.session.HttpSessionManager;
 * @Description 标准Context容器
 */
 public final class StandardContext extends ContainerBase<Host, Wrapper> implements Context {
+	
+	private static final StringManager sm = StringManager.getManager(StandardContext.class);
 	
 	//web应用版本，由web.xml文件设置
 	private String webappVersion = null;
@@ -298,7 +302,7 @@ public final class StandardContext extends ContainerBase<Host, Wrapper> implemen
 	public static Context createContextByFolder(Host host, File path) {
 		
 		if(host == null || path == null)
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException(sm.getString("StandardContext.createContextByFolder.e0"));
 		
 		StandardContext context = new StandardContext(host);
 		//设置该web应用存放的路径

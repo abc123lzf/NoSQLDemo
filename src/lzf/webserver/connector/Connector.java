@@ -1,5 +1,8 @@
 package lzf.webserver.connector;
 
+import org.apache.tomcat.util.res.StringManager;
+
+import lzf.webserver.LifecycleException;
 import lzf.webserver.Service;
 import lzf.webserver.core.LifecycleBase;
 import lzf.webserver.log.Log;
@@ -12,9 +15,11 @@ import lzf.webserver.log.LogFactory;
 */
 public final class Connector extends LifecycleBase {
 	
+	private static final StringManager sm = StringManager.getManager(Connector.class);
+	
 	@SuppressWarnings("unused")
 	private static final Log log = LogFactory.getLog(Connector.class);
-	//
+	
 	public static final int DEFAULT_PORT = 9090;
 	public static final int DEFAULT_TIMEOUT = 3000;
 	public static final int DEFAULT_MAX_CONNECTION = 200; 
@@ -55,7 +60,11 @@ public final class Connector extends LifecycleBase {
 		handler.destory();
 	}
 
-	public void setService(Service service) {
+	public void setService(Service service) throws LifecycleException {
+		
+		if(getLifecycleState().isAvailable())
+			throw new LifecycleException(sm.getString("Connector.e0", "Service"));
+		
 		this.service = service;
 	}
 
@@ -63,7 +72,12 @@ public final class Connector extends LifecycleBase {
 		return port;
 	}
 
-	public void setPort(int port) {
+	public void setPort(int port) throws LifecycleException {
+		
+		if(getLifecycleState().isAvailable()) {
+			throw new LifecycleException(sm.getString("Connector.e0", "port"));
+		}
+		
 		this.port = port;
 	}
 
@@ -71,7 +85,12 @@ public final class Connector extends LifecycleBase {
 		return timeOut;
 	}
 
-	public void setTimeOut(int timeOut) {
+	public void setTimeOut(int timeOut) throws LifecycleException {
+		
+		if(getLifecycleState().isAvailable()) {
+			throw new LifecycleException(sm.getString("Connector.e0", "timeOut"));
+		}
+		
 		this.timeOut = timeOut;
 	}
 
@@ -79,7 +98,12 @@ public final class Connector extends LifecycleBase {
 		return maxConnection;
 	}
 
-	public void setMaxConnection(int maxConnection) {
+	public void setMaxConnection(int maxConnection) throws LifecycleException {
+		
+		if(getLifecycleState().isAvailable()) {
+			throw new LifecycleException(sm.getString("Connector.e0", "maxConnection"));
+		}
+		
 		this.maxConnection = maxConnection;
 	}
 
@@ -87,7 +111,12 @@ public final class Connector extends LifecycleBase {
 		return handler;
 	}
 
-	public void setHandler(Handler handler) {
+	public void setHandler(Handler handler) throws LifecycleException {
+		
+		if(getLifecycleState().isAvailable()) {
+			throw new LifecycleException(sm.getString("Connector.e0", "Handler"));
+		}
+		
 		this.handler = handler;
 	}
 }

@@ -8,6 +8,8 @@ import java.util.concurrent.TimeUnit;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.tomcat.util.res.StringManager;
+
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
@@ -40,6 +42,8 @@ import lzf.webserver.mapper.GlobelMapper;
  * @Description Netty NIO接收器
  */
 public final class NettyHandler extends LifecycleBase implements Handler {
+	
+	private static final StringManager sm = StringManager.getManager(NettyHandler.class);
 	
 	private static final Log log = LogFactory.getLog(NettyHandler.class);
 
@@ -123,11 +127,11 @@ public final class NettyHandler extends LifecycleBase implements Handler {
 				serverChannel = (ServerSocketChannel)future.channel();
 			} else {
 				setLifecycleState(LifecycleState.FAILED);
-				throw new HandlerException("绑定端口失败");
+				throw new HandlerException(sm.getString("NettyHandler.e0"));
 			}
 		} catch (InterruptedException e) {
 			setLifecycleState(LifecycleState.FAILED);
-			throw new HandlerException("绑定端口被打断");
+			throw new HandlerException(sm.getString("NettyHandler.e1"));
 		}
 	}
 	

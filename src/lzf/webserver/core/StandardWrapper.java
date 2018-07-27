@@ -184,7 +184,7 @@ public class StandardWrapper extends ContainerBase<Context, Void> implements Wra
 		try {
 			return servlet.getClass().newInstance();
 		} catch (InstantiationException | IllegalAccessException e) {
-			e.printStackTrace();
+			log.error("", e);
 			return null;
 		}
 		

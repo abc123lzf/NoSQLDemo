@@ -16,6 +16,7 @@ import java.util.jar.JarFile;
 
 import lzf.webserver.log.Log;
 import lzf.webserver.log.LogFactory;
+import lzf.webserver.util.StringManager;
 
 /**
  * @author 李子帆
@@ -24,8 +25,10 @@ import lzf.webserver.log.LogFactory;
  * @Description Web应用类加载器，每个web应用(Context组件)对应一个WebappClassLoader
  */
 public class WebappClassLoader extends ClassLoader {
+	
+	private static final StringManager sm = StringManager.getManager(WebappClassLoader.class);
 
-	public static final Log log = LogFactory.getLog(WebappClassLoader.class);
+	private static final Log log = LogFactory.getLog(WebappClassLoader.class);
 
 	//{web-app}/WEB-INF/lib路径
 	private final String lib;
@@ -37,7 +40,7 @@ public class WebappClassLoader extends ClassLoader {
 	private final Map<String, byte[]> map = new ConcurrentHashMap<>(64);
 
 	//之前有没有调用过startRead()方法
-	private volatile boolean isLoad = false;
+	private boolean isLoad = false;
 	
 	/**
 	 * @param parent 父类加载器，一般为系统类加载器
@@ -45,9 +48,9 @@ public class WebappClassLoader extends ClassLoader {
 	 */
 	WebappClassLoader(ClassLoader parent, File webappFolder) {
 		super(parent);
+		
 		this.classes = webappFolder.getAbsolutePath() + File.separator + "WEB-INF" + File.separator + "classes";
 		this.lib = webappFolder.getAbsolutePath() + File.separator + "WEB-INF" + File.separator + "lib";
-		System.out.println(classes + " " +lib); 
 	}
 	
 	/**
@@ -62,7 +65,7 @@ public class WebappClassLoader extends ClassLoader {
 				jar = new JarFile(f);
 				readJar(jar);
 			} catch (IOException e) {
-				log.error("读取Jar包：" + f.getPath() + "发生异常", e);
+				log.error(sm.getString("WebappClassLoader.startRead.e0", f.getAbsolutePath()), e);
 			}
 		}
 	}
@@ -77,8 +80,12 @@ public class WebappClassLoader extends ClassLoader {
 	public Class<?> findClass(String name) throws ClassNotFoundException {
 		
 		if(!isLoad) {
-			startRead();
-			isLoad = true;
+			synchronized(this) {
+				if(!isLoad) {
+					startRead();
+					isLoad = true;
+				}
+			}
 		}
 
 		byte[] result = getClassFromFileOrMap(name);
@@ -138,7 +145,7 @@ public class WebappClassLoader extends ClassLoader {
 		//如果该web-inf\classes文件夹没有这个类，那么从Jar中的class文件查找
 		} else {
 			if (map.containsKey(name)) {
-				// 去除map中的引用，避免GC无法回收无用的class文件
+				// 去除map中的引用，避免GC无法回收无用的class文件缓存
 				return map.remove(name);
 			}
 		}

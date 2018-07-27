@@ -10,6 +10,7 @@ import lzf.webserver.Server;
 import lzf.webserver.Service;
 import lzf.webserver.connector.Connector;
 import lzf.webserver.mapper.GlobelMapper;
+import lzf.webserver.util.StringManager;
 
 /**
  * @author 李子帆
@@ -18,6 +19,8 @@ import lzf.webserver.mapper.GlobelMapper;
  * @Description 标准Service类
  */
 public class StandardService extends LifecycleBase implements Service {
+	
+	private static final StringManager sm = StringManager.getManager(StandardService.class);
 
 	public static final String DEFAULT_NAME = "service0";
 	//组件名
@@ -86,8 +89,10 @@ public class StandardService extends LifecycleBase implements Service {
 	 */
 	@Override
 	public void setName(String name) throws LifecycleException {
+		
 		if(getLifecycleState().after(LifecycleState.STARTED))
-			throw new LifecycleException("无法设置名称：该组件已启用");
+			throw new LifecycleException(sm.getString("StandardService.setName.e0", name));
+		
 		this.name = name;
 	}
 	
@@ -106,8 +111,9 @@ public class StandardService extends LifecycleBase implements Service {
 	 */
 	@Override
 	public void setServer(Server server) throws LifecycleException {
+		
 		if(getLifecycleState().after(LifecycleState.STARTING_PREP))
-			throw new LifecycleException("无法设置Server名称：该组件已启动");
+			throw new LifecycleException(sm.getString("StandardService.setServer.e0", name));
 		
 		this.server = server;
 	}
@@ -127,7 +133,7 @@ public class StandardService extends LifecycleBase implements Service {
 	@Override
 	public void addConnector(Connector connector) throws LifecycleException {
 		if(getLifecycleState().after(LifecycleState.STARTING_PREP))
-			throw new LifecycleException("无法添加连接器：该组件已启动");
+			throw new LifecycleException(sm.getString("StandardService.addConnector.e0", name));
 		
 		synchronized(connectors) {
 			connectors.add(connector);
@@ -151,7 +157,7 @@ public class StandardService extends LifecycleBase implements Service {
 	@Override
 	public void setEngine(Engine engine) throws LifecycleException {
 		if(getLifecycleState().after(LifecycleState.STARTING_PREP))
-			throw new LifecycleException("无法设置Engine组件：Service已启动");
+			throw new LifecycleException(sm.getString("StandardService.setEnginer.e0", name));
 		
 		this.engine = engine;
 	}

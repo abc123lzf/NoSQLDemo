@@ -3,6 +3,8 @@ package lzf.webserver.core;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.apache.tomcat.util.res.StringManager;
+
 import lzf.webserver.Lifecycle;
 import lzf.webserver.LifecycleEvent;
 import lzf.webserver.LifecycleException;
@@ -18,6 +20,8 @@ import lzf.webserver.log.LogFactory;
 * @Description 类说明
 */
 public abstract class LifecycleBase implements Lifecycle {
+	
+	private static final StringManager sm = StringManager.getManager(LifecycleBase.class);
 
 	private final Log log = LogFactory.getLog(LifecycleBase.class);
 	
@@ -30,10 +34,12 @@ public abstract class LifecycleBase implements Lifecycle {
 	 */
 	@Override
 	public final synchronized void init() throws Exception {
-		if(state.after(LifecycleState.INITIALIZING))
-			throw new LifecycleException("该组件已初始化");
 		
-		log.info(this.getClass().getName() + " init");
+		if(state.after(LifecycleState.INITIALIZING))
+			throw new LifecycleException(sm.getString("LifecycleBase.init.e0"));
+		
+		if(log.isInfoEnabled())
+			log.info(this.getClass().getName() + " init");
 		
 		state = LifecycleState.INITIALIZING;
 		runLifecycleEvent(null);
@@ -51,10 +57,12 @@ public abstract class LifecycleBase implements Lifecycle {
 	 */
 	@Override
 	public final synchronized void start() throws Exception {
-		if(state.after(LifecycleState.STARTING_PREP))
-			throw new LifecycleException("该组件已启用");
 		
-		log.info(this.getClass().getName() + " start");
+		if(state.after(LifecycleState.STARTING_PREP))
+			throw new LifecycleException(sm.getString("LifecycleBase.start.e0"));
+		
+		if(log.isInfoEnabled())
+			log.info(this.getClass().getName() + " start");
 		
 		state = LifecycleState.STARTING_PREP;
 		runLifecycleEvent(null);
@@ -73,8 +81,9 @@ public abstract class LifecycleBase implements Lifecycle {
 	 */
 	@Override
 	public final synchronized void stop() throws Exception {
+		
 		if(state.after(LifecycleState.STOPPING_PREP) || state.before(LifecycleState.INITIALIZED))
-			throw new LifecycleException("该组件已停止");
+			throw new LifecycleException(sm.getString("LifecycleBase.stop.e0"));
 		
 		log.info(this.getClass().getName() + " stop");
 		
@@ -83,6 +92,7 @@ public abstract class LifecycleBase implements Lifecycle {
 		
 		state = LifecycleState.STOPPING;
 		stopInternal();
+		
 		if(state == LifecycleState.FAILED)
 			throw new LifecycleException();
 		
@@ -95,13 +105,15 @@ public abstract class LifecycleBase implements Lifecycle {
 	 */
 	@Override
 	public final synchronized void destory() throws Exception {
+		
 		if(state.after(LifecycleState.DESTORYED))
-			throw new LifecycleException("该组件已销毁");
+			throw new LifecycleException(sm.getString("LifecycleBase.destory.e0"));
 		
 		state = LifecycleState.DESTORYING;
 		runLifecycleEvent(null);
 		
 		destoryInternal();
+		
 		if(state == LifecycleState.FAILED)
 			throw new LifecycleException();
 		
@@ -164,8 +176,10 @@ public abstract class LifecycleBase implements Lifecycle {
 	 * @param listener LifecycleListener实例数组
 	 */
 	public final void addLifecycleListener(LifecycleListener[] listeners) {
+		
 		if(listeners == null || listeners.length == 0)
 			return;
+		
 		synchronized(listeners) {
 			for(int i = 0; i < listeners.length; i++)
 				this.listeners.add(listeners[i]);
@@ -177,8 +191,10 @@ public abstract class LifecycleBase implements Lifecycle {
 	 * @param listener 需要移除的监听器引用
 	 */
 	public final void removeLifecycleListener(LifecycleListener listener) {
+		
 		if(listener == null)
 			return;
+		
 		synchronized(listeners) {
 			listeners.remove(listener);
 		}
@@ -198,7 +214,9 @@ public abstract class LifecycleBase implements Lifecycle {
 	 * @param data 事件数据
 	 */
 	protected final void runLifecycleEvent(String type, Object data) {
+		
 		LifecycleEvent event = new LifecycleEvent(this, type, data);
+		
 		for(LifecycleListener listener : listeners) {
 			listener.lifecycleEvent(event);
 		}

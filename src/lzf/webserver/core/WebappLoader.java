@@ -19,6 +19,7 @@ import lzf.webserver.Loader;
 import lzf.webserver.log.Log;
 import lzf.webserver.log.LogFactory;
 import lzf.webserver.startup.ServerConstant;
+import lzf.webserver.util.StringManager;
 import lzf.webserver.util.XMLUtil;
 
 /**
@@ -29,7 +30,9 @@ import lzf.webserver.util.XMLUtil;
  */
 public final class WebappLoader extends LifecycleBase implements Loader {
 
-	public static final Log log = LogFactory.getLog(WebappLoader.class);
+	private static final StringManager sm = StringManager.getManager(WebappClassLoader.class);
+	
+	private static final Log log = LogFactory.getLog(WebappLoader.class);
 	
 	public static final String DEFAULT_JSP_PACKAGE = "lzf.jasper";
 
@@ -193,9 +196,9 @@ public final class WebappLoader extends LifecycleBase implements Loader {
 			return b;
 			
 		} catch (FileNotFoundException e) {
-			log.error("找不到资源文件：" + file.getAbsolutePath(), e);
+			log.error(sm.getString("WebappLoader.loadFile.e0", file.getAbsolutePath()), e);
 		} catch (IOException e) {
-			log.error("无法读入资源文件：" + file.getAbsolutePath() , e);
+			log.error(sm.getString("WebappLoader.loadFile.e1", file.getAbsolutePath()) , e);
 		}
 		
 		return null;
@@ -217,7 +220,7 @@ public final class WebappLoader extends LifecycleBase implements Loader {
 		try {
 			root = XMLUtil.getXMLRoot(path);
 		} catch (DocumentException e) {
-			log.error("Context: " + context.getName() + " web.xml read error", e);
+			log.error(sm.getString("WebappLoader.loadWebXml.e0", context.getName()), e);
 			return false;
 		}
 		
@@ -264,7 +267,7 @@ public final class WebappLoader extends LifecycleBase implements Loader {
 			if(filterConfig != null) {
 				filterConfig.addUrlPattern(urlPattern);
 			} else {
-				log.warn("filter-mapping配置项中，filter-name：" + filterName + " 的filer配置项未配置");
+				log.warn(sm.getString("WebappLoader.loadWebXml.w0", context.getName(), filterName));
 			}
 		}
 		
@@ -286,7 +289,7 @@ public final class WebappLoader extends LifecycleBase implements Loader {
 				context.addChildContainer(StandardWrapper.getDynamicWrapper(context, servletName
 						, servletMap.get(servletName), uriPattern));
 			} else {
-				log.warn("Can not find servlet name:" + servletName + " in web.xml");
+				log.warn(sm.getString("WebappLoader.loadWebXml.w1", context.getName(), servletName));
 			}
 		}
 		

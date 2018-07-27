@@ -77,6 +77,7 @@ public class StandardHost extends ContainerBase<Engine, Context> implements Host
 		if(appBaseFolder.exists()) {
 			File[] folders = appBaseFolder.listFiles();
 			for(File folder : folders) {
+				
 				if(folder.isDirectory()) {
 					StandardContext context = (StandardContext) StandardContext.createContextByFolder(this, folder);
 					if(context != null)

@@ -6,6 +6,7 @@ import lzf.webserver.LifecycleException;
 import lzf.webserver.LifecycleState;
 import lzf.webserver.Pipeline;
 import lzf.webserver.Valve;
+import lzf.webserver.util.StringManager;
 
 /**
 * @author 李子帆
@@ -14,6 +15,8 @@ import lzf.webserver.Valve;
 * @Description 标准管道实现类
 */
 public final class StandardPipeline extends LifecycleBase implements Pipeline {
+	
+	private static final StringManager sm = StringManager.getManager(StandardPipeline.class);
 	
 	private Container<?, ?> container;
 	
@@ -52,7 +55,7 @@ public final class StandardPipeline extends LifecycleBase implements Pipeline {
 	public void setBasic(Valve valve) throws LifecycleException {
 		
 		if(getLifecycleState().after(LifecycleState.STARTING_PREP))
-			throw new LifecycleException("无法设置基础管道：容器已启用");
+			throw new LifecycleException(sm.getString("StandardPipeline.setBasic.e0", container.getName()));
 			
 		for(Valve v : valves) {
 			if(v == valve)
@@ -77,7 +80,7 @@ public final class StandardPipeline extends LifecycleBase implements Pipeline {
 	public void addValve(Valve valve) throws LifecycleException {
 		
 		if(getLifecycleState().after(LifecycleState.STARTING_PREP))
-			throw new LifecycleException("无法添加管道：容器已启用");
+			throw new LifecycleException(sm.getString("StandardPipeline.addValve.e0", container.getName()));
 		
 		for(Valve v : valves) {
 			if(v == valve)
@@ -111,7 +114,7 @@ public final class StandardPipeline extends LifecycleBase implements Pipeline {
 	public void removeValve(Valve valve) throws LifecycleException {
 		
 		if(getLifecycleState().after(LifecycleState.STARTING_PREP))
-			throw new LifecycleException("无法移除基础管道：容器已启用");
+			throw new LifecycleException(sm.getString("StandardPipeline.removeValve.e0", container.getName()));
 		
 		int index = -1;
 		synchronized(valves) {
@@ -148,7 +151,7 @@ public final class StandardPipeline extends LifecycleBase implements Pipeline {
 	public void setContainer(Container<?, ?> container) throws LifecycleException {
 		
 		if(getLifecycleState().after(LifecycleState.STARTING_PREP))
-			throw new LifecycleException("无法设置这个管道所属的容器：容器已启用");
+			throw new LifecycleException(sm.getString("StandardPipeline.setContainer.e0", container.getName()));
 		
 		this.container = container;
 	}
@@ -167,7 +170,7 @@ public final class StandardPipeline extends LifecycleBase implements Pipeline {
 		//管道在启动前必须已经指定好所属的容器
 		if(container == null) {
 			setLifecycleState(LifecycleState.FAILED);
-			throw new IllegalStateException("该管道没有设置容器");
+			throw new IllegalStateException(sm.getString("StandardPipeline.startInternal.e0"));
 		}
 		
 		for(Valve v : valves) {

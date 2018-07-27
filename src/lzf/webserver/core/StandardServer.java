@@ -11,10 +11,14 @@ import java.net.Socket;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.apache.tomcat.util.res.StringManager;
+
 import lzf.webserver.LifecycleException;
 import lzf.webserver.LifecycleState;
 import lzf.webserver.Server;
 import lzf.webserver.Service;
+import lzf.webserver.log.Log;
+import lzf.webserver.log.LogFactory;
 
 /**
 * @author 李子帆
@@ -24,9 +28,12 @@ import lzf.webserver.Service;
 */
 public class StandardServer extends LifecycleBase implements Server {
 	
+	private static final Log log = LogFactory.getLog(StandardServer.class);
+	
+	private static final StringManager sm = StringManager.getManager(StandardServer.class);
+	
 	public static final int DEFAULT_PORT = 9005;
 	public static final String DEFAULT_SHUTDOWN_CMD = "SHUTDOWN";
-	
 	static final byte[] SHUTDOWN_FAILURE = "Shutdown failure".getBytes();
 	static final byte[] SHUTDOWN_SUCCESS = "Shutdown success".getBytes();
 	
@@ -98,7 +105,7 @@ public class StandardServer extends LifecycleBase implements Server {
 						is.close();
 						client.close();
 					} catch (IOException e) {
-						e.printStackTrace();
+						log.error(sm.getString("StandardServer.ShutdownListener.e0"), e);
 					}
 				}
 			}
@@ -114,7 +121,7 @@ public class StandardServer extends LifecycleBase implements Server {
 			shutdownListener = new ShutdownListener();
 			new Thread(shutdownListener).start();
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.error(sm.getString("StandardServer.initInternal.e0"), e);
 		}
 		
 		for(Service service : services)
@@ -166,8 +173,10 @@ public class StandardServer extends LifecycleBase implements Server {
 	 */
 	@Override
 	public void setPort(int port) throws LifecycleException {
+		
 		if(getLifecycleState().after(LifecycleState.INITIALIZING))
-			throw new LifecycleException("无法设置端口，容器已初始化");
+			throw new LifecycleException(sm.getString("StandardServer.setPort.e0"));
+		
 		this.port = port;
 	}
 	
@@ -206,11 +215,14 @@ public class StandardServer extends LifecycleBase implements Server {
 	 */
 	@Override
 	public void addService(Service service) throws LifecycleException {
+		
 		String name = service.getName();
+		
 		for(Service s : services) {
 			if(s.getName().equals(name))
-				throw new IllegalArgumentException("This service part is exists.");
+				throw new IllegalArgumentException(sm.getString("StandardServer.addService.e0", service.getName()));
 		}
+		
 		synchronized(services) {
 			services.add(service);
 		}
@@ -223,10 +235,12 @@ public class StandardServer extends LifecycleBase implements Server {
 	 */
 	@Override
 	public Service getService(String name) {
+		
 		for(Service service : services) {
 			if(service.getName().equals(name))
 				return service;
 		}
+		
 		return null;
 	}
 

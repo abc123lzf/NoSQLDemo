@@ -1,5 +1,7 @@
 package lzf.webserver.core;
 
+import org.apache.tomcat.util.res.StringManager;
+
 import lzf.webserver.Engine;
 import lzf.webserver.Host;
 import lzf.webserver.LifecycleException;
@@ -14,6 +16,8 @@ import lzf.webserver.mapper.GlobelMappedListener;
 */
 public class StandardEngine extends ContainerBase<Void, Host> implements Engine {
 	
+	private static final StringManager sm = StringManager.getManager(StandardEngine.class);
+	
 	private Service service = null;
 	
 	public StandardEngine(Service service) {
@@ -24,8 +28,10 @@ public class StandardEngine extends ContainerBase<Void, Host> implements Engine 
 
 	@Override
 	public void setService(Service service) throws LifecycleException {
+		
 		if(getLifecycleState().isAvailable())
-			throw new LifecycleException("Engine is running");
+			throw new LifecycleException(sm.getString("StandardEngine.setService.e0", getName()));
+		
 		this.service = service;
 	}
 
