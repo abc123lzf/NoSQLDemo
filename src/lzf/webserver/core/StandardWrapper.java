@@ -2,6 +2,7 @@ package lzf.webserver.core;
 
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
@@ -377,16 +378,21 @@ public class StandardWrapper extends ContainerBase<Context, Void> implements Wra
 	 * @param servletName Servlet名称，对应web.xml中的servlet-name
 	 * @param servletClass Servlet类名，对应web.xml中的servlet-class
 	 * @param uriPattern URI映射规则，对应url-pattern
+	 * @param initParams web.xml文件中的初始化参数对，如果没有初始化参数可传入null
 	 * @return 配置好的Wrapper
 	 */
 	public static Wrapper getDynamicWrapper(Context context, String servletName, 
-			String servletClass, String uriPattern) {
+			String servletClass, String uriPattern, Map<String, String> initParams) {
 		
 		StandardWrapper wrapper = new StandardWrapper(context);
 		
 		wrapper.servletConfig.servletName = servletName;
 		wrapper.servletConfig.servletClass = servletClass;
 		wrapper.servletConfig.servletType = ApplicationServletConfig.SERVLET;
+		
+		if(initParams != null) {
+			wrapper.servletConfig.parameterMap.putAll(initParams);
+		}
 		
 		wrapper.setName(servletName);
 		

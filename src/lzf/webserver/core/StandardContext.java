@@ -1,6 +1,8 @@
 package lzf.webserver.core;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.servlet.ServletContext;
 import javax.servlet.SessionCookieConfig;
@@ -36,6 +38,9 @@ public final class StandardContext extends ContainerBase<Host, Wrapper> implemen
 	
 	//该web应用发给浏览器的响应的编码格式
 	private String responseCharacterEncoding = "UTF-8";
+	
+	//欢迎页面路径集合
+	private List<String> welcomeFileList = new ArrayList<>(3);
 	
 	//该web应用对应的ServletContext对象
 	final ApplicationServletContext servletContext = new ApplicationServletContext(this); 
@@ -167,9 +172,37 @@ public final class StandardContext extends ContainerBase<Host, Wrapper> implemen
 		sessionManager.setSessionMaxInactiveTime(timeout);
 	}
 	
+	/**
+	 * @return 该Context容器的web应用载入器
+	 */
 	@Override
 	public WebappLoader getWebappLoader() {
 		return loader;
+	}
+	
+	/**
+	 * 欢迎页面文件列表，由web.xml文件的welcome-file-list配置
+	 * @return 所有的欢迎页面文件集合
+	 */
+	@Override
+	public List<String> getWelcomeFileList() {
+		return welcomeFileList;
+	}
+	
+	/**
+	 * 添加欢迎页面
+	 * @param fileName 文件名称
+	 */
+	@Override
+	public void addWelcomeFile(String fileName) {
+		
+		if(fileName == null || fileName.equals(""))
+			return;
+		
+		if(welcomeFileList.contains(fileName))
+			return;
+		
+		welcomeFileList.add(fileName);
 	}
 
 	/**

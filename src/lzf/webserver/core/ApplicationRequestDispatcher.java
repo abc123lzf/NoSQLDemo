@@ -1,6 +1,7 @@
 package lzf.webserver.core;
 
 import java.io.IOException;
+import java.util.List;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.RequestDispatcher;
@@ -24,24 +25,60 @@ public class ApplicationRequestDispatcher implements RequestDispatcher {
 	
 	private final Context context;
 	
-	private final String uri;
+	private String uri;
 	
-	private final Request request;
-
+	private Request request;
+	
+	private Wrapper wrapper;
 	
 	public ApplicationRequestDispatcher(Context context, String uri, Request request) {
 		this.context = context;
 		this.uri = uri;
 		this.request = request;
+		this.wrapper = null;
+	}
+	
+	public ApplicationRequestDispatcher(Context context, String uri) {
+		this.context = context;
+		this.uri = uri;
+		this.request = null;
+		this.wrapper = null;
+	}
+	
+	/**
+	 * @param context 所属的Context容器
+	 * @param name Wrapper容器名(Servlet名称)
+	 */
+	public ApplicationRequestDispatcher(Context context, Wrapper wrapper) {
+		this.context = context;
+		this.uri = null;
+		this.request = null;
+		this.wrapper = wrapper;
 	}
 
 	@Override
 	public void forward(ServletRequest req, ServletResponse res) throws ServletException, IOException {
 		 
-		if(request == null) {
+		if(request == null && wrapper == null) {
+			
 			req.getRequestDispatcher(uri).forward(req, res);
 			return;
+			
+		} else if(request == null && wrapper != null) {
+			
+			List<String> uriPatterns = ((StandardWrapper)wrapper).getURIPatterns();
+			
+			for(String uriPattern : uriPatterns) {
+				if(uriPattern.indexOf('*') == -1) {
+					req.getRequestDispatcher(uriPattern);
+					return;
+				}
+			}
+			
+			return;
 		}
+		
+		
 			
 		HttpServletResponse response = (HttpServletResponse) res;
 		

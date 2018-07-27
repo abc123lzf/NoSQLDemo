@@ -1,6 +1,7 @@
 package lzf.webserver;
 
 import java.io.File;
+import java.util.List;
 
 import javax.servlet.ServletContext;
 import javax.servlet.SessionCookieConfig;
@@ -75,6 +76,18 @@ public interface Context extends Container<Host, Wrapper> {
 	 * @param reloadable 该web应用支持重加载吗
 	 */
 	public void setReloadable(boolean reloadable);
+	
+	/**
+	 * 欢迎页面文件列表，由web.xml文件的welcome-file-list配置
+	 * @return 所有的欢迎页面文件集合
+	 */
+	public List<String> getWelcomeFileList();
+	
+	/**
+	 * 添加欢迎页面
+	 * @param fileName 文件名称
+	 */
+	public void addWelcomeFile(String fileName);
 	
 	/**
 	 * @return Session过期时间毫秒数

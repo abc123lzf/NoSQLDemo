@@ -45,18 +45,27 @@ public final class ContextMapper {
 		if(rootApp) {
 			MappedWrapper mw = null;
 			
+			//是不是尝试访问主页
 			if(uri.equals("/")) {
-				mw = mapper.get("/index.html");
-			} else {
-				mw = mapper.get(uri);
-			}
+				//mw = mapper.get("/index.html");
+				mw = getWelcomeWrapper();
+				if(mw != null)
+					return mw.object;
+				
+				return null;
+			} 
 			
+			//精确查找
+			mw = mapper.get(uri);
+			
+			//如果没有找到则采取模糊查找
 			if(mw == null) {
 				
 				for(Map.Entry<String, MappedWrapper> pattern : patternMapper.entrySet()) {
 					if(uri.matches(pattern.getKey()))
 						return pattern.getValue().object;
 				}
+				
 				return null;
 			}
 			
@@ -66,9 +75,9 @@ public final class ContextMapper {
 		//截取第二个"/"之前的字符串
 		int st = uri.indexOf('/', 1);
 		
-		//若没有找到第二个"/"，则说明是类似"/demo"这样的URI，直接去除字符串开头"/"即可
+		//若没有找到第二个"/"，则说明尝试访问主页
 		if(st == -1) {
-			MappedWrapper mw = mapper.get(uri + "/index.html");
+			MappedWrapper mw = getWelcomeWrapper();
 			
 			if(mw == null)
 				return null;
@@ -96,6 +105,58 @@ public final class ContextMapper {
 	}
 	
 	/**
+	 * 当用户访问首页URI时，查找主页
+	 * @return 主页MappedWrapper对象
+	 */
+	private MappedWrapper getWelcomeWrapper() {
+		
+		MappedWrapper mw = null;
+		
+		//获取Context容器的欢迎页面集合
+		List<String> welcomeFileList = context.getWelcomeFileList();
+		
+		String contextName = "/";
+		
+		//如果不是ROOT web应用则将context名称设置为"/${contextName}/"
+		if(!rootApp)
+			contextName += context.getName() + "/";
+		
+		//先从欢迎文件页面集合查找
+		if(welcomeFileList != null) {
+			
+			for(String file : welcomeFileList) {
+				mw = mapper.get(contextName + file);
+				
+				if(mw != null)
+					return mw;
+			}
+		}
+		
+		//查找主目录下的index.html
+		mw = mapper.get(contextName + "index.html");
+		if(mw != null)
+			return mw;
+		
+		//查找主目录下的index.jsp
+		mw = mapper.get(contextName + "index.jsp");
+		if(mw != null)
+			return mw;
+		
+		//查找index
+		mw = mapper.get(contextName + "index");
+		if(mw != null)
+			return mw;
+		
+		//如果都没找到则采用模糊匹配表查询
+		for(Map.Entry<String, MappedWrapper> pattern : patternMapper.entrySet()) {
+			if(contextName.matches(pattern.getKey()))
+				return pattern.getValue();
+		}
+		
+		return null;
+	}
+	
+	/**
 	 * 向映射表中添加Wrapper容器的映射，此方法必须由ContextMappedListener监听器调用
 	 * @param wrapper Wrapper对象
 	 */
@@ -111,12 +172,12 @@ public final class ContextMapper {
 		if(rootApp) {
 		
 			for(String uriPattern : uriPatterns) {
-				
+				System.out.println(uriPattern);
 				//检查URL是否包含通配符
 				if(uriPattern.indexOf('*') == -1)
 					mapper.put(uriPattern, new MappedWrapper(uriPattern, wrapper));
 				else
-					patternMapper.put(uriPattern, new MappedWrapper(uriPattern, wrapper));
+					patternMapper.put(uriPattern.replace("*", ".*?"), new MappedWrapper(uriPattern, wrapper));
 				
 			}
 			
@@ -165,6 +226,7 @@ public final class ContextMapper {
 				rootApp = false;
 		}
 	}
+	
 }
 
 class MappedWrapper extends MapElement<Wrapper> {

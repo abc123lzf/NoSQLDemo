@@ -4,7 +4,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.jsp.JspFactory;
@@ -38,6 +40,7 @@ public final class WebappLoader extends LifecycleBase implements Loader {
 
 	// 该Web加载器所属的Context容器
 	private Context context;
+	
 
 	//当需要热替换时，需要重新新建一个WebappClassLoader对象并替换旧的ClassLoader
 	private volatile WebappClassLoader classLoader = null;
@@ -208,7 +211,7 @@ public final class WebappLoader extends LifecycleBase implements Loader {
 	 * 加载web.xml文件
 	 * @param path web.xml文件路径
 	 * @return 是否加载成功
-	 * @throws DocumentException
+	 * @throws DocumentException web.xml文件不符合规范
 	 */
 	private boolean loadWebXml() {	
 		
@@ -232,8 +235,8 @@ public final class WebappLoader extends LifecycleBase implements Loader {
 		
 		for(Element contextParam : root.elements("context-param")) {
 			
-			String paramName = contextParam.element("param-name").getStringValue();
-			String paramValue = contextParam.element("param-value").getStringValue();
+			String paramName = contextParam.element("param-name").getText();
+			String paramValue = contextParam.element("param-value").getText();
 			
 			context.getServletContext().setInitParameter(paramName, paramValue);
 		}
@@ -241,15 +244,15 @@ public final class WebappLoader extends LifecycleBase implements Loader {
 		
 		for(Element filter : root.elements("filter")) {
 			
-			String filterName = filter.element("filter-name").getStringValue();
-			String filterClass = filter.element("filter-class").getStringValue();
+			String filterName = filter.element("filter-name").getText();
+			String filterClass = filter.element("filter-class").getText();
 			
 			ApplicationFilterConfig filterConfig = new ApplicationFilterConfig(context, filterName, filterClass);
 			
 			for(Element initParam : filter.elements("init-param")) {
 				
-				String name = initParam.element("param-name").getStringValue();
-				String value = initParam.element("param-value").getStringValue();
+				String name = initParam.element("param-name").getText();
+				String value = initParam.element("param-value").getText();
 				
 				filterConfig.setInitParameter(name, value);
 			}
@@ -259,8 +262,8 @@ public final class WebappLoader extends LifecycleBase implements Loader {
 		
 		for(Element filterMapping : root.elements("filter-mapping")) {
 			
-			String filterName = filterMapping.element("filter-name").getStringValue();
-			String urlPattern = filterMapping.element("url-pattern").getStringValue();
+			String filterName = filterMapping.element("filter-name").getText();
+			String urlPattern = filterMapping.element("url-pattern").getText();
 			
 			ApplicationFilterConfig filterConfig = context.getFilterChain().getFilterConfig(filterName);
 			
@@ -271,44 +274,75 @@ public final class WebappLoader extends LifecycleBase implements Loader {
 			}
 		}
 		
+		//Servlet配置项解析
+		
 		Map<String, String> servletMap = new LinkedHashMap<>();
+		Map<String, Map<String, String>> initParamMap = new LinkedHashMap<>();
 		
 		for(Element servlet : root.elements("servlet")) {
-			String servletName = servlet.element("servlet-name").getStringValue();
-			String servletClass = servlet.element("servlet-class").getStringValue();
+			
+			String servletName = servlet.element("servlet-name").getText();
+			String servletClass = servlet.element("servlet-class").getText();
+			
+			List<Element> initParams = servlet.elements("init-param");
+			
+			if(initParams != null) {
+				
+				Map<String, String> map = new LinkedHashMap<>();
+				
+				for(Element initParam : servlet.elements("init-param")) {
+					map.put(initParam.element("init-name").getText(), initParam.element("init-value").getText());
+				}
+				
+				initParamMap.put(servletName, map);
+			}
 			
 			servletMap.put(servletName, servletClass);
 		}
 		
 		for(Element servletMapping : root.elements("servlet-mapping")) {
 			
-			String servletName = servletMapping.element("servlet-name").getStringValue();
-			String uriPattern = servletMapping.element("url-pattern").getStringValue();
+			String servletName = servletMapping.element("servlet-name").getText();
+			String uriPattern = servletMapping.element("url-pattern").getText();
 			
 			if(servletMap.containsKey(servletName)) {
+				
+				Map<String, String> initParams = null;
+				
+				if(initParamMap.containsKey(servletName)) {
+					initParams = initParamMap.get(servletName);
+				}
+				
 				context.addChildContainer(StandardWrapper.getDynamicWrapper(context, servletName
-						, servletMap.get(servletName), uriPattern));
+						, servletMap.get(servletName), uriPattern, initParams));
 			} else {
 				log.warn(sm.getString("WebappLoader.loadWebXml.w1", context.getName(), servletName));
 			}
 		}
 		
-		/*
+		//Session-Config配置项解析
+		
 		Element sessionConfig = root.element("session-config");
 		
-		//TODO mime-mapping
-		
-		for(Element welcomeFile : root.element("welcome-file-list").elements("welcome-file")) {
-			String weclomeFileName = welcomeFile.getStringValue();
+		if(sessionConfig != null) {	
+			int sessionTimeOut = Integer.valueOf(sessionConfig.element("session-timeout").getText());
+			context.setSessionTimeout(sessionTimeOut);
 		}
 		
-		for(Element taglib : root.elements("taglib")) {
-			String taglibUri = taglib.element("taglib-uri").getStringValue();
-			String taglibLocation = taglib.element("taglib-location").getStringValue();
+		Element welcomeFileRoot = root.element("welcome-file-list");
+		
+		if(welcomeFileRoot != null) {
+		
+			for(Element welcomeFile : welcomeFileRoot.elements("welcome-file")) {
+				String weclomeFileName = welcomeFile.getText();
+				context.addWelcomeFile(weclomeFileName);
+			}
+			
 		}
 		
+		/*
 		for(Element listener : root.element("listener").elements("listener-class")) {
-			String listenerClass = listener.getStringValue();
+			String listenerClass = listener.getText();
 		}*/
 		
 		return true;
