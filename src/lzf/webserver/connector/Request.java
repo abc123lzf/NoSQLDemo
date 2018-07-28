@@ -416,6 +416,7 @@ public abstract class Request extends RequestBase {
 		
 		if(this.sessionId == null)
 			getRequestedSessionId();
+		
 		return sessionFromCookie;
 	}
 

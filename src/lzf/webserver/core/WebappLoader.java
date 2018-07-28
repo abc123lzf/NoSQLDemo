@@ -80,6 +80,7 @@ public final class WebappLoader extends LifecycleBase implements Loader {
 	 */
 	@Override
 	public void setContext(Context context) throws LifecycleException {
+		
 		if (context == null)
 			return;
 
@@ -110,7 +111,8 @@ public final class WebappLoader extends LifecycleBase implements Loader {
 		jspClassLoader = new JspClassLoader(classLoader, ServerConstant.getConstant().getJspWorkPath(context));
 		
 		resourceLoad(context.getPath());
-		
+		//System.out.println("NAME");
+		compileJspFile();
 	}
 
 	@Override
@@ -132,7 +134,7 @@ public final class WebappLoader extends LifecycleBase implements Loader {
 	 * @param path 单个Web应用主目录，该方法会尝试载入里面所有的文件
 	 */
 	private void resourceLoad(File file) {
-	
+		
 		if (file.exists()) {
 			File[] files = file.listFiles();
 			
@@ -145,7 +147,10 @@ public final class WebappLoader extends LifecycleBase implements Loader {
 						if(file2.getName().equals("WEB-INF")) {
 							loadWebXml();
 							continue;
+						} else if(file2.getName().equals("META-INF")) {
+							continue;
 						}
+						
 						resourceLoad(file2);
 						
 					} else {
@@ -158,6 +163,7 @@ public final class WebappLoader extends LifecycleBase implements Loader {
 						
 						if(!(fileName.endsWith(".class") || fileName.endsWith(".jsp"))) {
 							context.addChildContainer(StandardWrapper.getDefaultWrapper(context, file2, b));
+							
 						} else if(fileName.endsWith(".jsp")) {
 							context.addChildContainer(StandardWrapper.getJspWrapper(context, file2));
 						}
@@ -165,19 +171,21 @@ public final class WebappLoader extends LifecycleBase implements Loader {
 				}
 			}
 		}
-		
+	}
+	
+	private void compileJspFile() {
 		
 		//编译该web应用下所有的jsp文件 
 		File jspWork = ServerConstant.getConstant().getJspWorkPath(context);
-		
+				
 		JspC jspc = new JspC();
-		
+				
 		jspc.setUriroot(context.getPath().getAbsolutePath());
 		jspc.setOutputDir(jspWork.getAbsolutePath());
-		
+				
 		jspc.setPackage(DEFAULT_JSP_PACKAGE);
 		jspc.setCompile(true);
-		
+				
 		jspc.execute();
 	}
 	
@@ -294,7 +302,7 @@ public final class WebappLoader extends LifecycleBase implements Loader {
 				Map<String, String> map = new LinkedHashMap<>();
 				
 				for(Element initParam : servlet.elements("init-param")) {
-					map.put(initParam.element("init-name").getText(), initParam.element("init-value").getText());
+					map.put(initParam.element("param-name").getText(), initParam.element("param-value").getText());
 				}
 				
 				initParamMap.put(servletName, map);

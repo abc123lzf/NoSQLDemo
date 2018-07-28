@@ -55,7 +55,6 @@ public class ApplicationServletContext implements ServletContext {
 	
 	public ApplicationServletContext(StandardContext context) {
 		this.context = context;
-		context.getListenerContainer().runContextInitializedEvent();
 	}
 	
 	@Override

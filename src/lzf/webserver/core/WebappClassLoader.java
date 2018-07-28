@@ -1,11 +1,13 @@
 package lzf.webserver.core;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -37,7 +39,10 @@ public class WebappClassLoader extends ClassLoader {
 	private final String classes;
 
 	//存储键为jar包里面的class类名，值为class文件数据的Map
-	private final Map<String, byte[]> map = new ConcurrentHashMap<>(64);
+	private final Map<String, byte[]> map = new ConcurrentHashMap<>(128);
+	
+	//存储Jar包xml、properties等其它文件资源
+	private final Map<String, byte[]> fileMap = new ConcurrentHashMap<>(64);
 
 	//之前有没有调用过startRead()方法
 	private boolean isLoad = false;
@@ -79,14 +84,7 @@ public class WebappClassLoader extends ClassLoader {
 	@Override
 	public Class<?> findClass(String name) throws ClassNotFoundException {
 		
-		if(!isLoad) {
-			synchronized(this) {
-				if(!isLoad) {
-					startRead();
-					isLoad = true;
-				}
-			}
-		}
+		checkLoad();
 
 		byte[] result = getClassFromFileOrMap(name);
 		
@@ -96,6 +94,20 @@ public class WebappClassLoader extends ClassLoader {
 			return defineClass(name, result, 0, result.length);
 		}
 		
+	}
+	
+	/**
+	 * 检查此类加载器有没有加载lib目录下的Jar包,如果没有加载则启动加载过程
+	 */
+	private void checkLoad() {	
+		if(!isLoad) {
+			synchronized(this) {
+				if(!isLoad) {
+					startRead();
+					isLoad = true;
+				}
+			}
+		}
 	}
 
 	/**
@@ -128,6 +140,7 @@ public class WebappClassLoader extends ClassLoader {
 				}
 
 				return baos.toByteArray();
+				
 			} catch (FileNotFoundException e) {
 				log.error("", e);
 			} catch (IOException e) {
@@ -192,22 +205,65 @@ public class WebappClassLoader extends ClassLoader {
 				if (this.findLoadedClass(klass) != null)
 					continue;
 
-				InputStream is = jar.getInputStream(je);
-				ByteArrayOutputStream baos = new ByteArrayOutputStream();
-
-				int bufferSize = (int)je.getSize();
-				byte[] buffer = new byte[bufferSize];
-
-				int bytesNumRead = 0;
-				while ((bytesNumRead = is.read(buffer)) != -1) {
-					baos.write(buffer, 0, bytesNumRead);
-				}
-
-				byte[] cc = baos.toByteArray();
-				is.close();
-				map.put(klass, cc);
+				byte[] content = readJarEntry(jar, je);
+				
+				map.put(klass, content);
+				
+			} else {
+				
+				byte[] content = readJarEntry(jar, je);
+				
+				fileMap.put(name, content);
 			}
 		}
 	}
 	
+	
+	/**
+	 * 将Jar包中的文件转换成二进制数组
+	 * @param jar JarFile对象
+	 * @param je 该Jar文件的JarEntry对象
+	 * @return 二进制数组
+	 * @throws IOException 当读取失败时
+	 */
+	private byte[] readJarEntry(JarFile jar, JarEntry je) throws IOException {
+		
+		InputStream is = jar.getInputStream(je);
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+		int bufferSize = (int)je.getSize();
+		byte[] buffer = new byte[bufferSize];
+
+		int bytesNumRead = 0;
+		
+		while ((bytesNumRead = is.read(buffer)) != -1) {
+			baos.write(buffer, 0, bytesNumRead);
+		}
+
+		byte[] cc = baos.toByteArray();
+		is.close();
+		
+		return cc;
+	}
+	
+	
+	@Override
+	public InputStream getResourceAsStream(String name) {
+		
+		checkLoad();
+		InputStream is = super.getResourceAsStream(name);
+		
+		if(is != null) {
+			return is;
+		}
+		
+		byte[] b = fileMap.get(name);
+		
+		if(b != null) {
+			ByteArrayInputStream bais = new ByteArrayInputStream(b);
+			return bais;
+		}
+		
+		return null;
+	}
 }

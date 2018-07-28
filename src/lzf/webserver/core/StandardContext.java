@@ -268,6 +268,8 @@ public final class StandardContext extends ContainerBase<Host, Wrapper> implemen
 		sessionManager.init();
 		
 		sessionCookieConfig = new ApplicationSessionCookieConfig(this);
+		
+		listenerContainer.runContextInitializedEvent();
 	}
 
 	@Override

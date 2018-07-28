@@ -35,8 +35,6 @@ public class StandardHost extends ContainerBase<Engine, Context> implements Host
 		this.appBaseFolder = folder;
 	}
 
-
-
 	@Override
 	protected void initInternal() throws Exception {
 		

@@ -365,7 +365,7 @@ public class StandardWrapper extends ContainerBase<Context, Void> implements Wra
 			wrapper.addURIPattern(p.replaceAll(webappBaseFolder, ""));
 		}
 		
-		wrapper.servletConfig.servletName = "Default";
+		wrapper.servletConfig.servletName = "Default:" + path.getPath();
 		wrapper.servletConfig.servletClass = "lzf.webserver.servlets.DefaultServlet";
 		wrapper.servletConfig.servletType = ApplicationServletConfig.STATIC;
 		
