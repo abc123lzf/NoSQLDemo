@@ -34,15 +34,36 @@ public final class StandardWrapperValve extends ValveBase {
 		Wrapper wrapper = request.getWrapper();
 		Context context = request.getContext();
 		
+		context.getListenerContainer().runRequestInitializedEvent(requestFacade);
+		
+		//执行过滤器
 		context.getFilterChain().doFilter(requestFacade, responseFacade);
 		
+		//执行Servlet
 		wrapper.getServlet().service(requestFacade, responseFacade);
 		
 		response.setStatus(200);
 		response.addDateHeader("Date", System.currentTimeMillis());
 		
-		if(response.getHeader("Content-Length") == null) {
+		setContentLength(response);
 		
+		//context.getFilterChain().doFilter(requestFacade, responseFacade);
+		
+		if(!response.isCommitted())
+			context.getListenerContainer().runRequestDestroyedEvent(requestFacade);
+		
+		response.sendResponse();
+	}
+	
+	/**
+	 * 给响应头添加响应体长度信息
+	 * @param response 响应对象
+	 * @throws IOException
+	 */
+	private void setContentLength(Response response) throws IOException {
+		
+		if(response.getHeader("Content-Length") == null) {
+			
 			int charSize = 0, byteSize = 0;
 			
 			if(response.getWriter() instanceof ByteBufPrintWriter) {
@@ -55,10 +76,5 @@ public final class StandardWrapperValve extends ValveBase {
 			
 			response.addIntHeader("Content-Length", charSize + byteSize);
 		}
-		
-		//context.getFilterChain().doFilter(requestFacade, responseFacade);
-		
-		response.sendResponse();
 	}
-
 }

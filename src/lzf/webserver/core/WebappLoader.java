@@ -4,12 +4,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.jsp.JspFactory;
 
 import org.apache.jasper.JspC;
 import org.dom4j.DocumentException;
@@ -268,7 +266,12 @@ public final class WebappLoader extends LifecycleBase implements Loader {
 			ApplicationFilterConfig filterConfig = context.getFilterChain().getFilterConfig(filterName);
 			
 			if(filterConfig != null) {
-				filterConfig.addUrlPattern(urlPattern);
+				
+				if(context.getName().equals("ROOT"))
+					filterConfig.addUrlPattern(urlPattern);
+				else
+					filterConfig.addUrlPattern("/" + context.getName() + urlPattern);
+					
 			} else {
 				log.warn(sm.getString("WebappLoader.loadWebXml.w0", context.getName(), filterName));
 			}
@@ -340,10 +343,15 @@ public final class WebappLoader extends LifecycleBase implements Loader {
 			
 		}
 		
-		/*
-		for(Element listener : root.element("listener").elements("listener-class")) {
-			String listenerClass = listener.getText();
-		}*/
+		Element listenerRoot = root.element("listener");
+		
+		if(listenerRoot != null) {
+			
+			for(Element listener : listenerRoot.elements("listener-class")) {
+				String listenerClass = listener.getText();
+				context.getListenerContainer().addListenerClass(listenerClass);
+			}
+		}
 		
 		return true;
 	}

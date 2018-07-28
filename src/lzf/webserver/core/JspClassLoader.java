@@ -7,12 +7,10 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.tomcat.util.res.StringManager;
-
-import com.sun.corba.se.spi.orbutil.fsm.Guard.Result;
 
 import lzf.webserver.log.Log;
 import lzf.webserver.log.LogFactory;
+import lzf.webserver.util.StringManager;
 
 /**
 * @author Àî×Ó·«

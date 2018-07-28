@@ -183,7 +183,8 @@ public abstract class ContainerBase<F, S> extends LifecycleBase implements Conta
 		ContainerEvent event = new ContainerEvent(this, type, data);
 		
 		for(ContainerListener c : containerListeners) {
-			c.containerEvent(event);
+			if(c != null)
+				c.containerEvent(event);
 		}
 	}
 }

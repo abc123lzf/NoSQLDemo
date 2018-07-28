@@ -50,8 +50,6 @@ public class ApplicationFilterChain implements FilterChain {
 			Filter filter = filterConfig.getFilter();
 			String uri = ((HttpServletRequest)request).getRequestURI();
 			
-			//System.out.println(uri + " LLLLLLLLLLL" + filterConfig.getUrlPatterns()[0]);
-			
 			for(String pattern : filterConfig.getUrlPatterns()) {
 				
 				if(pattern.indexOf('*') == -1) {

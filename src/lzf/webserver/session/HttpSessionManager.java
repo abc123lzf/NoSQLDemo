@@ -85,8 +85,27 @@ public final class HttpSessionManager extends SessionManagerBase {
 	 */
 	@Override
 	protected Session newSessionInternal() {
+		
 		StandardSession session = new StandardSession(this);
+		context.getListenerContainer().runSessionInitializedEvent(session);
+		
 		return session;
+	}
+	
+	@Override
+	public void removeSession(String sessionId) throws LifecycleException {
+		
+		checkLifecycleState();
+		HttpSession session = (HttpSession)sessions.get(sessionId);
+		
+		if(session != null) {
+			
+			synchronized(sessions) {
+				sessions.remove(sessionId);
+			}
+		
+			context.getListenerContainer().runSessionDestroyedEvent(session);
+		}
 	}
 	
 	/**

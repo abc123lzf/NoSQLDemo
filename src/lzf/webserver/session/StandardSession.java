@@ -142,7 +142,13 @@ public class StandardSession implements Session, HttpSession, Serializable {
 	 */
 	@Override
 	public void removeAttribute(String name) {
-		attributeMap.remove(name);
+		
+		Object value = attributeMap.get(name);
+		
+		if(value != null) {
+			attributeMap.remove(name);
+			manager.getContext().getListenerContainer().runContextAttributeRemovedEvent(name, value);
+		}
 	}
 
 	@Override @Deprecated
@@ -157,7 +163,15 @@ public class StandardSession implements Session, HttpSession, Serializable {
 	 */
 	@Override
 	public void setAttribute(String name, Object value) {
+		
+		Object val = attributeMap.get(name);
 		attributeMap.put(name, value);
+		
+		if(val == null) {	
+			manager.getContext().getListenerContainer().runContextAttributeAddedEvent(name, value);
+		} else {
+			manager.getContext().getListenerContainer().runContextAttributeReplacedEvent(name, value);
+		}
 	}
 	
 	@Override
@@ -167,8 +181,7 @@ public class StandardSession implements Session, HttpSession, Serializable {
 
 	@Override
 	public SessionManagerBase getSessionManager() {
-		//TODO
-		return null;
+		return manager;
 	}
 
 	@Override

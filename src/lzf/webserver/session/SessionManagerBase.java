@@ -52,7 +52,11 @@ public abstract class SessionManagerBase extends LifecycleBase {
 				for(Map.Entry<String, Session> entry : sessions.entrySet()) {
 					Session session = entry.getValue();
 					if(nowTime - session.getLastAccessedTime() >= session.getMaxInactiveInterval()) {
-						sessions.remove(entry.getKey());
+						try {
+							removeSession(entry.getKey());
+						} catch (LifecycleException e) {
+							return;
+						}
 						sessionNum.decrementAndGet();
 					}
 				}
@@ -62,7 +66,7 @@ public abstract class SessionManagerBase extends LifecycleBase {
 				} catch (InterruptedException e) {
 					log.error(e);
 					new Thread(processer).start();
-					break;
+					return;
 				}
 			}
 		}
@@ -138,7 +142,7 @@ public abstract class SessionManagerBase extends LifecycleBase {
 	 * @param Session UUID
 	 * @throws LifecycleException Session管理器未处于启动状态
 	 */
-	public final void removeSession(String sessionId) throws LifecycleException {
+	public void removeSession(String sessionId) throws LifecycleException {
 		checkLifecycleState();
 		synchronized(sessions) {
 			sessions.remove(sessionId);
@@ -188,4 +192,5 @@ public abstract class SessionManagerBase extends LifecycleBase {
 		if(!getLifecycleState().isAvailable())
 			throw new LifecycleException("This Session Manager is not available");
 	}
+	
 }

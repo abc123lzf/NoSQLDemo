@@ -39,6 +39,7 @@ public class StandardHost extends ContainerBase<Engine, Context> implements Host
 
 	@Override
 	protected void initInternal() throws Exception {
+		
 		findWebappAndLoad();
 		
 		for(Context context: childContainers) {

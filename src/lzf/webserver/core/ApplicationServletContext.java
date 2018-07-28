@@ -55,6 +55,7 @@ public class ApplicationServletContext implements ServletContext {
 	
 	public ApplicationServletContext(StandardContext context) {
 		this.context = context;
+		context.getListenerContainer().runContextInitializedEvent();
 	}
 	
 	@Override
@@ -64,7 +65,8 @@ public class ApplicationServletContext implements ServletContext {
 
 	@Override
 	public ServletContext getContext(String uripath) {
-		//不要修改，只能返回null
+		
+		//为了确保其它Web应用安全性，只能返回null
 		return null;
 	}
 

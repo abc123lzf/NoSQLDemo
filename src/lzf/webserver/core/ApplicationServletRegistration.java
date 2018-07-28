@@ -14,7 +14,7 @@ import javax.servlet.ServletSecurityElement;
 * @author 李子帆
 * @version 1.0
 * @date 2018年7月24日 下午10:42:35
-* @Description 类说明
+* @Description ServletRegistration.Dynamics实现类，用于动态注册Servlet
 */
 public class ApplicationServletRegistration implements ServletRegistration.Dynamic {
 	
@@ -24,11 +24,17 @@ public class ApplicationServletRegistration implements ServletRegistration.Dynam
 		this.wrapper = wrapper;
 	}
 
+	/**
+	 * @return 该Servlet名称，由web.xml配置文件决定
+	 */
 	@Override
 	public String getName() {
 		return wrapper.servletConfig.servletName;
 	}
 
+	/**
+	 * @return 该Servlet的类名，该类名由web.xml配置文件决定，不一定存在该类
+	 */
 	@Override
 	public String getClassName() {
 		return wrapper.servletConfig.servletClass;

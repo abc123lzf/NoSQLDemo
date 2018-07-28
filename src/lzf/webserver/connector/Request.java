@@ -112,7 +112,15 @@ public abstract class Request extends RequestBase {
 	 */
 	@Override
 	public void setAttribute(String name, Object obj) {
+		
+		Object value = attributeMap.get(name);
 		attributeMap.put(name, obj);
+		
+		if(value == null) {
+			context.getListenerContainer().runRequestAttributeAddedEvent(this, name, value);
+		} else {
+			context.getListenerContainer().runRequestAttributeReplacedEvent(this, name, value);
+		}
 	}
 
 	/**
@@ -121,13 +129,21 @@ public abstract class Request extends RequestBase {
 	 */
 	@Override
 	public void removeAttribute(String name) {
-		attributeMap.remove(name);
+		
+		Object value = attributeMap.get(name);
+		
+		if(value != null) {
+			attributeMap.remove(name);
+			context.getListenerContainer().runRequestAttributeRemovedEvent(this, name, value);
+		}
 	}
 
 	@Override
 	public RequestDispatcher getRequestDispatcher(String path) {
+		
 		if(context == null || path == null)
 			return null;
+		
 		return new ApplicationRequestDispatcher(context, path, this);
 	}
 

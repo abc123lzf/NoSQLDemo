@@ -8,6 +8,7 @@ import javax.servlet.SessionCookieConfig;
 import javax.servlet.http.Cookie;
 
 import lzf.webserver.core.ApplicationFilterChain;
+import lzf.webserver.core.ApplicationListenerContainer;
 import lzf.webserver.core.WebappLoader;
 import lzf.webserver.mapper.ContextMapper;
 import lzf.webserver.session.HttpSessionManager;
@@ -127,15 +128,32 @@ public interface Context extends Container<Host, Wrapper> {
 	public SessionCookieConfig getSessionCookieConfig();
 	
 	/**
+	 * @return 存储该WEB应用配置的监听器容器
+	 */
+	public ApplicationListenerContainer getListenerContainer();
+	
+	/**
 	 * @return 该web应用对应FilterChain过滤器链
 	 */
 	public ApplicationFilterChain getFilterChain();
 	
+	/**
+	 * @param encoding 该web应用请求体解码方式
+	 */
 	public void setRequestCharacterEncoding(String encoding);
 	
+	/**
+	 * @return 该web应用请求体解码方式
+	 */
 	public String getRequestCharacterEncoding();
 	
+	/**
+	 * @param encoding 该web应用响应体编码方式
+	 */
 	public void setResponseCharacterEncoding(String encoding);
 	
+	/**
+	 * @return 该web应用响应体编码方式
+	 */
 	public String getResponseCharacterEncoding();
 }

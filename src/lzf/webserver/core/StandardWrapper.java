@@ -431,7 +431,7 @@ public class StandardWrapper extends ContainerBase<Context, Void> implements Wra
 		wrapper.servletConfig.servletType = ApplicationServletConfig.JSP;
 		wrapper.setName(path.getName());
 		
-		//该wrapper存放的路径，格式:webapps/ROOT/index.html
+		//该wrapper存放的路径，格式:webapps/${contextName}/index.html
 		String p = path.getPath().replaceAll("\\\\", "/");
 				
 		if(context.getName().equals("ROOT")) {
@@ -467,9 +467,16 @@ public class StandardWrapper extends ContainerBase<Context, Void> implements Wra
 			
 			String klass = uri;
 			
-			if(uri.startsWith("/" + context.getName() + "/WEB-INF")) {
-				klass = uri.replace("/" + context.getName() + "/WEB-INF", "/" + context.getName() + "/WEB_002dINF");
+			if(uri.startsWith("/" + context.getName())) {
+				
+				klass = uri.replace("/" + context.getName(), "");
+				
+				if(klass.startsWith("/WEB-INF"))
+					klass = uri.replace("/WEB-INF", "/WEB_002dINF");
+				
 			}
+			
+			System.out.println(klass);
 			
 			klass = WebappLoader.DEFAULT_JSP_PACKAGE + klass.replace(".jsp", "")
 					.replace("/", ".") + "_jsp";

@@ -57,6 +57,9 @@ public final class StandardContext extends ContainerBase<Host, Wrapper> implemen
 	//该web应用对应的过滤器链
 	final ApplicationFilterChain filterChain = new ApplicationFilterChain();
 	
+	//存储该WEB应用配置的监听器容器
+	final ApplicationListenerContainer listenerContainer = new ApplicationListenerContainer(this);
+	
 	//SessionCookie的属性类，实现SessionCookieConfig的J2EE规范
 	ApplicationSessionCookieConfig sessionCookieConfig = null;
 	
@@ -181,6 +184,14 @@ public final class StandardContext extends ContainerBase<Host, Wrapper> implemen
 	}
 	
 	/**
+	 * @return 存储该WEB应用配置的监听器容器
+	 */
+	@Override
+	public ApplicationListenerContainer getListenerContainer() {
+		return listenerContainer;
+	}
+	
+	/**
 	 * 欢迎页面文件列表，由web.xml文件的welcome-file-list配置
 	 * @return 所有的欢迎页面文件集合
 	 */
@@ -280,6 +291,8 @@ public final class StandardContext extends ContainerBase<Host, Wrapper> implemen
 		
 		sessionManager.stop();
 		loader.stop();
+		
+		listenerContainer.runContextDestoryedEvent();
 	}
 
 	@Override
