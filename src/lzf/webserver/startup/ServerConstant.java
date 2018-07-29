@@ -29,6 +29,9 @@ public final class ServerConstant {
 	//存放JSP类文件文件夹
 	private final File work = new File(main, "work");
 	
+	//存放服务器持久化文件的路径
+	private final File savedata = new File(main, "savedata");
+	
 	private ServerConstant() {
 		if(!conf.exists())
 			conf.mkdirs();
@@ -66,6 +69,10 @@ public final class ServerConstant {
 	
 	public File getServerXml() {
 		return new File(conf, "server.xml");
+	}
+	
+	public File getSavedata() {
+		return savedata;
 	}
 	
 	public File getJspWorkPath(Context context) {

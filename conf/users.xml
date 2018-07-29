@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<server-users>
+
+	<role-name name="engine-manager" />
+	<user username="manager" password="123456" role-name="engine-manager" />
+
+</server-users>

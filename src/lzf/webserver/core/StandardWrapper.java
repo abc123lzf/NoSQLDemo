@@ -329,6 +329,11 @@ public class StandardWrapper extends ContainerBase<Context, Void> implements Wra
 				+ ", servletConfig=" + servletConfig.toString() + "]";
 	}
 	
+	@Override
+	public ApplicationServletConfig getServletConfig() {
+		return servletConfig;
+	}
+	
 	/**
 	 * 返回一个持有默认Servlet的Wrapper，使用时注意要手动添加至Context容器
 	 * @param context Context父容器

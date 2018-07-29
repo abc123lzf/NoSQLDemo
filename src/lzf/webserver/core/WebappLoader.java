@@ -173,6 +173,9 @@ public final class WebappLoader extends LifecycleBase implements Loader {
 		}
 	}
 	
+	/**
+	 * 编译该Web应用所有的JSP文件
+	 */
 	private void compileJspFile() {
 		
 		//编译该web应用下所有的jsp文件 

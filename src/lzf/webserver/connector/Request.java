@@ -2,6 +2,7 @@ package lzf.webserver.connector;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.lang.annotation.Annotation;
 import java.security.Principal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -19,6 +20,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -44,9 +46,10 @@ public abstract class Request extends RequestBase {
 	
 	public static final SimpleDateFormat HTTP_DATE_FORMAT = new SimpleDateFormat("EEE MMM ddHH:mm:ss 'GMT' yyyy",Locale.US);
 	
-	Response response;
-	
 	private static final Log log = LogFactory.getLog(Request.class);
+	
+	//本次请求附带的响应对象
+	protected Response response;
 	
 	private int localPort = 80;
 	
@@ -247,26 +250,56 @@ public abstract class Request extends RequestBase {
 			Date d = HTTP_DATE_FORMAT.parse(date);
 			return d.getTime();
 		} catch (ParseException e) {
-			log.error("时间转换异常", e);
+			log.warn("Request.getDateHeader.w0", e);
 			return -1;
 		}
 	}
 
+	/**
+	 * @return Servlet名称之后，GET参数之前的字符串
+	 * 只有在模糊查询到的Servlet才会有返回值，其它情况都是返回null
+	 */
 	@Override
 	public String getPathInfo() {
-		// TODO Auto-generated method stub
+		
+		if(context == null || wrapper == null)
+			return null;
+		
+		String[] urls = wrapper.getServletConfig().getURLPatterns();
+		String reqUri = getRequestURI();
+		String prefix = "";
+		
+		if(context.getName() != "ROOT")
+			prefix += context.getName();
+		
+		for(String url : urls) {
+			if(reqUri.startsWith(prefix + url) && !reqUri.equals(prefix + url)) {
+				return reqUri.replace(url, "");
+			}
+		}
+		
 		return null;
 	}
 
 	@Override
 	public String getPathTranslated() {
-		// TODO Auto-generated method stub
-		return null;
+		
+		if(context == null || wrapper == null)
+			return null;
+		
+		return context.getServletContext().getRealPath("/") + getPathInfo();
 	}
 
+	/**
+	 * @return Context路径前缀，ROOT返回""(空字符串)
+	 */
 	@Override
 	public String getContextPath() {
-		return context.getPath().getPath();
+		
+		if(context.getName().equals("ROOT"))
+			return "";
+		else
+			return "/" + context.getName();
 	}
 
 	@Override
@@ -275,12 +308,18 @@ public abstract class Request extends RequestBase {
 		return null;
 	}
 
+	/**
+	 * @return 该资源认证用户对象是否在这个组
+	 */
 	@Override
 	public boolean isUserInRole(String role) {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
+	/**
+	 * @return 资源认证模块使用，该方法获取请求头中用户名密码
+	 */
 	@Override
 	public Principal getUserPrincipal() {
 		// TODO Auto-generated method stub
@@ -288,12 +327,36 @@ public abstract class Request extends RequestBase {
 	}
 
 	/**
-	 * 返回所请求的Servlet的真实磁盘路径
-	 * 若请求的Servlet不存在则返回null
+	 * @return 返回所请求的Servlet的URL的一部分。<br>
+	 * 如果是通过精确URL匹配找到的Servlet，则返回本次请求被匹配到的Servlet的URL
+	 * 如果是通过模糊查询匹配找到的Servlet，则直接返回""(空字符串，非null)
+	 * 如果没有找到Servlet直接返回null
 	 */
 	@Override
 	public String getServletPath() {
-		// TODO Auto-generated method stub
+		
+		if(context == null || wrapper == null)
+			return null;
+		
+		String[] urls = wrapper.getServletConfig().getURLPatterns();
+		String prefix = "";
+		String reqUri = getRequestURI();
+		
+		if(context.getName() != "ROOT")
+			prefix += context.getName();
+			
+		for(String url : urls) {
+			
+			if(url.indexOf('*') == -1) {
+				if(reqUri.equals(prefix + url))
+					return url;
+			} else {
+				if(reqUri.matches(prefix + url.replace("*", ".*?"))) {
+					return "";
+				}
+			}
+		}
+		
 		return null;
 	}
 	
@@ -303,20 +366,25 @@ public abstract class Request extends RequestBase {
 	 */
 	@Override
 	public String getRequestedSessionId() {
+		
 		//先从Cookie中查找Session
 		Cookie[] cookies = getCookies();
+		
 		for(Cookie cookie : cookies) {
 			if(cookie.getName().equals(context.getSessionIdName())) {
 				this.sessionFromCookie = true;
 				return cookie.getValue();
 			}
 		}
+		
 		//再从URI参数中寻找
 		String sessionId = super.getParameter(context.getSessionIdName());
+		
 		if(sessionId != null) {
 			this.sessionFromURL = true;
 			return sessionId;
 		}
+		
 		//如果都没有找到则返回null
 		return null;
 	}
@@ -343,7 +411,7 @@ public abstract class Request extends RequestBase {
 		try {
 			session = context.getSessionManager().getHttpSession(sessionId, false);
 		} catch (LifecycleException e) {
-			log.error("Session管理器不可用", e);
+			log.error(sm.getString("Request.getSession.e0", context.getName()), e);
 		}
 		return session;
 	}
@@ -367,10 +435,11 @@ public abstract class Request extends RequestBase {
 			} else {
 				session = context.getSessionManager().getHttpSession(sessionId, true);
 			}
+			
 			return this.session;
 			
 		} catch (LifecycleException e) {
-			log.error("Session管理器不可用", e);
+			log.error(sm.getString("Request.getSession.e0", context.getName()), e);
 			return null;
 		}
 	}
@@ -382,8 +451,9 @@ public abstract class Request extends RequestBase {
 				return context.getSessionManager().changeSessionId(session.getId());
 			
 			return context.getSessionManager().changeSessionId(getSession().getId());
+			
 		} catch(LifecycleException e) {
-			log.error("Session管理器不可用", e);
+			log.error(sm.getString("Request.getSession.e0", context.getName()), e);
 			return null;
 		}
 	}
@@ -397,12 +467,15 @@ public abstract class Request extends RequestBase {
 		
 		if(this.sessionId == null)
 			getRequestedSessionId();
+		
 		try {
 			if(context.getSessionManager().getSession(sessionId, false) == null)
 				return true;
+			
 			return false;
+			
 		} catch(Exception e) {
-			log.error("Session管理器不可用", e);
+			log.error(sm.getString("Request.getSession.e0", context.getName()), e);
 			return true;
 		}
 	}
@@ -472,8 +545,7 @@ public abstract class Request extends RequestBase {
 	@Override
 	public <T extends HttpUpgradeHandler> T upgrade(Class<T> httpUpgradeHandlerClass)
 			throws IOException, ServletException {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException("WebSocket Not Support");
 	}
 	
 	/**
@@ -499,6 +571,22 @@ public abstract class Request extends RequestBase {
 	
 	public void setWrapper(Wrapper wrapper) {
 		this.wrapper = wrapper;
+		
+		Annotation multiConfig = wrapper.getClass().getAnnotation(MultipartConfig.class);
+		if(multiConfig == null)
+			return;
+		
+		try {
+			super.multiData = new RequestBase.MultiPartFormData(this);
+		} catch (IOException e) {
+			log.error("", e);
+		} catch (ServletException e) {
+			log.error("", e);
+		}
+		/*
+		Method[] methods = multiConfig.annotationType().getDeclaredMethods();
+		for(Method method : methods) {
+		}*/
 	}
 	
 	/**

@@ -107,7 +107,7 @@ public interface UserDatabase {
     public void removeUser(User user);
 
     /**
-     * 持久化用户对象
+     * 持久化该数据库
      * @throws Exception
      */
     public void save() throws Exception;

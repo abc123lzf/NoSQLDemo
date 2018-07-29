@@ -34,9 +34,11 @@ public abstract class ContainerBase<F, S> extends LifecycleBase implements Conta
 	//ÈÝÆ÷¼àÌýÆ÷
 	protected final List<ContainerListener> containerListeners = new CopyOnWriteArrayList<>();
 	
+	
 	protected ContainerBase() {
 		super();
 	}
+	
 	
 	protected ContainerBase(F parentConatiner) {
 		this();

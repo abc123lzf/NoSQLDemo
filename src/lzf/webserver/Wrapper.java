@@ -6,6 +6,8 @@ import java.util.List;
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 
+import lzf.webserver.core.ApplicationServletConfig;
+
 
 /**
 * @author 李子帆
@@ -135,4 +137,9 @@ public interface Wrapper extends Container<Context, Void> {
 	 * @param path 这个Wrapper容器对应资源的存放路径
 	 */
 	public void setPath(File path);
+	
+	/**
+	 * @return 该Wrapper容器对应Servlet的ServletConfig对象
+	 */
+	public ApplicationServletConfig getServletConfig();
 }

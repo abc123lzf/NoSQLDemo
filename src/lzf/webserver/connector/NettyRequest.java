@@ -75,7 +75,7 @@ public final class NettyRequest extends Request {
 		InputStream is = new ByteArrayInputStream(content);
 		super.sis = new DefaultServletInputStream(is);
 		
-		InputStreamReader isr = new InputStreamReader(is);
+		InputStreamReader isr = new InputStreamReader(new ByteArrayInputStream(content));
 		super.contentReader = new BufferedReader(isr);
 	}
 	

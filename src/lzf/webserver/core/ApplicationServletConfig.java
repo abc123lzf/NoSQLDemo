@@ -104,8 +104,16 @@ public final class ApplicationServletConfig implements ServletConfig {
 		}
 	}
 	
+	/**
+	 * @return 该Servlet所有匹配URL，包括精确和模糊匹配URL
+	 */
+	public String[] getURLPatterns() {
+		return (String[])(urlPatterns.toArray());
+	}
+	
 	@Override
 	public String toString() {
 		return "ApplicationServletConfig [servletName=" + servletName + ", servletClass=" + servletClass + "]";
 	}
+	
 }
