@@ -31,7 +31,7 @@ public final class NettyResponse extends Response {
 		ByteBufOutputStream bbos = new ByteBufOutputStream(content);
 		
 		super.sos = bbos;
-		super.pw = new ByteBufPrintWriter(bbos, content);
+		super.pw = new ByteBufPrintWriter(bbos, content, getCharacterEncoding());
 		this.ctx = ctx;
 	}
 

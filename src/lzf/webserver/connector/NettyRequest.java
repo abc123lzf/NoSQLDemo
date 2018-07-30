@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.Map;
@@ -75,8 +76,14 @@ public final class NettyRequest extends Request {
 		InputStream is = new ByteArrayInputStream(content);
 		super.sis = new DefaultServletInputStream(is);
 		
-		InputStreamReader isr = new InputStreamReader(new ByteArrayInputStream(content));
-		super.contentReader = new BufferedReader(isr);
+		InputStreamReader isr;
+		try {
+			isr = new InputStreamReader(new ByteArrayInputStream(content), characterEncoding);
+			super.contentReader = new BufferedReader(isr);
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		
 	}
 	
 	/**

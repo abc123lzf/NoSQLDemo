@@ -7,13 +7,13 @@ import java.util.concurrent.ConcurrentHashMap;
 * @author 李子帆
 * @version 1.0
 * @date 2018年7月22日 下午4:34:33
-* @Description 类说明
+* @Description 文件后缀名和Content-Type互相转换
 */
 public final class ContentType {
 
 	private static final Map<String, String> content = new ConcurrentHashMap<String, String>();
 	
-	public static String getContentBySuffix(String suffix) {
+	public static String getBySuffix(String suffix) {
 		return content.get(suffix);
 	}
 	

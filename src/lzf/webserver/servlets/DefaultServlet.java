@@ -54,9 +54,9 @@ public class DefaultServlet extends HttpServlet {
 		String suffix = fileName.substring(index + 1, fileName.length());
 
 		if(suffix != null) {
-			this.contentType = ContentType.getContentBySuffix(suffix);
+			this.contentType = ContentType.getBySuffix(suffix);
 		} else {
-			this.contentType = ContentType.getContentBySuffix("application/octet-stream");
+			this.contentType = ContentType.getBySuffix("application/octet-stream");
 		}
 		
 		this.lastModified = path.lastModified();

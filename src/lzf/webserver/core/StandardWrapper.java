@@ -448,16 +448,15 @@ public class StandardWrapper extends ContainerBase<Context, Void> implements Wra
 			String uri = p.replaceAll(contextPath, "");
 			wrapper.addURIPattern(uri);
 			
-			String klass = uri;
+			String klass = parseJspURIToClass(uri);
 			
+			/*
 			if(uri.startsWith("/WEB-INF")) {	
 				klass = uri.replace("/WEB-INF", "/WEB_002dINF");
 			} 
 			
 			klass = WebappLoader.DEFAULT_JSP_PACKAGE + klass.replace(".jsp", "")
-					.replace("/", ".") + "_jsp";
-			
-			System.out.println("JSPCLASSNAME:" + klass);
+					.replace("/", ".") + "_jsp";*/
 			wrapper.servletConfig.servletClass = klass;
 			
 			
@@ -473,22 +472,41 @@ public class StandardWrapper extends ContainerBase<Context, Void> implements Wra
 			String klass = uri;
 			
 			if(uri.startsWith("/" + context.getName())) {
-				
-				klass = uri.replace("/" + context.getName(), "");
-				
-				if(klass.startsWith("/WEB-INF"))
-					klass = uri.replace("/WEB-INF", "/WEB_002dINF");
-				
+				klass = parseJspURIToClass(uri.replace("/" + context.getName(), ""));
+			} else {
+				klass = parseJspURIToClass(uri);
 			}
-			
-			System.out.println(klass);
-			
-			klass = WebappLoader.DEFAULT_JSP_PACKAGE + klass.replace(".jsp", "")
-					.replace("/", ".") + "_jsp";
 			
 			wrapper.servletConfig.servletClass = klass;
 		}
 		
 		return wrapper;
+	}
+	
+	/**
+	 * 将JSP的URI转换成该JSP对应的类名
+	 * @param uri JSP URI路径
+	 * @return 该JSP的类名
+	 */
+	static String parseJspURIToClass(String uri) {
+		
+		String pkg = WebappLoader.DEFAULT_JSP_PACKAGE + uri.replace(".jsp", "").replace("/", ".");
+		
+		int index = pkg.lastIndexOf('.');
+		String str = pkg.substring(0, index);
+		char[] a = str.toCharArray();
+		
+		for(int i = 0; i < a.length; i++) {
+			char c = a[i];
+	
+			if(Character.isAlphabetic(c) || Character.isDigit(c) || c == '.')
+				continue;
+			
+			str = str.replace("" + c, String.format("_%04x", Character.codePointAt(new char[] {c}, 0)));
+		}
+		
+		str = str + pkg.substring(index, pkg.length()) + "_jsp";
+		
+		return str;
 	}
 }

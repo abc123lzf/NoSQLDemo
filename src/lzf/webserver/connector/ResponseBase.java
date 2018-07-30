@@ -14,6 +14,8 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 
+import lzf.webserver.util.StringManager;
+
 
 /**
 * @author 李子帆如何修改JDK源码
@@ -25,11 +27,13 @@ public abstract class ResponseBase implements HttpServletResponse {
 	
 	public static final SimpleDateFormat HTTP_DATE_FORMAT = new SimpleDateFormat("EEE MMM dd HH:mm:ss 'GMT' yyyy",Locale.US);
 	
+	protected static final StringManager sm = StringManager.getManager(ResponseBase.class);
+	
 	protected int status;
 	
 	protected final Map<String, String> headerMap = new LinkedHashMap<>();
 	
-	protected String characterEncoding = null;
+	protected String characterEncoding = "UTF-8";
 	
 	protected ServletOutputStream sos;
 	
@@ -117,7 +121,7 @@ public abstract class ResponseBase implements HttpServletResponse {
 	 * @param cookie Cookie对象
 	 * @return 标准Set-Cookie字符串
 	 */
-	private String cookieToString(Cookie cookie) {
+	private static String cookieToString(Cookie cookie) {
 		
 		String name = cookie.getName();
 		String val = cookie.getValue();
@@ -168,16 +172,14 @@ public abstract class ResponseBase implements HttpServletResponse {
 		return null;
 	}
 
-	@Override
+	@Override @Deprecated
 	public String encodeUrl(String url) {
-		// TODO Auto-generated method stub
-		return null;
+		return encodeURL(url);
 	}
 
-	@Override
+	@Override @Deprecated
 	public String encodeRedirectUrl(String url) {
-		// TODO Auto-generated method stub
-		return null;
+		return encodeRedirectURL(url);
 	}
 
 	/**
@@ -197,12 +199,15 @@ public abstract class ResponseBase implements HttpServletResponse {
 	 */
 	@Override
 	public final void addDateHeader(String name, long date) {
+		
 		String val = headerMap.get(name);
+		
 		if(val != null) {
 			val += "; " + HTTP_DATE_FORMAT.format(date);
 			headerMap.put(name, val);
 			return;
 		}
+		
 		setDateHeader(name, date);
 	}
 
@@ -223,12 +228,15 @@ public abstract class ResponseBase implements HttpServletResponse {
 	 */
 	@Override
 	public final void addHeader(String name, String value) {
+		
 		String val = headerMap.get(name);
+		
 		if(val != null) {
 			val += "; " + value;
 			headerMap.put(name, val);
 			return;
 		}
+		
 		setHeader(name, value);
 	}
 
@@ -249,12 +257,15 @@ public abstract class ResponseBase implements HttpServletResponse {
 	 */
 	@Override
 	public final void addIntHeader(String name, int value) {
+		
 		String val = headerMap.get(name);
+		
 		if(val != null) {
 			val += "; " + String.valueOf(value);
 			headerMap.put(name, val);
 			return;
 		}
+		
 		setIntHeader(name, value);
 	}
 

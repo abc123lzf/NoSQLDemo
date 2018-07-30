@@ -76,7 +76,7 @@ public abstract class Response extends ResponseBase {
 	public void reset() {
 		
 		if(isCommitted())
-			throw new IllegalStateException();
+			throw new IllegalStateException(sm.getString("Response.reset.w0"));
 		
 		headerMap.clear();
 		status = 0;
@@ -86,7 +86,7 @@ public abstract class Response extends ResponseBase {
 	 * 该Response对象提交给客户端了吗？
 	 */
 	@Override
-	public boolean isCommitted() {
+	public final boolean isCommitted() {
 		return committed;
 	}
 	
