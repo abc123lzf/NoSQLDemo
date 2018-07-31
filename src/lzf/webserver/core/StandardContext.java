@@ -258,6 +258,9 @@ public final class StandardContext extends ContainerBase<Host, Wrapper> implemen
 		//载入web应用，必须在初始化子容器前调用
 		loader.init();
 		
+		ClassLoader systemLoader = Thread.currentThread().getContextClassLoader();
+		Thread.currentThread().setContextClassLoader(loader.getClassLoader());
+		
 		listenerContainer.runContextInitializedEvent();
 		
 		//初始化子容器
@@ -268,12 +271,16 @@ public final class StandardContext extends ContainerBase<Host, Wrapper> implemen
 		pipeline.addValve(new StandardContextValve());
 	
 		sessionManager.init();
-		
 		sessionCookieConfig = new ApplicationSessionCookieConfig(this);
+		
+		Thread.currentThread().setContextClassLoader(systemLoader);
 	}
 
 	@Override
 	protected void startInternal() throws Exception {
+		
+		ClassLoader systemLoader = Thread.currentThread().getContextClassLoader();
+		Thread.currentThread().setContextClassLoader(loader.getClassLoader());
 		
 		loader.start();
 		
@@ -282,6 +289,8 @@ public final class StandardContext extends ContainerBase<Host, Wrapper> implemen
 		}
 		
 		sessionManager.start();
+		
+		Thread.currentThread().setContextClassLoader(systemLoader);
 	}
 
 	@Override

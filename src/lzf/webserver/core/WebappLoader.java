@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URL;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -107,7 +108,16 @@ public final class WebappLoader extends LifecycleBase implements Loader {
 	@Override
 	protected void initInternal() throws Exception {
 		
-		classLoader = new WebappClassLoader(WebappClassLoader.class.getClassLoader(), context.getPath());
+		File[] files = new File(context.getPath(), "WEB-INF" + File.separator + "lib").listFiles();
+		URL[] urls = new URL[files.length];
+		
+		int i = 0;
+		for(File file : files) {
+			urls[i++] = file.toURI().toURL();
+		}
+		
+		classLoader = new WebappClassLoader(WebappClassLoader.class.getClassLoader(), context.getPath(), urls);
+		
 		jspClassLoader = new JspClassLoader(classLoader, ServerConstant.getConstant().getJspWorkPath(context));
 		resourceLoad(context.getPath());
 		//System.out.println("NAME");

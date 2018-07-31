@@ -35,6 +35,7 @@ import lzf.webserver.Host;
 import lzf.webserver.Wrapper;
 import lzf.webserver.log.Log;
 import lzf.webserver.log.LogFactory;
+import lzf.webserver.util.ContentType;
 import lzf.webserver.util.IteratorEnumeration;
 
 /**
@@ -63,7 +64,7 @@ public class ApplicationServletContext implements ServletContext {
 	@Override
 	public String getContextPath() {
 		System.out.println("GET CONTEXT PATH"); //TODO
-		
+
 		if(context.getName().equals("ROOT"))
 			return "";
 		else
@@ -72,7 +73,6 @@ public class ApplicationServletContext implements ServletContext {
 
 	@Override
 	public ServletContext getContext(String uripath) {
-		
 		//为了确保其它Web应用安全性，只能返回null
 		return null;
 	}
@@ -83,6 +83,7 @@ public class ApplicationServletContext implements ServletContext {
 	 */
 	@Override
 	public int getMajorVersion() {
+		System.out.println("getMajorVersion"); //TODO
 		return 3;
 	}
 
@@ -92,22 +93,29 @@ public class ApplicationServletContext implements ServletContext {
 	 */
 	@Override
 	public int getMinorVersion() {
+		System.out.println("getMinorVersion"); //TODO
 		return 1;
 	}
 
 	@Override
 	public int getEffectiveMajorVersion() {
+		System.out.println("getEffectiveMajorVersion"); //TODO
 		return 2;
 	}
 
 	@Override
 	public int getEffectiveMinorVersion() {
+		System.out.println("getEffectiveMinorVersion"); //TODO
 		return 1;
 	}
 
 	@Override
 	public String getMimeType(String file) {
-		return null;
+		System.out.println("getMimeType");
+		int index = file.lastIndexOf('.');
+		if(index == -1)
+			return ContentType.getBySuffix("");
+		return ContentType.getBySuffix(file.substring(index + 1, file.length()));
 	}
 
 	/**
@@ -397,7 +405,7 @@ public class ApplicationServletContext implements ServletContext {
 
 	@Override
 	public ServletRegistration.Dynamic addServlet(String servletName, String className) {
-		
+		System.out.println("addServlet0-" + servletName + "-" + className);
 		StandardWrapper wrapper = (StandardWrapper) StandardWrapper.getDynamicWrapper(context, 
 				servletName, className, null, null);
 		context.addChildContainer(wrapper);
@@ -407,6 +415,7 @@ public class ApplicationServletContext implements ServletContext {
 
 	@Override
 	public ServletRegistration.Dynamic addServlet(String servletName, Servlet servlet) {
+		System.out.println("addServlet1-" + servletName + "-" + servlet.getClass().getName());
 		return null;
 	}
 
@@ -417,6 +426,7 @@ public class ApplicationServletContext implements ServletContext {
 	 */
 	@Override
 	public ServletRegistration.Dynamic addServlet(String servletName, Class<? extends Servlet> servletClass) {
+		System.out.println("addServlet2" + servletName + "-" + servletClass);
 		StandardWrapper wrapper = (StandardWrapper) StandardWrapper.getDynamicWrapper(context,
 				servletName, servletClass.getClass().getName(), null, null);
 		context.addChildContainer(wrapper);
@@ -445,12 +455,13 @@ public class ApplicationServletContext implements ServletContext {
 	 */
 	@Override
 	public ServletRegistration getServletRegistration(String servletName) {
+		System.out.println("getServletRegistration");
 		return ((StandardWrapper)context.getChildContainer(servletName)).servletRegistration;
 	}
 
 	@Override
 	public Map<String, ? extends ServletRegistration> getServletRegistrations() {
-		
+		System.out.println("getServletRegistrations");
 		Map<String, ServletRegistration> map = new HashMap<>();
 		
 		for(Wrapper wrapper : context.getChildContainers()) {
@@ -482,7 +493,7 @@ public class ApplicationServletContext implements ServletContext {
 
 	@Override
 	public <T extends Filter> T createFilter(Class<T> c) throws ServletException {
-		
+		System.out.println("createFilter");
 		try {
 			return c.newInstance();
 		} catch (InstantiationException e) {
@@ -545,6 +556,7 @@ public class ApplicationServletContext implements ServletContext {
 	 */
 	@Override
 	public void addListener(String className) {
+		System.out.println("addListener" + className);
 		context.getListenerContainer().addListenerClass(className);
 	}
 
@@ -594,7 +606,7 @@ public class ApplicationServletContext implements ServletContext {
 	 */
 	@Override
 	public ClassLoader getClassLoader() {
-		System.out.println("getClassLoader"); //TODO
+		System.out.println("getClassLoader");; //TODO
 		return context.getWebappLoader().getClassLoader();
 	}
 
@@ -606,7 +618,7 @@ public class ApplicationServletContext implements ServletContext {
 
 	@Override
 	public String getVirtualServerName() {
-		return ((Host)context.getParentContainer()).getName();
+		return context.getParentContainer().getParentContainer().getName();
 	}
 
 }
