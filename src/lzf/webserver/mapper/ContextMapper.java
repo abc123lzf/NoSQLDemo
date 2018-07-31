@@ -7,6 +7,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import lzf.webserver.Context;
 import lzf.webserver.Wrapper;
+import lzf.webserver.log.Log;
+import lzf.webserver.log.LogFactory;
 import lzf.webserver.util.StringManager;
 
 /**
@@ -16,6 +18,8 @@ import lzf.webserver.util.StringManager;
 * @Description ÀàËµÃ÷
 */
 public final class ContextMapper {
+	
+	private static final Log log = LogFactory.getLog(ContextMapper.class);
 
 	private static final StringManager sm = StringManager.getManager(ContextMapper.class);
 	
@@ -170,7 +174,7 @@ public final class ContextMapper {
 		List<String> uriPatterns = wrapper.getURIPatterns();
 		
 		if(uriPatterns == null || uriPatterns.isEmpty())
-			throw new UnsupportedOperationException(sm.getString("ContextMapper.addWrapper.e0", wrapper.getName()));
+			log.warn(sm.getString("ContextMapper.addWrapper.e0", wrapper.getName()));
 		
 		if(rootApp) {
 		

@@ -109,7 +109,6 @@ public final class WebappLoader extends LifecycleBase implements Loader {
 		
 		classLoader = new WebappClassLoader(WebappClassLoader.class.getClassLoader(), context.getPath());
 		jspClassLoader = new JspClassLoader(classLoader, ServerConstant.getConstant().getJspWorkPath(context));
-		
 		resourceLoad(context.getPath());
 		//System.out.println("NAME");
 		compileJspFile();

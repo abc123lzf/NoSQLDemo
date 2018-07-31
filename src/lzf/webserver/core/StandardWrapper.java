@@ -13,6 +13,7 @@ import lzf.webserver.log.Log;
 import lzf.webserver.log.LogFactory;
 import lzf.webserver.servlets.DefaultServlet;
 
+
 /**
 * @author 李子帆
 * @version 1.0
@@ -304,12 +305,11 @@ public class StandardWrapper extends ContainerBase<Context, Void> implements Wra
 	@Override
 	protected void initInternal() throws Exception {
 		pipeline.addValve(new StandardWrapperValve());
-		load();
 	}
 
 	@Override
 	protected void startInternal() throws Exception {
-
+		load();
 	}
 
 	@Override
@@ -401,25 +401,12 @@ public class StandardWrapper extends ContainerBase<Context, Void> implements Wra
 		
 		wrapper.setName(servletName);
 		
-		wrapper.addURIPattern(uriPattern);
-		
-		/*
-		if(context.getName().equals("ROOT")) {
-			
-			wrapper.uriPath = uriPath;
-			
-		} else {
-			
-			if(uriPath.startsWith("/"))
-				wrapper.uriPath = "/" + context.getName() + uriPath;
-			else
-				wrapper.uriPath = "/" + context.getName() + "/" + uriPath;
-		}
-		
-		wrapper.uriPath = uriPath;*/
+		if(uriPattern != null)
+			wrapper.addURIPattern(uriPattern);
 		
 		return wrapper;
 	}
+	
 	
 	/**
 	 * 获取一个保存JSP资源的Wrapper
@@ -488,7 +475,7 @@ public class StandardWrapper extends ContainerBase<Context, Void> implements Wra
 	 * @param uri JSP URI路径
 	 * @return 该JSP的类名
 	 */
-	static String parseJspURIToClass(String uri) {
+	private static String parseJspURIToClass(String uri) {
 		
 		String pkg = WebappLoader.DEFAULT_JSP_PACKAGE + uri.replace(".jsp", "").replace("/", ".");
 		

@@ -34,16 +34,19 @@ public final class ApplicationServletConfig implements ServletConfig {
 	//Servlet Class类名
 	String servletClass = null;
 	
+	//Servlet类型，可以为静态资源Servlet、JSP、普通Servlet
 	String servletType;
 	
+	//该Servlet的URL映射表
 	final List<String> urlPatterns = new ArrayList<>(1); 
 	
+	//Servlet初始化参数
 	final Map<String, String> parameterMap = new LinkedHashMap<>();
 	
 	ApplicationServletConfig(Wrapper wrapper) {
 		this.wrapper = wrapper;
 	}
-
+	
 	/**
 	 * @return Servlet名称，由web.xml文件或注解的servlet-name决定
 	 */
@@ -57,7 +60,7 @@ public final class ApplicationServletConfig implements ServletConfig {
 	 */
 	@Override
 	public ServletContext getServletContext() {
-		return ((Context) (wrapper.getParentContainer())).getServletContext();
+		return wrapper.getParentContainer().getServletContext();
 	}
 	
 	/**
@@ -97,7 +100,8 @@ public final class ApplicationServletConfig implements ServletConfig {
 	void addUrlPatern(String... urlPattern) {
 		
 		for(String url : urlPattern) {
-			if(urlPatterns.contains(url))
+			
+			if(url == null || urlPatterns.contains(url))
 				continue;
 			
 			urlPatterns.add(url);

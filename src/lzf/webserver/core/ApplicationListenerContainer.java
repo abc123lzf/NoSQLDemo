@@ -1,5 +1,6 @@
 package lzf.webserver.core;
 
+import java.util.EventListener;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -7,6 +8,7 @@ import javax.servlet.ServletContextAttributeEvent;
 import javax.servlet.ServletContextAttributeListener;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
+import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletRequestAttributeEvent;
 import javax.servlet.ServletRequestAttributeListener;
@@ -81,6 +83,12 @@ public final class ApplicationListenerContainer {
 			return;
 		}
 		
+		if(listener instanceof EventListener)
+			addListenerInstance((EventListener)listener);
+	}
+	
+	void addListenerInstance(EventListener listener) {
+		
 		if(listener instanceof ServletContextListener) {
 			contextListeners.add((ServletContextListener)listener);
 			
@@ -100,7 +108,7 @@ public final class ApplicationListenerContainer {
 			sessionAttributeListeners.add((HttpSessionAttributeListener) listener);
 			
 		} else {
-			log.warn(sm.getString("ApplicationListenerContainer.addListenerClass.w0", klass));
+			log.warn(sm.getString("ApplicationListenerContainer.addListenerClass.w0", listener.getClass().getName()));
 		}
 	}
 	
@@ -108,6 +116,7 @@ public final class ApplicationListenerContainer {
 	 * SerlvetContext初始化事件触发
 	 */
 	public void runContextInitializedEvent() {
+		System.out.println("SERVLETCONTEXT INIT");
 		
 		ServletContextEvent event = new ServletContextEvent(context.getServletContext());
 		

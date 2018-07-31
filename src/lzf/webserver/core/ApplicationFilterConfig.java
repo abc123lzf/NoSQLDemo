@@ -54,6 +54,15 @@ public class ApplicationFilterConfig implements FilterConfig {
 		this.filterName = filterName;
 		this.filterClass = filterClass;
 	}
+	
+	ApplicationFilterConfig(Context context, String filterName, Class<? extends Filter> klass){
+		this(context, filterName, klass.getClass().getName());
+	}
+	
+	ApplicationFilterConfig(Context context, String filterName, Filter filter) {
+		this(context, filterName, filter.getClass().getName());
+		this.filter = filter;
+	}
 
 	/**
 	 * @return Filter名称，即web.xml中<filter-name>对应的参数
@@ -121,7 +130,7 @@ public class ApplicationFilterConfig implements FilterConfig {
 	 */
 	Filter getFilter() {
 		try {
-			if (filter == null)
+			if (filter == null) {
 				try {
 					filter = (Filter) context.getWebappLoader().getClassLoader().loadClass(filterClass).newInstance();
 					filter.init(this);
@@ -130,7 +139,7 @@ public class ApplicationFilterConfig implements FilterConfig {
 					log.error("Filter:" + filterClass + " 初始化异常", e);
 					return null;
 				}
-			else {
+			} else {
 				return filter;
 			}
 		} catch (InstantiationException e) {

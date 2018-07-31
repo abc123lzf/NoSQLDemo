@@ -82,9 +82,7 @@ public class WebappClassLoader extends ClassLoader {
 	 * @throws ClassNotFoundException 没有在lib和classes目录下找到类文件
 	 */
 	@Override
-	public Class<?> findClass(String name) throws ClassNotFoundException {
-		
-		checkLoad();
+	protected Class<?> findClass(String name) throws ClassNotFoundException {
 
 		byte[] result = getClassFromFileOrMap(name);
 		
@@ -94,6 +92,12 @@ public class WebappClassLoader extends ClassLoader {
 			return defineClass(name, result, 0, result.length);
 		}
 		
+	}
+	
+	@Override
+	public Class<?> loadClass(String name) throws ClassNotFoundException {
+		checkLoad();
+		return super.loadClass(name);
 	}
 	
 	/**
@@ -195,6 +199,9 @@ public class WebappClassLoader extends ClassLoader {
 		while (en.hasMoreElements()) {
 
 			JarEntry je = en.nextElement();
+			
+			if(je.isDirectory())
+				continue;
 			
 			String name = je.getName();
 

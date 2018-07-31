@@ -152,13 +152,11 @@ public class ApplicationServletRegistration implements ServletRegistration.Dynam
 
 	@Override
 	public void setMultipartConfig(MultipartConfigElement multipartConfig) {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void setRunAsRole(String roleName) {
-		// TODO Auto-generated method stub
 		
 	}
 

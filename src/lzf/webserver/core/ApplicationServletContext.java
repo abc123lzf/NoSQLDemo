@@ -9,6 +9,7 @@ import java.net.URL;
 import java.util.Enumeration;
 import java.util.EventListener;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -23,16 +24,17 @@ import javax.servlet.Servlet;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRegistration;
-import javax.servlet.ServletRegistration.Dynamic;
 import javax.servlet.SessionCookieConfig;
 import javax.servlet.SessionTrackingMode;
 import javax.servlet.descriptor.JspConfigDescriptor;
+
+import org.apache.tomcat.InstanceManager;
+import org.apache.tomcat.SimpleInstanceManager;
 
 import lzf.webserver.Host;
 import lzf.webserver.Wrapper;
 import lzf.webserver.log.Log;
 import lzf.webserver.log.LogFactory;
-import lzf.webserver.mapper.ContextMapper;
 import lzf.webserver.util.IteratorEnumeration;
 
 /**
@@ -55,11 +57,17 @@ public class ApplicationServletContext implements ServletContext {
 	
 	public ApplicationServletContext(StandardContext context) {
 		this.context = context;
+		attributeMap.put(InstanceManager.class.getName(), new SimpleInstanceManager());
 	}
 	
 	@Override
 	public String getContextPath() {
-		return context.getPath().getAbsolutePath();
+		System.out.println("GET CONTEXT PATH"); //TODO
+		
+		if(context.getName().equals("ROOT"))
+			return "";
+		else
+			return "/" + context.getName();
 	}
 
 	@Override
@@ -110,6 +118,8 @@ public class ApplicationServletContext implements ServletContext {
 	@Override
 	public Set<String> getResourcePaths(String path) {
 		
+		System.out.println("GET Resource PATH"); //TODO
+		
 		Set<String> set = new TreeSet<>();
 		searchDirectory(new File(context.getPath(), path), set);
 		
@@ -117,6 +127,8 @@ public class ApplicationServletContext implements ServletContext {
 	}
 	
 	private void searchDirectory(File dir, Set<String> set) {
+		
+		System.out.println("searchDirectory"); //TODO
 		
 		File[] files = dir.listFiles();
 		
@@ -136,6 +148,8 @@ public class ApplicationServletContext implements ServletContext {
 	 */
 	@Override
 	public URL getResource(String path) throws MalformedURLException {
+		
+		System.out.println("getResource:" + path);
 		
 		File file = new File(context.getPath(), path);
 		
@@ -158,8 +172,10 @@ public class ApplicationServletContext implements ServletContext {
 		
 		try {
 			fis = new FileInputStream(file);
+			System.out.println(file.getAbsolutePath());
 			return fis;
 		} catch (FileNotFoundException e) {
+			log.warn("" + file.getAbsolutePath(), e);
 			return null;
 		}
 	}
@@ -191,7 +207,7 @@ public class ApplicationServletContext implements ServletContext {
 	 * @param name Servlet名称
 	 * @return Servlet对象，如果不存在则返回null
 	 */
-	@Override
+	@Override @Deprecated
 	public Servlet getServlet(String name) throws ServletException {
 		
 		List<Wrapper> list = context.getChildContainers();
@@ -207,7 +223,7 @@ public class ApplicationServletContext implements ServletContext {
 	/**
 	 * @return 该Context容器包含的所有Servlet的迭代器
 	 */
-	@Override 
+	@Override @Deprecated
 	public Enumeration<Servlet> getServlets() {
 		
 		List<Wrapper> containerList = context.getChildContainers();
@@ -229,7 +245,7 @@ public class ApplicationServletContext implements ServletContext {
 	/**
 	 * @return 该Context容器所有Servlet名称的迭代器
 	 */
-	@Override
+	@Override @Deprecated
 	public Enumeration<String> getServletNames() {
 		
 		List<Wrapper> containerList = context.getChildContainers();
@@ -270,6 +286,8 @@ public class ApplicationServletContext implements ServletContext {
 	 */
 	@Override
 	public String getRealPath(String path) {
+		
+		System.out.println("GET REAL PATH:" + path); //TODO
 		
 		String hostName = context.getParentContainer().getName();
 		int port = context.getParentContainer().getParentContainer().getService()
@@ -378,22 +396,34 @@ public class ApplicationServletContext implements ServletContext {
 	}
 
 	@Override
-	public Dynamic addServlet(String servletName, String className) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Dynamic addServlet(String servletName, Servlet servlet) {
+	public ServletRegistration.Dynamic addServlet(String servletName, String className) {
 		
-		return null;
+		StandardWrapper wrapper = (StandardWrapper) StandardWrapper.getDynamicWrapper(context, 
+				servletName, className, null, null);
+		context.addChildContainer(wrapper);
+		
+		return new ApplicationServletRegistration(wrapper);
 	}
 
 	@Override
-	public Dynamic addServlet(String servletName, Class<? extends Servlet> servletClass) {
-		// TODO Auto-generated method stub
+	public ServletRegistration.Dynamic addServlet(String servletName, Servlet servlet) {
 		return null;
 	}
+
+	/**
+	 * 动态添加Servlet
+	 * @param servletName Servlet名称
+	 * @param servletClass Servlet类对象
+	 */
+	@Override
+	public ServletRegistration.Dynamic addServlet(String servletName, Class<? extends Servlet> servletClass) {
+		StandardWrapper wrapper = (StandardWrapper) StandardWrapper.getDynamicWrapper(context,
+				servletName, servletClass.getClass().getName(), null, null);
+		context.addChildContainer(wrapper);
+		
+		return new ApplicationServletRegistration(wrapper);
+	}
+
 
 	@Override
 	public <T extends Servlet> T createServlet(Class<T> c) throws ServletException {
@@ -434,20 +464,20 @@ public class ApplicationServletContext implements ServletContext {
 
 	@Override
 	public FilterRegistration.Dynamic addFilter(String filterName, String className) {
-		// TODO Auto-generated method stub
-		return null;
+		ApplicationFilterConfig config = new ApplicationFilterConfig(context, filterName, className);
+		return new ApplicationFilterRegistration(config);
 	}
 
 	@Override
 	public FilterRegistration.Dynamic addFilter(String filterName, Filter filter) {
-		// TODO Auto-generated method stub
-		return null;
+		ApplicationFilterConfig config = new ApplicationFilterConfig(context, filterName, filter);
+		return new ApplicationFilterRegistration(config);
 	}
 
 	@Override
 	public FilterRegistration.Dynamic addFilter(String filterName, Class<? extends Filter> filterClass) {
-		// TODO Auto-generated method stub
-		return null;
+		ApplicationFilterConfig config = new ApplicationFilterConfig(context, filterName, filterClass);
+		return new ApplicationFilterRegistration(config);
 	}
 
 	@Override
@@ -466,8 +496,8 @@ public class ApplicationServletContext implements ServletContext {
 
 	@Override
 	public FilterRegistration getFilterRegistration(String filterName) {
-		// TODO Auto-generated method stub
-		return null;
+		ApplicationFilterConfig config = context.filterChain.getFilterConfig(filterName);
+		return new ApplicationFilterRegistration(config);
 	}
 
 	@Override
@@ -487,45 +517,75 @@ public class ApplicationServletContext implements ServletContext {
 
 	}
 
+	/**
+	 * Session追踪方式，有Cookie、URL、SSL
+	 * @return 该应用默认的Session追踪方式
+	 */
 	@Override
 	public Set<SessionTrackingMode> getDefaultSessionTrackingModes() {
-		// TODO Auto-generated method stub
-		return null;
+		Set<SessionTrackingMode> set = new HashSet<>(1);
+		set.add(SessionTrackingMode.COOKIE);
+		return set;
 	}
 
+	/**
+	 * Session追踪方式，有Cookie、URL、SSL
+	 * @return 该应用有效的Session追踪方式
+	 */
 	@Override
 	public Set<SessionTrackingMode> getEffectiveSessionTrackingModes() {
-		// TODO Auto-generated method stub
-		return null;
+		Set<SessionTrackingMode> set = new HashSet<>(1);
+		set.add(SessionTrackingMode.COOKIE);
+		return set;
 	}
 
+	/**
+	 * 动态添加监听器
+	 * @param className 监听器类名
+	 */
 	@Override
 	public void addListener(String className) {
-		// TODO Auto-generated method stub
-
+		context.getListenerContainer().addListenerClass(className);
 	}
 
+	/**
+	 * 动态添加监听器
+	 * @param t 监听器实例
+	 */
 	@Override
 	public <T extends EventListener> void addListener(T t) {
-		// TODO Auto-generated method stub
-
+		context.getListenerContainer().addListenerInstance(t);
 	}
 
+	/**
+	 * 动态添加监听器
+	 * @param listenerClass 监听器类对象
+	 */
 	@Override
 	public void addListener(Class<? extends EventListener> listenerClass) {
-		// TODO Auto-generated method stub
-
+		context.getListenerContainer().addListenerClass(listenerClass.getClass().getName());
 	}
 
+	/**
+	 * 动态添加监听器并绑定
+	 * @return 监听器实例
+	 */
 	@Override
 	public <T extends EventListener> T createListener(Class<T> c) throws ServletException {
-		// TODO Auto-generated method stub
-		return null;
+		
+		try {
+			T listener = c.newInstance();
+			context.getListenerContainer().addListenerInstance(listener);
+			return listener;
+		} catch (InstantiationException e) {
+			throw new ServletException();
+		} catch (IllegalAccessException e) {
+			throw new ServletException();
+		}
 	}
 
 	@Override
 	public JspConfigDescriptor getJspConfigDescriptor() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -534,6 +594,7 @@ public class ApplicationServletContext implements ServletContext {
 	 */
 	@Override
 	public ClassLoader getClassLoader() {
+		System.out.println("getClassLoader"); //TODO
 		return context.getWebappLoader().getClassLoader();
 	}
 

@@ -258,6 +258,8 @@ public final class StandardContext extends ContainerBase<Host, Wrapper> implemen
 		//载入web应用，必须在初始化子容器前调用
 		loader.init();
 		
+		listenerContainer.runContextInitializedEvent();
+		
 		//初始化子容器
 		for(Wrapper wrapper: childContainers) {
 			wrapper.init();
@@ -268,8 +270,6 @@ public final class StandardContext extends ContainerBase<Host, Wrapper> implemen
 		sessionManager.init();
 		
 		sessionCookieConfig = new ApplicationSessionCookieConfig(this);
-		
-		listenerContainer.runContextInitializedEvent();
 	}
 
 	@Override
