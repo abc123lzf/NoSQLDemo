@@ -4,8 +4,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -107,20 +109,9 @@ public final class WebappLoader extends LifecycleBase implements Loader {
 
 	@Override
 	protected void initInternal() throws Exception {
-		
-		File[] files = new File(context.getPath(), "WEB-INF" + File.separator + "lib").listFiles();
-		URL[] urls = new URL[files.length];
-		
-		int i = 0;
-		for(File file : files) {
-			urls[i++] = file.toURI().toURL();
-		}
-		
-		classLoader = new WebappClassLoader(WebappClassLoader.class.getClassLoader(), context.getPath(), urls);
-		
-		jspClassLoader = new JspClassLoader(classLoader, ServerConstant.getConstant().getJspWorkPath(context));
+		initClassLoader();
+		loadWebXml();
 		resourceLoad(context.getPath());
-		//System.out.println("NAME");
 		compileJspFile();
 	}
 
@@ -131,52 +122,94 @@ public final class WebappLoader extends LifecycleBase implements Loader {
 
 	@Override
 	protected void stopInternal() throws Exception {
-
+		classLoader = null;
+		jspClassLoader = null;
 	}
 
 	@Override
 	protected void destoryInternal() throws Exception {
-
+		classLoader = null;
+		jspClassLoader = null;
+	}
+	
+	/**
+	 * 初始化Web类加载器、Jsp类加载器
+	 * @throws MalformedURLException
+	 */
+	private void initClassLoader() throws MalformedURLException {
+		
+		File[] files = new File(context.getPath(), "WEB-INF" + File.separator + "lib").listFiles();
+		
+		List<URL> urls = new LinkedList<>();
+		
+		for(File file : files) {
+			urls.add(file.toURI().toURL());
+		}
+		
+		loadClassesPath(urls, new File(context.getPath(), "WEB-INF" + File.separator + "classes"));
+		
+		classLoader = new WebappClassLoader(WebappClassLoader.class.getClassLoader(), context.getPath(),
+				urls.toArray(new URL[urls.size()]));
+		jspClassLoader = new JspClassLoader(classLoader, ServerConstant.getConstant().getJspWorkPath(context));
+	}
+	
+	/**
+	 * 读取WEB-INF\classes目录下的class文件
+	 * @param urls
+	 * @param path
+	 * @throws MalformedURLException
+	 */
+	private void loadClassesPath(final List<URL> urls, File path) throws MalformedURLException {
+		
+		if(!path.exists())
+			return;
+		
+		File[] files = path.listFiles();
+		if(files.length == 0)
+			return;
+		
+		for(File file : files) {
+			if(file.isDirectory()) {
+				loadClassesPath(urls, file);
+			} else {
+				urls.add(file.toURI().toURL());
+			}
+		}
 	}
 
 	/**
 	 * @param path 单个Web应用主目录，该方法会尝试载入里面所有的文件
 	 */
 	private void resourceLoad(File file) {
+	
+		if(!file.exists())
+			return;
 		
-		if (file.exists()) {
-			File[] files = file.listFiles();
-			
-			if (files.length == 0) {
-				return;
+		File[] files = file.listFiles();
+		
+		if (files.length == 0) {
+			return;
+		}
+		
+		for (File file2 : files) {
+			if (file2.isDirectory()) {
+				if(file2.getName().equals("META-INF")) {
+					continue;
+				}
+				resourceLoad(file2);
 			} else {
-				for (File file2 : files) {
+				
+				byte[] b = loadFile(file2);
+				if(b == null)
+					return;
 					
-					if (file2.isDirectory()) {
-						if(file2.getName().equals("WEB-INF")) {
-							loadWebXml();
-							continue;
-						} else if(file2.getName().equals("META-INF")) {
-							continue;
-						}
+				String fileName = file2.getName();
+					
+				if(!(fileName.endsWith(".class") || fileName.endsWith(".jsp"))) {
+					context.addChildContainer(StandardWrapper.getDefaultWrapper(context, file2, b));
 						
-						resourceLoad(file2);
-						
-					} else {
-						
-						byte[] b = loadFile(file2);
-						if(b == null)
-							return;
-						
-						String fileName = file2.getName();
-						
-						if(!(fileName.endsWith(".class") || fileName.endsWith(".jsp"))) {
-							context.addChildContainer(StandardWrapper.getDefaultWrapper(context, file2, b));
-							
-						} else if(fileName.endsWith(".jsp")) {
-							context.addChildContainer(StandardWrapper.getJspWrapper(context, file2));
-						}
-					}
+				} else if(fileName.endsWith(".jsp")) {
+					context.addChildContainer(StandardWrapper.getJspWrapper(context, file2));
 				}
 			}
 		}

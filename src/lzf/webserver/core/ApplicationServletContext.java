@@ -37,6 +37,7 @@ import lzf.webserver.log.Log;
 import lzf.webserver.log.LogFactory;
 import lzf.webserver.util.ContentType;
 import lzf.webserver.util.IteratorEnumeration;
+import lzf.webserver.util.StringManager;
 
 /**
 * @author 李子帆
@@ -45,6 +46,8 @@ import lzf.webserver.util.IteratorEnumeration;
 * @Description 此类应包含在Context中
 */
 public class ApplicationServletContext implements ServletContext {
+	
+	private static final StringManager sm = StringManager.getManager(ApplicationServletContext.class);
 	
 	private final Log log = LogFactory.getLog(ApplicationServletContext.class);
 
@@ -63,7 +66,7 @@ public class ApplicationServletContext implements ServletContext {
 	
 	@Override
 	public String getContextPath() {
-		System.out.println("GET CONTEXT PATH"); //TODO
+		System.out.println("GET CONTEXT PATH");
 
 		if(context.getName().equals("ROOT"))
 			return "";
@@ -83,7 +86,6 @@ public class ApplicationServletContext implements ServletContext {
 	 */
 	@Override
 	public int getMajorVersion() {
-		System.out.println("getMajorVersion"); //TODO
 		return 3;
 	}
 
@@ -93,19 +95,16 @@ public class ApplicationServletContext implements ServletContext {
 	 */
 	@Override
 	public int getMinorVersion() {
-		System.out.println("getMinorVersion"); //TODO
 		return 1;
 	}
 
 	@Override
 	public int getEffectiveMajorVersion() {
-		System.out.println("getEffectiveMajorVersion"); //TODO
 		return 2;
 	}
 
 	@Override
 	public int getEffectiveMinorVersion() {
-		System.out.println("getEffectiveMinorVersion"); //TODO
 		return 1;
 	}
 
@@ -180,10 +179,12 @@ public class ApplicationServletContext implements ServletContext {
 		
 		try {
 			fis = new FileInputStream(file);
-			System.out.println(file.getAbsolutePath());
 			return fis;
 		} catch (FileNotFoundException e) {
-			log.warn("" + file.getAbsolutePath(), e);
+			
+			log.warn(sm.getString("ApplicationServletContext.getResourceAsStream.e0", 
+					file.getAbsolutePath()), e);
+			
 			return null;
 		}
 	}
@@ -202,7 +203,6 @@ public class ApplicationServletContext implements ServletContext {
 	 */
 	@Override
 	public RequestDispatcher getNamedDispatcher(String name) {
-		
 		Wrapper wrapper = context.getChildContainer(name);
 		
 		if(wrapper == null)
@@ -245,7 +245,7 @@ public class ApplicationServletContext implements ServletContext {
 			
 		} catch (ServletException e) {
 			
-			log.error("", e);
+			log.error(sm.getString("ApplicationServletContext.getServlets.e0"), e);
 			return null;
 		}
 	}
@@ -497,12 +497,10 @@ public class ApplicationServletContext implements ServletContext {
 		try {
 			return c.newInstance();
 		} catch (InstantiationException e) {
-			log.error("", e);
+			throw new ServletException(e);
 		} catch (IllegalAccessException e) {
-			log.error("", e);
+			throw new ServletException(e);
 		}
-		
-		return null;
 	}
 
 	@Override
@@ -556,7 +554,6 @@ public class ApplicationServletContext implements ServletContext {
 	 */
 	@Override
 	public void addListener(String className) {
-		System.out.println("addListener" + className);
 		context.getListenerContainer().addListenerClass(className);
 	}
 
@@ -590,9 +587,9 @@ public class ApplicationServletContext implements ServletContext {
 			context.getListenerContainer().addListenerInstance(listener);
 			return listener;
 		} catch (InstantiationException e) {
-			throw new ServletException();
+			throw new ServletException(e);
 		} catch (IllegalAccessException e) {
-			throw new ServletException();
+			throw new ServletException(e);
 		}
 	}
 

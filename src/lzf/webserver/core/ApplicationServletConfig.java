@@ -112,7 +112,9 @@ public final class ApplicationServletConfig implements ServletConfig {
 	 * @return 该Servlet所有匹配URL，包括精确和模糊匹配URL
 	 */
 	public String[] getURLPatterns() {
-		return (String[])(urlPatterns.toArray());
+		String[] array = new String[urlPatterns.size()];
+		urlPatterns.toArray(array);
+		return array;
 	}
 	
 	@Override

@@ -143,7 +143,7 @@ public abstract class Request extends RequestBase {
 
 	@Override
 	public RequestDispatcher getRequestDispatcher(String path) {
-		
+
 		if(context == null || path == null)
 			return null;
 		
@@ -296,10 +296,11 @@ public abstract class Request extends RequestBase {
 	@Override
 	public String getContextPath() {
 		
-		if(context.getName().equals("ROOT"))
+		if(context.getName().equals("ROOT")) {
 			return "";
-		else
+		} else {
 			return "/" + context.getName();
+		}
 	}
 
 	@Override
@@ -342,7 +343,7 @@ public abstract class Request extends RequestBase {
 		String prefix = "";
 		String reqUri = getRequestURI();
 		
-		if(context.getName() != "ROOT")
+		if(!context.getName().equals("ROOT"))
 			prefix += context.getName();
 			
 		for(String url : urls) {
@@ -509,15 +510,14 @@ public abstract class Request extends RequestBase {
 	 * 判断从URL或Cookie中的提取的会话ID来自Cooike吗
 	 * @return 来自URL吗？
 	 */
-	@Override
+	@Override @Deprecated
 	public boolean isRequestedSessionIdFromUrl() {
 		return isRequestedSessionIdFromURL();
 	}
 
 	@Override
 	public boolean authenticate(HttpServletResponse response) throws IOException, ServletException {
-		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
 	@Override

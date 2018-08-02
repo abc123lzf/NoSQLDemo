@@ -160,7 +160,7 @@ public final class NettyHandler extends LifecycleBase implements Handler {
 		
 		private final ChannelHandlerContext ctx;
 		
-		public RequestProcesser(FullHttpRequest request, ChannelHandlerContext ctx) {
+		public RequestProcesser(final FullHttpRequest request, final ChannelHandlerContext ctx) {
 			this.fullRequest = request;
 			this.ctx = ctx;
 		}
@@ -211,7 +211,7 @@ public final class NettyHandler extends LifecycleBase implements Handler {
 					return;
 					
 				}
-				
+				System.out.println("Wrapper-Servlet:" + request.wrapper.getServletConfig().getServletName());
 				connector.getService().getEngine().getPipeline().getFirst().invoke(request, response);
 				
 			} catch (IOException | ServletException e) {
@@ -251,7 +251,7 @@ public final class NettyHandler extends LifecycleBase implements Handler {
  */
 class TimeOutHandler extends ChannelInboundHandlerAdapter {
 	
-	public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
+	public void userEventTriggered(final ChannelHandlerContext ctx, Object evt) throws Exception {
 		if(evt instanceof IdleStateEvent) {
 			IdleStateEvent event = (IdleStateEvent)evt;
 			if(event.state() == IdleState.READER_IDLE) {

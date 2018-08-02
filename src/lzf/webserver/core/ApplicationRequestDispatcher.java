@@ -8,6 +8,7 @@ import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import lzf.webserver.Context;
@@ -55,10 +56,21 @@ public class ApplicationRequestDispatcher implements RequestDispatcher {
 		this.request = null;
 		this.wrapper = wrapper;
 	}
+	
+	private void prepareForward(HttpServletRequest req, HttpServletResponse res) {
+		req.setAttribute(RequestDispatcher.FORWARD_REQUEST_URI, req.getRequestURI());
+		req.setAttribute(RequestDispatcher.FORWARD_CONTEXT_PATH, req.getContextPath());
+		req.setAttribute(RequestDispatcher.FORWARD_SERVLET_PATH, req.getServletPath());
+		req.setAttribute(RequestDispatcher.FORWARD_PATH_INFO, req.getPathInfo());
+		req.setAttribute(RequestDispatcher.FORWARD_QUERY_STRING, req.getQueryString());
+	}
 
 	@Override
 	public void forward(ServletRequest req, ServletResponse res) throws ServletException, IOException {
-		 
+		
+		
+		prepareForward((HttpServletRequest)req, (HttpServletResponse)res);
+		
 		if(request == null && wrapper == null) {
 			
 			req.getRequestDispatcher(uri).forward(req, res);
@@ -70,19 +82,16 @@ public class ApplicationRequestDispatcher implements RequestDispatcher {
 			
 			for(String uriPattern : uriPatterns) {
 				if(uriPattern.indexOf('*') == -1) {
-					req.getRequestDispatcher(uriPattern);
+					req.getRequestDispatcher(uriPattern).forward(req, res);
 					return;
 				}
 			}
 			
 			return;
 		}
-		
-		
-			
+
 		HttpServletResponse response = (HttpServletResponse) res;
-		
-		
+
 		if(response.isCommitted())
 			throw new IllegalStateException("Response has been commit");
 
@@ -123,11 +132,20 @@ public class ApplicationRequestDispatcher implements RequestDispatcher {
 		
 		context.getPipeline().getFirst().invoke(request, request.getResponse());
 	}
+	
+	private void prepareInclude(HttpServletRequest req, HttpServletResponse res) {
+		req.setAttribute(RequestDispatcher.INCLUDE_REQUEST_URI, req.getRequestURI());
+		req.setAttribute(RequestDispatcher.INCLUDE_CONTEXT_PATH, req.getContextPath());
+		req.setAttribute(RequestDispatcher.INCLUDE_SERVLET_PATH, req.getServletPath());
+		req.setAttribute(RequestDispatcher.INCLUDE_PATH_INFO, req.getPathInfo());
+		req.setAttribute(RequestDispatcher.INCLUDE_QUERY_STRING, req.getQueryString());
+	}
 
 	@Override
-	public void include(ServletRequest request, ServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
-
+	public void include(ServletRequest req, ServletResponse res) throws ServletException, IOException {
+		
+		prepareInclude((HttpServletRequest)req, (HttpServletResponse)res);
+		
 	}
 
 }

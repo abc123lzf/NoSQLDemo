@@ -38,7 +38,6 @@ public final class StandardWrapperValve extends ValveBase {
 		
 		//Ö´ÐÐ¹ýÂËÆ÷
 		context.getFilterChain().doFilter(requestFacade, responseFacade);
-		
 		//Ö´ÐÐServlet
 		wrapper.getServlet().service(requestFacade, responseFacade);
 		

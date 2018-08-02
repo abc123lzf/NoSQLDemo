@@ -228,7 +228,6 @@ public abstract class ResponseBase implements HttpServletResponse {
 	 */
 	@Override
 	public final void addHeader(String name, String value) {
-		
 		String val = headerMap.get(name);
 		
 		if(val != null) {
@@ -247,7 +246,7 @@ public abstract class ResponseBase implements HttpServletResponse {
 	 */
 	@Override
 	public final void setIntHeader(String name, int value) {
-		headerMap.put(name, String.valueOf(value));
+		setHeader(name, String.valueOf(value));
 	}
 
 	/**

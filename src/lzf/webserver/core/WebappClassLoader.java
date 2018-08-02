@@ -36,8 +36,8 @@ public class WebappClassLoader extends URLClassLoader {
 	 * @param webappFolder webapp主目录
 	 * @param libURLs WEB-INF\lib下所有Jar包的数组
 	 */
-	WebappClassLoader(ClassLoader parent, File webappFolder, URL[] libURLs) {
-		super(libURLs, parent);
+	WebappClassLoader(ClassLoader parent, File webappFolder, URL[] urls) {
+		super(urls, parent);
 		this.lib = webappFolder.getAbsolutePath() + File.separator + "WEB-INF" + File.separator + "lib";
 		this.classes = webappFolder.getAbsolutePath() + File.separator + "WEB-INF" + File.separator + "classes";
 	}
@@ -56,7 +56,7 @@ public class WebappClassLoader extends URLClassLoader {
 			Class<?> klass = super.findClass(name);
 			return klass;
 		} catch(ClassNotFoundException e) {
-			
+
 			String classPath = classes + File.separator + name.replace('.', 
 					File.separatorChar) + ".class";
 			
@@ -76,7 +76,7 @@ public class WebappClassLoader extends URLClassLoader {
 				while((read = input.read(b)) != -1) {
 					baos.write(b, 0, read);
 				}
-				
+
 				return this.defineClass(name, b, 0, b.length);
 			} catch (FileNotFoundException e1) {
 				throw new ClassNotFoundException();
@@ -87,11 +87,18 @@ public class WebappClassLoader extends URLClassLoader {
 				try {
 					input.close();
 				} catch (IOException e1) {
-					log.warn("输入流无法关闭");
+					log.warn(sm.getString("WebappClassLoader.findClass.e0"), e1);
 				}
 			}
 			
 			throw new ClassNotFoundException();
 		}
 	}
+	
+	/*
+	@Override
+	public Class<?> loadClass(String name) throws ClassNotFoundException {
+		System.out.println(name);
+		return super.loadClass(name);
+	}*/
 }
