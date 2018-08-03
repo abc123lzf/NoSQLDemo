@@ -3,6 +3,7 @@ package lzf.webserver.core;
 import java.io.IOException;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletResponse;
 
 import lzf.webserver.Context;
 import lzf.webserver.Wrapper;
@@ -44,7 +45,7 @@ public final class StandardWrapperValve extends ValveBase {
 		//Ö´ÐÐServlet
 		wrapper.getServlet().service(requestFacade, responseFacade);
 		
-		response.setStatus(200);
+		response.setStatus(HttpServletResponse.SC_OK);
 		response.addDateHeader("Date", System.currentTimeMillis());
 		
 		setContentLength(response);

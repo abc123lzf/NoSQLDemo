@@ -342,25 +342,43 @@ public abstract class Request extends RequestBase {
 			return null;
 		
 		String[] urls = wrapper.getServletConfig().getURLPatterns();
-		String prefix = "";
 		String reqUri = getRequestURI();
 		
-		if(!context.getName().equals("ROOT"))
-			prefix += context.getName();
-			
 		for(String url : urls) {
-			
 			if(url.indexOf('*') == -1) {
-				if(reqUri.equals(prefix + url))
+				if(reqUri.equals(url))
 					return url;
 			} else {
-				if(reqUri.matches(prefix + url.replace("*", ".*?"))) {
+				if(matcher(reqUri, url)) {
 					return "";
 				}
 			}
 		}
 		
 		return null;
+	}
+	
+	private boolean matcher(String uri, String pattern) {
+		int index = pattern.indexOf('*');
+		
+		String st = pattern.substring(0, index);
+		String ed = pattern.substring(index + 1, pattern.length());
+		
+		if(st.equals("")) {
+			if(uri.endsWith(ed))
+				return true;
+			return false;
+		}
+		
+		if(ed.equals("")) {
+			if(uri.startsWith(st))
+				return true;
+			return false;
+		}
+		
+		if(uri.startsWith(st) && uri.endsWith(ed))
+			return true;
+		return false;
 	}
 	
 	/**

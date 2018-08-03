@@ -66,8 +66,7 @@ public class ApplicationServletContext implements ServletContext {
 	
 	@Override
 	public String getContextPath() {
-		System.out.println("GET CONTEXT PATH");
-
+		//System.out.println("GET CONTEXT PATH");
 		if(context.getName().equals("ROOT"))
 			return "";
 		else
@@ -110,7 +109,7 @@ public class ApplicationServletContext implements ServletContext {
 
 	@Override
 	public String getMimeType(String file) {
-		System.out.println("getMimeType");
+		//System.out.println("getMimeType");
 		int index = file.lastIndexOf('.');
 		if(index == -1)
 			return ContentType.getBySuffix("");
@@ -124,9 +123,7 @@ public class ApplicationServletContext implements ServletContext {
 	 */
 	@Override
 	public Set<String> getResourcePaths(String path) {
-		
-		System.out.println("GET Resource PATH"); //TODO
-		
+		//System.out.println("GET Resource PATH");		
 		Set<String> set = new TreeSet<>();
 		searchDirectory(new File(context.getPath(), path), set);
 		
@@ -134,9 +131,7 @@ public class ApplicationServletContext implements ServletContext {
 	}
 	
 	private void searchDirectory(File dir, Set<String> set) {
-		
-		System.out.println("searchDirectory"); //TODO
-		
+		//System.out.println("searchDirectory");
 		File[] files = dir.listFiles();
 		
 		for(File file : files) {
@@ -294,9 +289,7 @@ public class ApplicationServletContext implements ServletContext {
 	 */
 	@Override
 	public String getRealPath(String path) {
-		
-		System.out.println("GET REAL PATH:" + path); //TODO
-		
+		//System.out.println("GET REAL PATH:" + path);
 		String hostName = context.getParentContainer().getName();
 		int port = context.getParentContainer().getParentContainer().getService()
 				.getConnectors().get(0).getPort();
@@ -382,6 +375,9 @@ public class ApplicationServletContext implements ServletContext {
 	 */
 	@Override
 	public void setAttribute(String name, Object object) {
+		if(object == null) {
+			object = new Object();
+		}
 		attributeMap.put(name, object);
 	}
 
@@ -405,7 +401,7 @@ public class ApplicationServletContext implements ServletContext {
 
 	@Override
 	public ServletRegistration.Dynamic addServlet(String servletName, String className) {
-		System.out.println("addServlet0-" + servletName + "-" + className);
+		//System.out.println("addServlet0-" + servletName + "-" + className);
 		StandardWrapper wrapper = (StandardWrapper) StandardWrapper.getDynamicWrapper(context, 
 				servletName, className, null, null);
 		context.addChildContainer(wrapper);
@@ -415,7 +411,7 @@ public class ApplicationServletContext implements ServletContext {
 
 	@Override
 	public ServletRegistration.Dynamic addServlet(String servletName, Servlet servlet) {
-		System.out.println("addServlet1-" + servletName + "-" + servlet.getClass().getName());
+		//System.out.println("addServlet1-" + servletName + "-" + servlet.getClass().getName());
 		return null;
 	}
 
@@ -426,7 +422,7 @@ public class ApplicationServletContext implements ServletContext {
 	 */
 	@Override
 	public ServletRegistration.Dynamic addServlet(String servletName, Class<? extends Servlet> servletClass) {
-		System.out.println("addServlet2" + servletName + "-" + servletClass);
+		//System.out.println("addServlet2" + servletName + "-" + servletClass);
 		StandardWrapper wrapper = (StandardWrapper) StandardWrapper.getDynamicWrapper(context,
 				servletName, servletClass.getClass().getName(), null, null);
 		context.addChildContainer(wrapper);
@@ -455,7 +451,7 @@ public class ApplicationServletContext implements ServletContext {
 	 */
 	@Override
 	public ServletRegistration getServletRegistration(String servletName) {
-		System.out.println("getServletRegistration");
+		//System.out.println("getServletRegistration");
 		return ((StandardWrapper)context.getChildContainer(servletName)).servletRegistration;
 	}
 
@@ -493,7 +489,7 @@ public class ApplicationServletContext implements ServletContext {
 
 	@Override
 	public <T extends Filter> T createFilter(Class<T> c) throws ServletException {
-		System.out.println("createFilter");
+		//System.out.println("createFilter");
 		try {
 			return c.newInstance();
 		} catch (InstantiationException e) {
@@ -581,7 +577,6 @@ public class ApplicationServletContext implements ServletContext {
 	 */
 	@Override
 	public <T extends EventListener> T createListener(Class<T> c) throws ServletException {
-		
 		try {
 			T listener = c.newInstance();
 			context.getListenerContainer().addListenerInstance(listener);
@@ -603,14 +598,12 @@ public class ApplicationServletContext implements ServletContext {
 	 */
 	@Override
 	public ClassLoader getClassLoader() {
-		System.out.println("getClassLoader");; //TODO
 		return context.getWebappLoader().getClassLoader();
 	}
 
 	@Override
 	public void declareRoles(String... roleNames) {
-		// TODO Auto-generated method stub
-
+		
 	}
 
 	@Override

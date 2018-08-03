@@ -110,7 +110,7 @@ public final class NettyHandler extends LifecycleBase implements Handler {
 					@Override
 					protected void initChannel(SocketChannel ch) throws Exception {
 						//若客户端超过10秒没有发送任何请求则调用下一个进站处理器TimeOutHandler的userEventTriggered方法
-						ch.pipeline().addLast(new IdleStateHandler(10, 0, 0, TimeUnit.SECONDS));
+						ch.pipeline().addLast(new IdleStateHandler(5, 0, 0, TimeUnit.SECONDS));
 						//该进站处理器负责接收IdleStateHandler发送的事件并负责关闭超时TCP连接
 						ch.pipeline().addLast(new TimeOutHandler());
 						ch.pipeline().addLast(new HttpResponseEncoder());
@@ -175,11 +175,9 @@ public final class NettyHandler extends LifecycleBase implements Handler {
 			//ctx.writeAndFlush(resp).addListener(ChannelFutureListener.CLOSE);
 			try {
 				GlobelMapper gm = connector.getService().getGlobelMapper();
-				
 				request.host = gm.getHost(request.getServerName());
 				
 				if(request.host == null) {
-					
 					response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 					return;
 				}
@@ -189,8 +187,6 @@ public final class NettyHandler extends LifecycleBase implements Handler {
 				request.context = gm.getContext(request.host.getName(), reqUri);
 				
 				if(request.context == null) {
-					
-					System.out.println("Context Not Found");
 					response.sendError(HttpServletResponse.SC_NOT_FOUND);
 					return;
 					
@@ -199,19 +195,16 @@ public final class NettyHandler extends LifecycleBase implements Handler {
 					response.sendRedirect("http://"+ request.getServerName() + ":" 
 								+ request.getServerPort() + "/" + request.context.getName() + "/");
 					return;
-					
 				}
 
 				request.wrapper = request.context.getMapper().getWrapper(request.getRequestURI());
 				
 				if(request.wrapper == null) {
 					
-					System.out.println("Wrapper Not Found");
 					response.sendError(HttpServletResponse.SC_NOT_FOUND);
 					return;
-					
 				}
-				System.out.println("Wrapper-Servlet:" + request.wrapper.getServletConfig().getServletName());
+				
 				connector.getService().getEngine().getPipeline().getFirst().invoke(request, response);
 				
 			} catch (IOException | ServletException e) {
@@ -255,7 +248,6 @@ class TimeOutHandler extends ChannelInboundHandlerAdapter {
 		if(evt instanceof IdleStateEvent) {
 			IdleStateEvent event = (IdleStateEvent)evt;
 			if(event.state() == IdleState.READER_IDLE) {
-				System.out.println("Channel Close");
 				ctx.channel().close();
 			}
 		} else {

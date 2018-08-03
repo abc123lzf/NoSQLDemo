@@ -69,7 +69,7 @@ public final class ContextMapper {
 			if(mw == null) {
 				
 				for(Map.Entry<String, MappedWrapper> pattern : patternMapper.entrySet()) {
-					if(uri.matches(pattern.getKey()))
+					if(matcher(uri,pattern.getKey()))
 						return pattern.getValue().object;
 				}
 				
@@ -96,7 +96,7 @@ public final class ContextMapper {
 			//如果URI为这种格式"/demo/"
 			if(uri.equals("/" + context.getName() + "/")) {
 				
-				MappedWrapper mw = mapper.get("/" + context.getName() + "/index.html");
+				MappedWrapper mw = getWelcomeWrapper();
 				if(mw == null)
 					return null;
 				return mw.object;
@@ -104,8 +104,16 @@ public final class ContextMapper {
 			
 			MappedWrapper mw = mapper.get(uri);
 			
-			if(mw == null)
+			if(mw == null) {
+				
+				for(Map.Entry<String, MappedWrapper> pattern : patternMapper.entrySet()) {
+					System.out.println(pattern.getKey());
+					if(matcher(uri,pattern.getKey()))
+						return pattern.getValue().object;
+				}
+				
 				return null;
+			}
 			
 			return mw.object;
 		}
@@ -184,20 +192,43 @@ public final class ContextMapper {
 				if(uriPattern.indexOf('*') == -1)
 					mapper.put(uriPattern, new MappedWrapper(uriPattern, wrapper));
 				else
-					patternMapper.put(uriPattern.replace("*", ".*?"), new MappedWrapper(uriPattern, wrapper));
+					patternMapper.put(uriPattern, new MappedWrapper(uriPattern, wrapper));
 				
 			}
 			
 		} else {
 			
 			for(String uriPattern : uriPatterns) {
-				
+
 				if(uriPattern.indexOf('*') == -1)
 					mapper.put(uriPattern, new MappedWrapper(uriPattern, wrapper));
 				else
 					patternMapper.put(uriPattern , new MappedWrapper(uriPattern, wrapper));
 			}
 		}
+	}
+	
+	private boolean matcher(String uri, String pattern) {
+		int index = pattern.indexOf('*');
+		
+		String st = pattern.substring(0, index);
+		String ed = pattern.substring(index + 1, pattern.length());
+		
+		if(st.equals("")) {
+			if(uri.endsWith(ed))
+				return true;
+			return false;
+		}
+		
+		if(ed.equals("")) {
+			if(uri.startsWith(st))
+				return true;
+			return false;
+		}
+		
+		if(uri.startsWith(st) && uri.endsWith(ed))
+			return true;
+		return false;
 	}
 	
 	/**

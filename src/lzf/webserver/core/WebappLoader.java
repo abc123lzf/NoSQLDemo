@@ -10,13 +10,14 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.jasper.JspC;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 
 import lzf.webserver.Context;
+import lzf.webserver.Host;
 import lzf.webserver.LifecycleException;
 import lzf.webserver.Loader;
 import lzf.webserver.log.Log;
@@ -37,12 +38,12 @@ public final class WebappLoader extends LifecycleBase implements Loader {
 	
 	private static final Log log = LogFactory.getLog(WebappLoader.class);
 	
+	//默认JSP包名
 	public static final String DEFAULT_JSP_PACKAGE = "lzf.jasper";
 
 	// 该Web加载器所属的Context容器
 	private Context context;
 	
-
 	//当需要热替换时，需要重新新建一个WebappClassLoader对象并替换旧的ClassLoader
 	private volatile WebappClassLoader classLoader = null;
 	
@@ -51,8 +52,13 @@ public final class WebappLoader extends LifecycleBase implements Loader {
 	
 	//支持热替换吗
 	private boolean reloadable = false;
+	
+	//保存资源文件和最后修改时间的映射表
+	private Map<File, Long> modifyTimeMap = new ConcurrentHashMap<>();
+	
+	private ResourceCheckProcess resourceProcess = null;
 
-	public WebappLoader(Context context) {
+	WebappLoader(Context context) {
 		this.context = context;
 	}
 
@@ -133,6 +139,90 @@ public final class WebappLoader extends LifecycleBase implements Loader {
 	}
 	
 	/**
+	 * 服务器运行期间资源文件监测线程。每个Web应用对应一个此线程。当文件发生修改时，根据实际情况进行热替换
+	 * 此线程仅在reloadable为true时启用
+	 */
+	static final class ResourceCheckProcess implements Runnable {
+		
+		private final WebappLoader loader;
+		private final File contextPath;
+		private final Map<File, Long> map;
+		private boolean modify = false;
+		
+		ResourceCheckProcess(WebappLoader loader){
+			this.loader = loader;
+			this.contextPath = loader.getContext().getPath();
+			this.map = loader.modifyTimeMap;
+		}
+
+		@Override
+		public void run() {
+			
+			while(loader.getLifecycleState().isAvailable()) {
+				checkModify(contextPath);
+				if(modify) {
+					reloadContext();
+				}
+				try {
+					Thread.sleep(10000);
+				} catch (InterruptedException e) {
+					new Thread(loader.resourceProcess).start();
+					return;
+				}
+			}
+		}
+		
+		/**
+		 * 递归检查目录下的文件，并和Map中的文件对象进行比对，若发现修改则将modify标记为true
+		 * @param path 搜索的文件夹File对象，外部调用时应传入Context根目录
+		 */
+		private void checkModify(File path) {
+			
+			if(!path.exists()) {
+				modify = true;
+			}
+			
+			File[] files = path.listFiles();
+			
+			for(File file : files) {
+				if(file.isDirectory()) {
+					checkModify(file);
+				} else {
+					Long ot = file.lastModified();
+					Long nt = map.get(file);
+					if(nt == null) {
+						modify = true;
+					}
+					
+					if(ot != nt) {
+						modify = true;
+					}
+				}
+			}
+		}
+		
+		private void reloadContext() {
+			
+			log.info(sm.getString("WebappLoader.ResourceCheckProcess.i0", contextPath.getName()));
+			Host host = loader.getContext().getParentContainer();
+			
+			synchronized(loader.getContext()) {
+				host.removeChildContainer(loader.getContext());
+				Context context = StandardContext.createContextByFolder(host, loader.getContext().getPath());
+				host.addChildContainer(context);
+				try {
+					context.init();
+					context.start();
+				} catch (Exception e) {
+					log.error(sm.getString("WebappLoader.ResourceCheckProcess.e0", context.getName()), e);
+				}
+				
+			}
+		}
+	}
+	
+	
+	/**
 	 * 初始化Web类加载器、Jsp类加载器
 	 * @throws MalformedURLException
 	 */
@@ -176,12 +266,15 @@ public final class WebappLoader extends LifecycleBase implements Loader {
 			return;
 		
 		for(File file : files) {
+			
 			if(file.isDirectory()) {
 				urls.add(file.toURI().toURL());
 				loadClassesPath(urls, file);
 			} else {
 				urls.add(file.toURI().toURL());
 			}
+			
+			modifyTimeMap.put(file, file.lastModified());
 		}
 	}
 
@@ -215,10 +308,12 @@ public final class WebappLoader extends LifecycleBase implements Loader {
 					
 				if(!(fileName.endsWith(".class") || fileName.endsWith(".jsp"))) {
 					context.addChildContainer(StandardWrapper.getDefaultWrapper(context, file2, b));
-						
+					
 				} else if(fileName.endsWith(".jsp")) {
 					context.addChildContainer(StandardWrapper.getJspWrapper(context, file2));
 				}
+				
+				modifyTimeMap.put(file2, file2.lastModified());
 			}
 		}
 	}
@@ -247,7 +342,6 @@ public final class WebappLoader extends LifecycleBase implements Loader {
 	 * @return 资源文件二进制数据
 	 */
 	private byte[] loadFile(File file) {
-		
 		try {
 			@SuppressWarnings("resource")
 			FileInputStream fis = new FileInputStream(file);
@@ -256,7 +350,6 @@ public final class WebappLoader extends LifecycleBase implements Loader {
 			fis.read(b);
 			
 			return b;
-			
 		} catch (FileNotFoundException e) {
 			log.error(sm.getString("WebappLoader.loadFile.e0", file.getAbsolutePath()), e);
 		} catch (IOException e) {
@@ -273,7 +366,6 @@ public final class WebappLoader extends LifecycleBase implements Loader {
 	 * @throws DocumentException web.xml文件不符合规范
 	 */
 	private boolean loadWebXml() {	
-		
 		File path = new File(context.getPath(), "WEB-INF" + File.separator + "web.xml");
 		if(!path.exists())
 			return false;

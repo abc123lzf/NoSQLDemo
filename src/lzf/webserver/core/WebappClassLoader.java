@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.Enumeration;
 
 import lzf.webserver.log.Log;
 import lzf.webserver.log.LogFactory;
@@ -20,17 +19,17 @@ import lzf.webserver.util.StringManager;
  * @date 2018年7月11日 下午7:30:37
  * @Description Web应用类加载器，每个web应用(Context组件)对应一个WebappClassLoader
  */
-public class WebappClassLoader extends URLClassLoader {
+public final class WebappClassLoader extends URLClassLoader {
 	
 	private static final StringManager sm = StringManager.getManager(WebappClassLoader.class);
 
 	private static final Log log = LogFactory.getLog(WebappClassLoader.class);
 
 	//{web-app}/WEB-INF/lib路径
-	private final String lib;
+	final String lib;
 
 	//{web-app}/WEB-INF/classes路径
-	private final String classes;
+	final String classes;
 	
 	/**
 	 * @param parent 父类加载器，一般为系统类加载器

@@ -476,24 +476,38 @@ public class StandardWrapper extends ContainerBase<Context, Void> implements Wra
 	 * @return 该JSP的类名
 	 */
 	private static String parseJspURIToClass(String uri) {
-		
-		String pkg = WebappLoader.DEFAULT_JSP_PACKAGE + uri.replace(".jsp", "").replace("/", ".");
-		
-		int index = pkg.lastIndexOf('.');
-		String str = pkg.substring(0, index);
-		char[] a = str.toCharArray();
-		
-		for(int i = 0; i < a.length; i++) {
-			char c = a[i];
-	
-			if(Character.isAlphabetic(c) || Character.isDigit(c) || c == '.')
-				continue;
+
+		if(uri.startsWith("/"))
+			uri = uri.substring(1);
 			
-			str = str.replace("" + c, String.format("_%04x", Character.codePointAt(new char[] {c}, 0)));
+		String[] split = uri.split("/");
+		
+		for(int j = 0; j < split.length; j++) {
+			
+			char[] str = split[j].toCharArray();
+			
+			for(int i = 0; i < str.length; i++) {
+				char c = str[i];
+				if(Character.isAlphabetic(c) || Character.isDigit(c) || c == '.') {
+					continue;
+				}
+				split[j] = split[j].replace("" + c, String.format("_%04x", Character.codePointAt(new char[] {c}, 0)));
+			}
+			split[j] = split[j].replace(".", "_");
+			if(Character.isDigit(str[0])) {
+				split[j] = "_" + split[j];
+			}
 		}
 		
-		str = str + pkg.substring(index, pkg.length()) + "_jsp";
+		String result = WebappLoader.DEFAULT_JSP_PACKAGE + '.';
 		
-		return str;
+		for(int i = 0; i < split.length; i++) {
+			if(i == split.length - 1)
+				result += split[i];
+			else
+				result += (split[i] + '.');
+		}
+		
+		return result;
 	}
 }
