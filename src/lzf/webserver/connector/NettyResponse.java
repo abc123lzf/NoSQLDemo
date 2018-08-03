@@ -48,7 +48,7 @@ public final class NettyResponse extends Response {
 		response.setStatus(HttpResponseStatus.valueOf(status)); //应从Request中获取status
 		
 		for(Map.Entry<String, String> entry : headerMap.entrySet()) {
-			if(entry.getKey() != null)
+			if(entry.getKey() != null && entry.getValue() != null)
 				response.headers().add(entry.getKey(), entry.getValue());
 		}
 		

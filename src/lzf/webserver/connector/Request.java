@@ -3,15 +3,16 @@ package lzf.webserver.connector;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.annotation.Annotation;
+import java.nio.charset.Charset;
 import java.security.Principal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.AsyncContext;
 import javax.servlet.DispatcherType;
@@ -67,7 +68,7 @@ public abstract class Request extends RequestBase {
 	private boolean sessionFromURL = false;
 	
 	//属性Map
-	protected final Map<String, Object> attributeMap = new ConcurrentHashMap<>();
+	protected final Map<String, Object> attributeMap = new HashMap<>();
 	
 	//该Request被路由到的Host容器
 	protected Host host = null;
@@ -105,6 +106,7 @@ public abstract class Request extends RequestBase {
 	
 	@Override
 	public void setCharacterEncoding(String env) throws UnsupportedEncodingException {
+		Charset.forName(env);
 		characterEncoding = env;
 	}
 

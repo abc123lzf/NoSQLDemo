@@ -38,8 +38,8 @@ public abstract class LifecycleBase implements Lifecycle {
 		if(state.after(LifecycleState.INITIALIZING))
 			throw new LifecycleException(sm.getString("LifecycleBase.init.e0"));
 		
-		if(log.isInfoEnabled())
-			log.info(this.getClass().getName() + " init");
+		if(log.isDebugEnabled())
+			log.debug(this.getClass().getName() + " init");
 		
 		state = LifecycleState.INITIALIZING;
 		runLifecycleEvent(null);
@@ -61,8 +61,8 @@ public abstract class LifecycleBase implements Lifecycle {
 		if(state.after(LifecycleState.STARTING_PREP))
 			throw new LifecycleException(sm.getString("LifecycleBase.start.e0"));
 		
-		if(log.isInfoEnabled())
-			log.info(this.getClass().getName() + " start");
+		if(log.isDebugEnabled())
+			log.debug(this.getClass().getName() + " start");
 		
 		state = LifecycleState.STARTING_PREP;
 		runLifecycleEvent(null);

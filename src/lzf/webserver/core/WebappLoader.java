@@ -138,19 +138,26 @@ public final class WebappLoader extends LifecycleBase implements Loader {
 	 */
 	private void initClassLoader() throws MalformedURLException {
 		
-		File[] files = new File(context.getPath(), "WEB-INF" + File.separator + "lib").listFiles();
+		File lib = new File(context.getPath(), "WEB-INF" + File.separator + "lib");
+		File classes = new File(context.getPath(), "WEB-INF" + File.separator + "classes");
+		
+		File[] files = lib.listFiles();
 		
 		List<URL> urls = new LinkedList<>();
+		urls.add(lib.toURI().toURL());
+		urls.add(classes.toURI().toURL());
 		
 		for(File file : files) {
 			urls.add(file.toURI().toURL());
 		}
 		
-		loadClassesPath(urls, new File(context.getPath(), "WEB-INF" + File.separator + "classes"));
+		loadClassesPath(urls, classes);
 		
-		classLoader = new WebappClassLoader(WebappClassLoader.class.getClassLoader(), context.getPath(),
-				urls.toArray(new URL[urls.size()]));
-		jspClassLoader = new JspClassLoader(classLoader, ServerConstant.getConstant().getJspWorkPath(context));
+		classLoader = new WebappClassLoader(WebappClassLoader.class.getClassLoader(), 
+				context.getPath(), urls.toArray(new URL[urls.size()]));
+		
+		jspClassLoader = new JspClassLoader(classLoader, ServerConstant.getConstant()
+				.getJspWorkPath(context));
 	}
 	
 	/**
@@ -170,6 +177,7 @@ public final class WebappLoader extends LifecycleBase implements Loader {
 		
 		for(File file : files) {
 			if(file.isDirectory()) {
+				urls.add(file.toURI().toURL());
 				loadClassesPath(urls, file);
 			} else {
 				urls.add(file.toURI().toURL());

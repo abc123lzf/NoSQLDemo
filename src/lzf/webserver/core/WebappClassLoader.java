@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Enumeration;
 
 import lzf.webserver.log.Log;
 import lzf.webserver.log.LogFactory;
@@ -51,12 +52,11 @@ public class WebappClassLoader extends URLClassLoader {
 	 */
 	@Override
 	protected Class<?> findClass(String name) throws ClassNotFoundException {
-		
+
 		try {
 			Class<?> klass = super.findClass(name);
 			return klass;
 		} catch(ClassNotFoundException e) {
-
 			String classPath = classes + File.separator + name.replace('.', 
 					File.separatorChar) + ".class";
 			
@@ -78,10 +78,10 @@ public class WebappClassLoader extends URLClassLoader {
 				}
 
 				return this.defineClass(name, b, 0, b.length);
-			} catch (FileNotFoundException e1) {
+			} catch (FileNotFoundException e0) {
 				throw new ClassNotFoundException();
-			} catch (IOException e1) {
-				log.error("" , e1);
+			} catch (IOException e0) {
+				log.error("" , e0);
 				
 			}finally {
 				try {
@@ -100,5 +100,18 @@ public class WebappClassLoader extends URLClassLoader {
 	public Class<?> loadClass(String name) throws ClassNotFoundException {
 		System.out.println(name);
 		return super.loadClass(name);
+	}
+	
+	@Override
+	public URL getResource(String name) {
+		System.out.println(name);
+		return super.getResource(name);
+	}
+	
+	@Override
+	public Enumeration<URL> getResources(String name) throws IOException {
+		Enumeration<URL> en = super.getResources(name);
+		System.out.println("r:" + name + " " + en.hasMoreElements());
+		return en;
 	}*/
 }

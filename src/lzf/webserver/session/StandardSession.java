@@ -19,6 +19,7 @@ import lzf.webserver.util.IteratorEnumeration;
 * @date 2018年7月15日 下午3:45:14
 * @Description 标准会话类、暂时不支持WebSocket模式
 */
+
 @SuppressWarnings("deprecation")
 public class StandardSession implements Session, HttpSession, Serializable {
 

@@ -135,91 +135,91 @@ public class ResponseFacade implements HttpServletResponse {
 
 	@Override
 	public void sendError(int sc, String msg) throws IOException {
-		System.out.println("RESP sendError " + sc + " " + msg);
+		//System.out.println("RESP sendError " + sc + " " + msg);
 		response.sendError(sc, msg);
 	}
 
 	@Override
 	public void sendError(int sc) throws IOException {
-		System.out.println("RESP sendError " + sc);
+		//System.out.println("RESP sendError " + sc);
 		response.sendError(sc);
 	}
 
 	@Override
 	public void sendRedirect(String location) throws IOException {
-		System.out.println("RESP sendRedirect " + location);
+		//System.out.println("RESP sendRedirect " + location);
 		response.sendRedirect(location);
 	}
 
 	@Override
 	public void setDateHeader(String name, long date) {
-		System.out.println("RESP setDateHeader " + name + " " + date);
+		//System.out.println("RESP setDateHeader " + name + " " + date);
 		response.setDateHeader(name, date);
 	}
 
 	@Override
 	public void addDateHeader(String name, long date) {
-		System.out.println("RESP addDateHeader " + name);
+		//System.out.println("RESP addDateHeader " + name);
 		response.addDateHeader(name, date);
 	}
 
 	@Override
 	public void setHeader(String name, String value) {
-		System.out.println("RESP setHeader " + name + " " + value);
+		//System.out.println("RESP setHeader " + name + " " + value);
 		response.setHeader(name, value);
 	}
 
 	@Override
 	public void addHeader(String name, String value) {
-		System.out.println("RESP addHeader " + name + " " + value);
+		//System.out.println("RESP addHeader " + name + " " + value);
 		response.addHeader(name, value);
 	}
 
 	@Override
 	public void setIntHeader(String name, int value) {
-		System.out.println("RESP setIntHeader " + name + " " + value);
+		//System.out.println("RESP setIntHeader " + name + " " + value);
 		response.setIntHeader(name, value);
 	}
 
 	@Override
 	public void addIntHeader(String name, int value) {
-		System.out.println("RESP addIntHeader " + name + " " + value);
+		//System.out.println("RESP addIntHeader " + name + " " + value);
 		response.addIntHeader(name, value);
 	}
 
 	@Override
 	public void setStatus(int sc) {
-		System.out.println("RESP setStatus:" + sc);
+		//System.out.println("RESP setStatus:" + sc);
 		response.setStatus(sc);
 	}
 
 	@Override
 	public void setStatus(int sc, String sm) {
-		System.out.println("RESP setStatus:" + sc + " " + sm);
+		//System.out.println("RESP setStatus:" + sc + " " + sm);
 		response.setStatus(sc, sm);
 	}
 
 	@Override
 	public int getStatus() {
-		System.out.println("RESP getStatus");
+		//System.out.println("RESP getStatus");
 		return response.getStatus();
 	}
 
 	@Override
 	public String getHeader(String name) {
-		System.out.println("RESP getHeader " + name);
+		//System.out.println("RESP getHeader " + name);
 		return response.getHeader(name);
 	}
 
 	@Override
 	public Collection<String> getHeaders(String name) {
-		System.out.println("RESP getHeaders " + name);
+		//System.out.println("RESP getHeaders " + name);
 		return response.getHeaders(name);
 	}
 
 	@Override
 	public Collection<String> getHeaderNames() {
-		System.out.println("RESP getHeaderNames");
+		//System.out.println("RESP getHeaderNames");
 		return response.getHeaderNames();
 	}
 }

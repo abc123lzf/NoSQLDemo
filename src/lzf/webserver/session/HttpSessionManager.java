@@ -67,7 +67,8 @@ public final class HttpSessionManager extends SessionManagerBase {
 	 * @throws LifecycleException Session管理器未处于启动状态
 	 */
 	public HttpSession getHttpSession(String sessionId, boolean create) throws LifecycleException {
-		return (HttpSession)getSession(sessionId, true);
+		HttpSession session = (HttpSession)getSession(sessionId, create);
+		return session;
 	}
 	
 	/**
@@ -88,7 +89,6 @@ public final class HttpSessionManager extends SessionManagerBase {
 		
 		StandardSession session = new StandardSession(this);
 		context.getListenerContainer().runSessionInitializedEvent(session);
-		
 		return session;
 	}
 	

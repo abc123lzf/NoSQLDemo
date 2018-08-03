@@ -38,6 +38,9 @@ public final class StandardWrapperValve extends ValveBase {
 		
 		//执行过滤器
 		context.getFilterChain().doFilter(requestFacade, responseFacade);
+		
+		//设置当前请求线程上下文类加载器为该Web应用的类加载器
+		Thread.currentThread().setContextClassLoader(context.getWebappLoader().getClassLoader());
 		//执行Servlet
 		wrapper.getServlet().service(requestFacade, responseFacade);
 		

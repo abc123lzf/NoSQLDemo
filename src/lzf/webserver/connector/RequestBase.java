@@ -111,7 +111,7 @@ public abstract class RequestBase implements HttpServletRequest {
 	
 	@Override
 	public final String getCharacterEncoding() {
-		return getHeader("Content-Type");
+		return characterEncoding;
 	}
 	
 	/**

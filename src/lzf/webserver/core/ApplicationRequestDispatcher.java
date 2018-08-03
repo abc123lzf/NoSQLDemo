@@ -8,7 +8,6 @@ import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import lzf.webserver.Context;
@@ -57,19 +56,17 @@ public class ApplicationRequestDispatcher implements RequestDispatcher {
 		this.wrapper = wrapper;
 	}
 	
+	/*
 	private void prepareForward(HttpServletRequest req, HttpServletResponse res) {
 		req.setAttribute(RequestDispatcher.FORWARD_REQUEST_URI, req.getRequestURI());
 		req.setAttribute(RequestDispatcher.FORWARD_CONTEXT_PATH, req.getContextPath());
 		req.setAttribute(RequestDispatcher.FORWARD_SERVLET_PATH, req.getServletPath());
 		req.setAttribute(RequestDispatcher.FORWARD_PATH_INFO, req.getPathInfo());
 		req.setAttribute(RequestDispatcher.FORWARD_QUERY_STRING, req.getQueryString());
-	}
+	}*/
 
 	@Override
 	public void forward(ServletRequest req, ServletResponse res) throws ServletException, IOException {
-		
-		
-		prepareForward((HttpServletRequest)req, (HttpServletResponse)res);
 		
 		if(request == null && wrapper == null) {
 			
@@ -99,6 +96,77 @@ public class ApplicationRequestDispatcher implements RequestDispatcher {
 		
 		ContextMapper mapper = context.getMapper();
 		
+		String includeUri = null;
+		
+		//如果URI不是以/为开头的说明是相对路径
+		if(!uri.startsWith("/")) {
+			if(request.getRequestURI().startsWith("/"))
+				includeUri = request.getRequestURI() + uri;
+			else
+				includeUri = request.getRequestURI() + "/" + uri;
+		} else {
+			includeUri = uri;
+		}
+		
+		Wrapper wrapper = null;
+		
+		if(context.getName().equals("ROOT")) {
+			wrapper = mapper.getWrapper(includeUri);
+		} else {
+			wrapper = mapper.getWrapper("/" + context.getName() + includeUri);
+		}
+		
+		if(wrapper == null) {
+			response.sendError(HttpServletResponse.SC_NOT_FOUND);
+			request.setDispatcherType(DispatcherType.ERROR);
+			return;
+		}
+		
+		request.setDispatcherType(DispatcherType.FORWARD);
+		request.setRequestURI(includeUri);
+		request.setWrapper(wrapper);
+		
+		context.getPipeline().getFirst().invoke(request, request.getResponse());
+	}
+	
+	/*
+	private void prepareInclude(HttpServletRequest req, HttpServletResponse res) {
+		req.setAttribute(RequestDispatcher.INCLUDE_REQUEST_URI, req.getRequestURI());
+		req.setAttribute(RequestDispatcher.INCLUDE_CONTEXT_PATH, req.getContextPath());
+		req.setAttribute(RequestDispatcher.INCLUDE_SERVLET_PATH, req.getServletPath());
+		req.setAttribute(RequestDispatcher.INCLUDE_PATH_INFO, req.getPathInfo());
+		req.setAttribute(RequestDispatcher.INCLUDE_QUERY_STRING, req.getQueryString());
+	}*/
+
+	@Override
+	public void include(ServletRequest req, ServletResponse res) throws ServletException, IOException {
+		
+		if(request == null && wrapper == null) {
+			
+			req.getRequestDispatcher(uri).forward(req, res);
+			return;
+			
+		} else if(request == null && wrapper != null) {
+			
+			List<String> uriPatterns = ((StandardWrapper)wrapper).getURIPatterns();
+			
+			for(String uriPattern : uriPatterns) {
+				if(uriPattern.indexOf('*') == -1) {
+					req.getRequestDispatcher(uriPattern).forward(req, res);
+					return;
+				}
+			}
+			
+			return;
+		}
+
+		HttpServletResponse response = (HttpServletResponse) res;
+
+		if(response.isCommitted())
+			throw new IllegalStateException("Response has been commit");
+		
+		ContextMapper mapper = context.getMapper();
+		
 		String forwardUri = null;
 		
 		//如果URI不是以/为开头的说明是相对路径
@@ -125,27 +193,12 @@ public class ApplicationRequestDispatcher implements RequestDispatcher {
 			return;
 		}
 		
-		request.setDispatcherType(DispatcherType.FORWARD);
+		request.setDispatcherType(DispatcherType.INCLUDE);
 		request.setRequestURI(forwardUri);
 		request.setWrapper(wrapper);
 		request.cleanParameterMap();
 		
 		context.getPipeline().getFirst().invoke(request, request.getResponse());
-	}
-	
-	private void prepareInclude(HttpServletRequest req, HttpServletResponse res) {
-		req.setAttribute(RequestDispatcher.INCLUDE_REQUEST_URI, req.getRequestURI());
-		req.setAttribute(RequestDispatcher.INCLUDE_CONTEXT_PATH, req.getContextPath());
-		req.setAttribute(RequestDispatcher.INCLUDE_SERVLET_PATH, req.getServletPath());
-		req.setAttribute(RequestDispatcher.INCLUDE_PATH_INFO, req.getPathInfo());
-		req.setAttribute(RequestDispatcher.INCLUDE_QUERY_STRING, req.getQueryString());
-	}
-
-	@Override
-	public void include(ServletRequest req, ServletResponse res) throws ServletException, IOException {
-		
-		prepareInclude((HttpServletRequest)req, (HttpServletResponse)res);
-		
 	}
 
 }
