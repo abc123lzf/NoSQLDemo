@@ -52,10 +52,13 @@ public abstract class Request extends RequestBase {
 	//本次请求附带的响应对象
 	protected Response response;
 	
+	//服务器端口
 	private int localPort = 80;
 	
+	//服务器名
 	private String localName = null;
 	
+	//服务器IP地址
 	private String localAddr = null;
 	
 	//从Cookie或URL获取的sessionID(不是容器中的SessionID)
@@ -82,6 +85,7 @@ public abstract class Request extends RequestBase {
 	//Session管理器中的HttpSession实例
 	private HttpSession session = null;
 	
+	//该次请求跳转类型，没有使用跳转时为REQUEST
 	private DispatcherType dispatcherType = DispatcherType.REQUEST;
 	
 	/**

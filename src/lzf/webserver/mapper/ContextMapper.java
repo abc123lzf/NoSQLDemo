@@ -107,7 +107,7 @@ public final class ContextMapper {
 			if(mw == null) {
 				
 				for(Map.Entry<String, MappedWrapper> pattern : patternMapper.entrySet()) {
-					System.out.println(pattern.getKey());
+					//System.out.println(pattern.getKey());
 					if(matcher(uri,pattern.getKey()))
 						return pattern.getValue().object;
 				}

@@ -150,9 +150,7 @@ public class ApplicationServletContext implements ServletContext {
 	 */
 	@Override
 	public URL getResource(String path) throws MalformedURLException {
-		
-		System.out.println("getResource:" + path);
-		
+		//System.out.println("getResource:" + path);
 		File file = new File(context.getPath(), path);
 		
 		if(!file.exists())
